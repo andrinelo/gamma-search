@@ -1,9 +1,9 @@
-import { UPDATE_SORT_TERM } from './types.js';
+import { TEST_ACTION } from './types.js';
 
 // Action used to update the sort term
-export default function updateSortValue(sortTerm) {
+export default function testSetVariable(variableValue) {
   return {
-    newValue: sortTerm,
-    type: UPDATE_SORT_TERM
+    value: variableValue,
+    type: TEST_ACTION
   };
 }
