@@ -1,0 +1,14 @@
+// Constants used to make sure two actions does not have the same name.
+export const RESET_RESULT_ITEMS = "RESET_RESULT_ITEMS";
+export const ADD_RESULT_ITEMS = "ADD_RESULT_ITEMS";
+export const RESET_PAGE_NUMBER = "RESET_PAGE_NUMBER";
+export const INCREASE_PAGE_NUMBER = "INCREASE_PAGE_NUMBER";
+export const UPDATE_SEARCHDATA = "UPDATE_SEARCHDATA";
+
+export const UPDATE_SEARCH_TERM = "UPDATE_SEARCH_TERM";
+export const UPDATE_YEAR_FILTER_TERMS = "UPDATE_YEAR_FILTER_TERMS";
+export const UPDATE_GENRE_FILTER_TERMS = "UPDATE_GENRE_FILTER_TERMS";
+export const UPDATE_SORT_TERM = "UPDATE_SORT_TERM";
+
+export const SET_FETCH_TRUE = "SET_FETCH_TRUE";
+export const SET_FETCH_FALSE = "SET_FETCH_FALSE";
