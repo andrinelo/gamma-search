@@ -1,2 +1,2 @@
-// Constants used to make sure two actions does not have the same name.
-export const TEST_ACTION = "TEST_ACTION";
+export const GET_GREMLIN_QUERY_DISPLAY_TEXT = "GET_GREMLIN_QUERY_DISPLAY_TEXT"
+export const SET_GREMLIN_QUERY_DISPLAY_TEXT = "SET_GREMLIN_QUERY_DISPLAY_TEXT"
