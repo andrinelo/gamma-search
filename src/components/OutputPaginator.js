@@ -3,6 +3,9 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { OUTPUT_PREVIOUS_PAGE, OUTPUT_NEXT_PAGE} from '../actions/types.js'
 
+// import { decreasePageNumber, increasePageNumber } from '../actions/OutputWindowActions.js'
+
+
 const useStyles = makeStyles({
     flexBox: {
         display: "flex",
@@ -30,6 +33,12 @@ export default function OutputPaginator(props) {
                         {value}
                     </Typography>
                     <Button onClick={() => dispatch({type: OUTPUT_NEXT_PAGE})}>Next page</Button>
+
+                    
+                    {/* <Button onClick={() => dispatch(increasePageNumber())}>Next page</Button> */}
+
+
+
                 </Box>
             )
     }
@@ -37,10 +46,19 @@ export default function OutputPaginator(props) {
         return (
             <Box class={classes.flexBox}>
                 <Button onClick={() => dispatch({type: OUTPUT_PREVIOUS_PAGE})}>Previous page</Button>
+                
+                
+                {/* <Button onClick={() => dispatch(decreasePageNumber())}>Previous page</Button> */}
+                
+                
                 <Typography>
                     {value}
                 </Typography>
                 <Button onClick={() => dispatch({type: OUTPUT_NEXT_PAGE})}>Next page</Button>
+
+                {/* <Button onClick={() => dispatch(increasePageNumber())}>Next page</Button> */}
+
+
             </Box>
         )
     }
