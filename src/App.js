@@ -2,9 +2,15 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import RelationMenu from "./components/RelationMenu"
+
 function App() {
   return (
-    <h1>Start of the app :)</h1>
+    <div>
+      <h1>Start of the app :)</h1>
+      <RelationMenu></RelationMenu>
+    </div>
+    
   );
 }
 
