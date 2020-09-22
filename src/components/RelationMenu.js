@@ -30,12 +30,7 @@ function RelationMenu() {
         {
             checkedIn: true,
             checkedOut: false,
-            text: "hei",
-        },
-        {
-            checkedIn: false,
-            checkedOut: true,
-            text: "hallo",
+            text: "",
         },
     ]);
 
