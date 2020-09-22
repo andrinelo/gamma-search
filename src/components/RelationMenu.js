@@ -12,50 +12,56 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import Checkbox from '@material-ui/core/Checkbox';
 
-import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
 import AddIcon from '@material-ui/icons/Add';
 
 import IconButton from '@material-ui/core/IconButton';
 
-function RelationMenu() {
-    const classes = useStyles();
+import { withStyles } from '@material-ui/core/styles';
 
-    const [checkedState, setCheckedState] = React.useState({
-        checkedIn: true,
-        checkedOut: false
-    });
+
+
+function RelationMenu() {
+
+    const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
+
+    const classes = useStyles();
 
     const [relations, setRelations] = React.useState([
         {
             checkedIn: true,
             checkedOut: false,
-            text: "heisann",
+            text: "hei",
         },
-
+        {
+            checkedIn: false,
+            checkedOut: true,
+            text: "hallo",
+        },
     ]);
 
-    const handleChange = (event) => {
-        console.log("changed State")
-        setCheckedState({...checkedState, [event.target.name]: event.target.checked})
-    }
-
-    const handleChange2 = (index, event) => {
-
+    const handleCheckboxChange = (index, event) => {
         let name =event.target.name
-        //setRelations({...relations, [[index][name]]: event.target.checked})
+        relations[index][name] = event.target.checked
         setRelations([...relations])
         console.log(relations);
-        relations[index][name] = event.target.checked
     }
+
+    const handleTextChange = (index, event) => {
+        let name =event.target.name
+        relations[index][name] = event.target.value
+        setRelations([...relations])
+        console.log(relations);
+    }
+
 
     const addRealtion = () => {
         relations.push({
             checkedIn: false,
             checkedOut: false,
-            text: "heisann",
+            text: "",
         })
-        console.log(relations)
         setRelations([...relations])
+        console.log(relations)
     }
 
     
@@ -64,7 +70,7 @@ function RelationMenu() {
       <div className={classes.cardContainer}>
           <p>RelationMenu</p>
           <Card className={classes.root}>
-            <CardHeader title="Realtions">
+            <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title="Relations">
             </CardHeader>
             <CardContent>
                 <FormGroup>
@@ -73,16 +79,16 @@ function RelationMenu() {
                                     <div className={classes.flexRow}>
                                         <div className={classes.flexColumn}>
                                             <FormControlLabel
-                                                control={<Checkbox  className={classes.checkboxClass} checked={element.checkedIn} name="checkedIn" onChange={(e) => handleChange2(index, e)}></Checkbox>}
+                                                control={<ArdoqThemedCheckbox className={classes.checkboxClass} checked={element.checkedIn} name="checkedIn" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
                                                 label="Inn"
                                             ></FormControlLabel>
                                             <FormControlLabel
-                                                control={<Checkbox checked={element.checkedOut} name="checkedOut" onChange={(e) => handleChange2(index, e)}></Checkbox>}
+                                                control={<ArdoqThemedCheckbox checked={element.checkedOut} name="checkedOut" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
                                                 label="Out"
                                             ></FormControlLabel>
                                         </div>
                                         <div>
-                                            <TextField className={classes.textFieldClass} variant="outlined" id="relationName" label="Name of relation"> </TextField>
+                                            <TextField className={classes.textFieldClass} defaultValue={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
                                         </div>
                                     </div>
                                     <hr></hr>
@@ -117,6 +123,15 @@ function RelationMenu() {
   
   export default RelationMenu;
 
+  const checkBoxStyles = theme => ({
+    root: {
+      '&$checked': {
+        color: '#6DBCB4',
+      },
+    },
+    checked: {},
+   })
+
   const useStyles = makeStyles({
     root: {
       width: 400,
@@ -150,11 +165,5 @@ function RelationMenu() {
         marginTop: "15px"
     },
 
-    checkboxClass: {
-        color: "#6DBCB4",
-        '&$checked': {
-            color: "#6DBCB4",
-          },
-    }
 
   });
