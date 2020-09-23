@@ -1,12 +1,19 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccordion';
+import OutputAccordion from './components/OutputAccordion'
 
 function App() {
   return (
-    <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
-  );
+    <div>
+      <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
+      <OutputAccordion>
+      </OutputAccordion>
+    </div>
+  )
 }
+
+
+
 
 export default App;
