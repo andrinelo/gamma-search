@@ -14,7 +14,7 @@ const useStyles = makeStyles({
 
 export default function OutputPaginator(props) {
     const classes = useStyles();
-    const value = useSelector(state => state.OutputPaginationReducer )
+    const value = useSelector(state => state.currentOutputPage)
     const dispatch = useDispatch()
     if (value == 0 && value >= props.pageCount) {
         return (

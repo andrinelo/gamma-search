@@ -19,8 +19,8 @@ const useStyles = makeStyles({
 
 const outputsPerPage = 4
 export default function OutputAccordion(props) {
-    const indexValue = useSelector(state => state.OutputPaginationReducer)
-    const textList = useSelector(state => state.OutputTextReducer)
+    const indexValue = useSelector(state => state.currentOutputPage)
+    const textList = useSelector(state => state.outputText)
     const classes = useStyles();
     const showList = textList.slice(indexValue*outputsPerPage, Math.min(indexValue*outputsPerPage + outputsPerPage, textList.length+1))
     const pageCount = textList.length % outputsPerPage == 0 ? textList.length/outputsPerPage : Math.floor(textList.length/outputsPerPage) + 1;

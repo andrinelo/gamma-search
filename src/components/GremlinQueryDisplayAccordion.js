@@ -20,7 +20,7 @@ const useStyles = makeStyles({
 });
 
 export default function GremlinQueryDisplayAccordion(props) {
-    const displayText = useSelector(state => state.GremlinQueryDisplayReducer)
+    const displayText = useSelector(state => state.gremlinQuery)
     const classes = useStyles();
     return (
         <Accordion class={classes.root}>
