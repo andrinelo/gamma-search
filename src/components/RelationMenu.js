@@ -13,6 +13,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
+import SaveIcon from '@material-ui/icons/Save';
 
 import IconButton from '@material-ui/core/IconButton';
 
@@ -20,7 +22,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 
 
-function RelationMenu() {
+function RelationMenu(props) {
 
     const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
 
@@ -28,11 +30,18 @@ function RelationMenu() {
 
     const [relations, setRelations] = React.useState([
         {
-            checkedIn: true,
+            checkedIn: false,
             checkedOut: false,
             text: "",
         },
     ]);
+
+    const [allRelations, setAllRelations] = React.useState("");
+
+    const handleAddAllButtons = (name) => {
+        setAllRelations(name)
+        console.log(allRelations);
+    }
 
     const handleCheckboxChange = (index, event) => {
         let name =event.target.name
@@ -63,53 +72,66 @@ function RelationMenu() {
 
     return (
       <div className={classes.cardContainer}>
-          <p>RelationMenu</p>
           <Card className={classes.root}>
             <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title="Relations">
+                <p>hei</p>
             </CardHeader>
             <CardContent>
-                <FormGroup>
-                    {relations.map((element, index) => {
-                        return( <div key={index}>
-                                    <div className={classes.flexRow}>
-                                        <div className={classes.flexColumn}>
-                                            <FormControlLabel
-                                                control={<ArdoqThemedCheckbox className={classes.checkboxClass} checked={element.checkedIn} name="checkedIn" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
-                                                label="Inn"
-                                            ></FormControlLabel>
-                                            <FormControlLabel
-                                                control={<ArdoqThemedCheckbox checked={element.checkedOut} name="checkedOut" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
-                                                label="Out"
-                                            ></FormControlLabel>
+                {allRelations!=="" ? <p>{allRelations} realtions added <IconButton onClick={() => handleAddAllButtons("")}> <CloseIcon /></IconButton></p>  : <div>
+                    <FormGroup>
+                        {relations.map((element, index) => {
+                            return( <div key={index}>
+                                        <div className={classes.flexRow}>
+                                            <div className={classes.flexColumn}>
+                                                <FormControlLabel
+                                                    control={<ArdoqThemedCheckbox className={classes.checkboxClass} checked={element.checkedIn} name="checkedIn" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
+                                                    label="Inn"
+                                                ></FormControlLabel>
+                                                <FormControlLabel
+                                                    control={<ArdoqThemedCheckbox checked={element.checkedOut} name="checkedOut" onChange={(e) => handleCheckboxChange(index, e)}></ArdoqThemedCheckbox>}
+                                                    label="Out"
+                                                ></FormControlLabel>
+                                            </div>
+                                            <div>
+                                                <TextField className={classes.textFieldClass} defaultValue={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <TextField className={classes.textFieldClass} defaultValue={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
-                                        </div>
-                                    </div>
-                                    <hr></hr>
-                                </div>)
-                    })}
-
-                </FormGroup >
-
-                <IconButton onClick={() => addRealtion()}>
-                    <AddIcon />
-                </IconButton>
-
+                                        <hr></hr>
+                                    </div>)
+                        })} 
+                        
+                    </FormGroup >
+                    
+                    <IconButton onClick={() => addRealtion()}>
+                        <AddIcon />
+                    </IconButton>
+                </div>}
                 <br></br>  
 
                 <div className={classes.flexRow}>
                     <div className={classes.flexColumn}>
-                        <Button className={classes.buttonClass} variant="contained" color="primary">Add all ingoing</Button>
-                        <Button className={classes.buttonClass} variant="contained" color="primary">Add all outgoing</Button>
+                        <Button onClick={() => handleAddAllButtons("Inn")} className={classes.buttonClass} variant="contained" color="primary">Add all ingoing</Button>
+                        <Button onClick={() => handleAddAllButtons("Out")} className={classes.buttonClass} variant="contained" color="primary">Add all outgoing</Button>
                     </div>
                     <div>
-                        <Button className={classes.buttonClasslarge} variant="contained" color="primary">Add all </Button>
+                        <Button onClick={() => handleAddAllButtons("Both")} className={classes.buttonClasslarge} variant="contained" color="primary">Add all </Button>
                     </div>
                 </div>
-               
                 
-                
+                <br></br>
+
+                <div className = {classes.saveButtonContainer}>
+                    <Button
+                        onClick={() => props.showMenu()}
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        className={classes.saveButtonClass}
+                        startIcon={<SaveIcon />}
+                    >
+                        Save
+                    </Button>
+                </div>
             </CardContent>
           </Card>
       </div>
@@ -143,6 +165,18 @@ function RelationMenu() {
     buttonClass: {
         margin: "5px",
         background: "#770079"
+    },
+
+    saveButtonClass: {
+        margin: "5px",
+        background: "#6DBCB4",
+    },
+
+    saveButtonContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        display: "flex"
     },
 
     buttonClasslarge: {
