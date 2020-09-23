@@ -4,6 +4,6 @@ import { SET_ACTIVE_WINDOW } from './types.js';
 export function setActiveWindow(windowType){
   return {
     type: SET_ACTIVE_WINDOW,
-    windowType
+    value: windowType
   };
 };
