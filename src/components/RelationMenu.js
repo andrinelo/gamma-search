@@ -25,7 +25,7 @@ import SetRelation from "../actions/SetRelation.js";
 
 function RelationMenu(props) {
 
-    const stateRelations = useSelector(state => state.rootReducer.relations)
+    const stateRelations = useSelector(state => state.relations)
     //console.log(stateRelations)
 
     
@@ -37,6 +37,9 @@ function RelationMenu(props) {
             let tmpRelations = stateRelations[id].relations
             console.log(tmpRelations)
             setLocalRelations([...tmpRelations])
+
+            let tmpAllRelation = stateRelations[id].allRelations
+            setAllRelations(tmpAllRelation)
         }
         
         //setRelations(stateRelations.por)
@@ -128,7 +131,7 @@ function RelationMenu(props) {
                                                 ></FormControlLabel>
                                             </div>
                                             <div>
-                                                <TextField className={classes.textFieldClass} defaultValue={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
+                                                <TextField className={classes.textFieldClass} value={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
                                             </div>
                                         </div>
                                         <hr></hr>

@@ -4,6 +4,7 @@ import { SET_RELATION } from "./../actions/types.js";
 const realtionReducer = (state = {}, action) => {
   switch (action.type) {
     case SET_RELATION:
+
         let relation = {...state, [action.edgeId]: action.value}
         //state.relations["test"] = action.value
         return relation;

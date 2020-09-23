@@ -1,19 +1,33 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccordion';
+import OutputAccordion from './components/OutputAccordion'
+import CloudButton from './components/CloudButton'
 
 import RelationMenu from "./components/RelationMenu"
 import RelationButton from "./components/RelationButton"
-
+/*
+<GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
+      <OutputAccordion>
+      </OutputAccordion>
+      <CloudButton></CloudButton>
+*/
 function App() {
   return (
+
     <div>
       <h1>Start of the app :)</h1>
       <RelationButton edgeId = {1}></RelationButton>
       <RelationButton edgeId = {2}></RelationButton>
+
+
+      
     </div>
-    
+
   );
 }
+
+
+
 
 export default App;
