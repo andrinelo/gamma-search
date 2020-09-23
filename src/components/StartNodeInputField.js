@@ -36,7 +36,7 @@ export default function StartNodeInputField() {
                 options={availableLabels}
                 getOptionLabel={(option) => option.labelName}
                 style={{ width: 300 }}
-                onInputChange={(event, newInputValue) => {
+                onChange={(event, newInputValue) => {
                     updateInitialSearchParameter(dispatch, "label", newInputValue);
                 }}
                 renderInput={(params) => <TextField {...params} label="Filtrer etter kategori" variant="outlined" />}
