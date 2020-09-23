@@ -2,7 +2,8 @@ import { combineReducers } from "redux";
 import windowReducer from "./WindowReducer.js";
 import OutputPaginationReducer from "./OutputPaginationReducer.js";
 import OutputTextReducer from "./OutputTextReducer.js";
-import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js'
+import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js';
+import AutocompleteSuggestionReducer from './AutocompleteSuggestionReducer.js';
 
 // Combines all reducers and export them
 export default combineReducers({
@@ -10,4 +11,5 @@ export default combineReducers({
   currentOutputPage: OutputPaginationReducer,
   outputText: OutputTextReducer,
   gremlinQuery: GremlinQueryDisplayReducer,
+  autoComplete: AutocompleteSuggestionReducer
 });
