@@ -3,6 +3,7 @@ import windowReducer from "./WindowReducer.js";
 import OutputPaginationReducer from "./OutputPaginationReducer.js";
 import OutputTextReducer from "./OutputTextReducer.js";
 import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js'
+import initialSearchParameterReducer from "./InitialSearchParameterReducer.js";
 
 // Combines all reducers and export them
 export default combineReducers({
@@ -10,4 +11,5 @@ export default combineReducers({
   currentOutputPage: OutputPaginationReducer,
   outputText: OutputTextReducer,
   gremlinQuery: GremlinQueryDisplayReducer,
+  InitialSearchParameter: initialSearchParameterReducer,
 });
