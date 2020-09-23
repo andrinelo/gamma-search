@@ -1,8 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import rootReducer from '../reducers/RootReducer';
+import OutputPaginationReducer from '../reducers/OutputPaginationReducer'
+import OutputTextReducer from '../reducers/OutputTextReducer'
+import rootReducer from '../reducers/RootReducer'
 
 export default configureStore({
   reducer: {
-    rootReducer
+    OutputPaginationReducer,
+    OutputTextReducer,
+    rootReducer,
   },
 });

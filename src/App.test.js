@@ -7,9 +7,12 @@ import App from './App';
 test('renders learn react link', () => {
   const { getByText } = render(
     <Provider store={store}>
-      <App />
+      <App        
+       onNextPage={() => store.dispatch({type: 'NEXT_PAGE'})}
+       onPrevPage={() => store.dispatch({type: 'PREVIOUS_PAGE'})}
+      />
     </Provider>
-  );
+  );  
 
   expect(getByText(/learn/i)).toBeInTheDocument();
 });
