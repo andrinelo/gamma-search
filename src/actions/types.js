@@ -1,5 +1,6 @@
 // Constants used to make sure two actions does not have the same name.
 
+export const FETCH_FULL_RESULTS = 'FETCH_FULL_RESULTS';
 export const SET_ACTIVE_WINDOW = 'SET_ACTIVE_WINDOW';
 export const OUTPUT_NEXT_PAGE = "NEXT_PAGE";
 export const OUTPUT_PREVIOUS_PAGE = "PREVIOUS_PAGE";
