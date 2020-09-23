@@ -20,15 +20,36 @@ import IconButton from '@material-ui/core/IconButton';
 
 import { withStyles } from '@material-ui/core/styles';
 
-
+import { useSelector, useDispatch } from "react-redux";
+import SetRelation from "../actions/SetRelation.js";
 
 function RelationMenu(props) {
+
+    const stateRelations = useSelector(state => state.rootReducer.relations)
+    //console.log(stateRelations)
+
+    
+    React.useEffect(() => {
+        //const stateRelations = useSelector(state => state.relations)
+        let id = props.edgeId
+        console.log(stateRelations)
+        if (stateRelations[id]){
+            let tmpRelations = stateRelations[id].relations
+            console.log(tmpRelations)
+            setLocalRelations([...tmpRelations])
+        }
+        
+        //setRelations(stateRelations.por)
+    }, [])
+    
+
+    const dispatch = useDispatch();
 
     const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
 
     const classes = useStyles();
 
-    const [relations, setRelations] = React.useState([
+    const [localRelations, setLocalRelations] = React.useState([
         {
             checkedIn: false,
             checkedOut: false,
@@ -40,34 +61,48 @@ function RelationMenu(props) {
 
     const handleAddAllButtons = (name) => {
         setAllRelations(name)
-        console.log(allRelations);
+        //console.log(allRelations);
     }
 
     const handleCheckboxChange = (index, event) => {
         let name =event.target.name
-        relations[index][name] = event.target.checked
-        setRelations([...relations])
-        console.log(relations);
+        localRelations[index][name] = event.target.checked
+        setLocalRelations([...localRelations])
+        //console.log(relations);
     }
 
     const handleTextChange = (index, event) => {
         let name =event.target.name
-        relations[index][name] = event.target.value
-        setRelations([...relations])
-        console.log(relations);
+        localRelations[index][name] = event.target.value
+        setLocalRelations([...localRelations])
+        //console.log(relations);
     }
 
 
     const addRealtion = () => {
-        relations.push({
+        localRelations.push({
             checkedIn: false,
             checkedOut: false,
             text: "",
         })
-        setRelations([...relations])
-        console.log(relations)
+        setLocalRelations([...localRelations])
+        //console.log(relations)
     }
 
+    const updateRelation = (relations, allRelations, edgeId) => {
+        //console.log(relations)
+        dispatch(
+            SetRelation(
+                {relations, allRelations}, edgeId
+          )
+        );
+      }
+    
+      const closeRelationMenu = () => {
+        //console.log(props.edgeId)
+        updateRelation(localRelations, allRelations, props.edgeId);
+        props.showMenu()
+      }
     
 
     return (
@@ -79,7 +114,7 @@ function RelationMenu(props) {
             <CardContent>
                 {allRelations!=="" ? <p>{allRelations} realtions added <IconButton onClick={() => handleAddAllButtons("")}> <CloseIcon /></IconButton></p>  : <div>
                     <FormGroup>
-                        {relations.map((element, index) => {
+                        {localRelations.map((element, index) => {
                             return( <div key={index}>
                                         <div className={classes.flexRow}>
                                             <div className={classes.flexColumn}>
@@ -122,7 +157,7 @@ function RelationMenu(props) {
 
                 <div className = {classes.saveButtonContainer}>
                     <Button
-                        onClick={() => props.showMenu()}
+                        onClick={() => closeRelationMenu()}
                         variant="contained"
                         color="primary"
                         size="large"

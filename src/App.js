@@ -9,8 +9,8 @@ function App() {
   return (
     <div>
       <h1>Start of the app :)</h1>
-      <RelationButton></RelationButton>
-      <RelationButton></RelationButton>
+      <RelationButton edgeId = {1}></RelationButton>
+      <RelationButton edgeId = {2}></RelationButton>
     </div>
     
   );

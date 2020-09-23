@@ -4,7 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 //<RelationMenu></RelationMenu>
 
-function RelationButton() {
+function RelationButton(props) {
 
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -17,7 +17,7 @@ function RelationButton() {
         <IconButton onClick={() => showMenu()}>
             <MoreVertIcon/>
         </IconButton>
-        {isOpen ? <RelationMenu showMenu={showMenu}></RelationMenu> : null}
+        {isOpen ? <RelationMenu edgeId={props.edgeId} showMenu={showMenu}></RelationMenu> : null}
         
     </div>
   );
