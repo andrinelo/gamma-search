@@ -16,6 +16,7 @@
     "react-scripts": "3.4.3",
     "redux-devtools-extension": "^2.13.8"
   },
+  "proxy": "https://app.ardoq.com/api/graph-search?org=tdt42902019",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

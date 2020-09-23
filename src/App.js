@@ -19,7 +19,7 @@ function App() {
   
 
   // Dispatches action to fetch results from Ardoq-API using the above gremlinquery
-  dispatch(fetchFullResults(gremlinQuery))
+  let test = dispatch(fetchFullResults(gremlinQuery))
 
   return (
     <div>
