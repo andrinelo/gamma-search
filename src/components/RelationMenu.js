@@ -69,6 +69,7 @@ function RelationMenu(props) {
     }
 
 
+    // Adds relation to component local storage
     const addRelation = () => {
         localRelations.push({
             checkedIn: false,
@@ -93,6 +94,7 @@ function RelationMenu(props) {
         props.showMenu()
     }
     
+    // Removes relation from component local storage
     const removeRelation = (index) => {
         localRelations.splice(index, 1)
         setLocalRelations([...localRelations])
