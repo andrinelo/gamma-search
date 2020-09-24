@@ -57,6 +57,7 @@ function RelationMenu(props) {
     }
 
     const handleCheckboxChange = (index, event) => {
+        console.log(index)
         let name =event.target.name
         localRelations[index][name] = event.target.checked
         setLocalRelations([...localRelations])
@@ -96,8 +97,11 @@ function RelationMenu(props) {
     
     // Removes relation from component local storage
     const removeRelation = (index) => {
+        console.log(index);
+        console.log(localRelations);
         localRelations.splice(index, 1)
         setLocalRelations([...localRelations])
+        console.log(localRelations);
     }   
       
 
@@ -135,7 +139,7 @@ function RelationMenu(props) {
                                                 <TextField className={classes.textFieldClass} value={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
                                             </div>
                                             <Button
-                                                onClick={(index) => removeRelation(index)}>
+                                                onClick={() => removeRelation(index)}>
                                                 <DeleteForever></DeleteForever>
                                             </Button>
                                         </div>
