@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
+import { DeleteForever } from '@material-ui/icons';
 
 function RelationMenu(props) {
 
@@ -83,21 +84,34 @@ function RelationMenu(props) {
         dispatch(
             SetRelation(
                 {relations, allRelations}, edgeId
-          )
+            )
         );
-      }
-    
-      const closeRelationMenu = () => {
+    }
+
+    const closeRelationMenu = () => {
         updateRelation(localRelations, allRelations, props.edgeId);
         props.showMenu()
-      }
+    }
     
+    const removeRelation = (index) => {
+        localRelations.splice(index, 1)
+        setLocalRelations([...localRelations])
+    }   
+      
 
     return (
       <div className={classes.cardContainer}>
           <Card className={classes.root}>
-            <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title="Relations">
-                <p>hei</p>
+            <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
+                <div class={classes.relationsHeader}>
+                    <div></div>
+                    <h3>Relations</h3>
+                    <Button
+                        onClick={() => closeRelationMenu()}>
+                        <CloseIcon></CloseIcon>
+                    </Button>
+                </div>
+            }>
             </CardHeader>
             <CardContent>
                 {allRelations!=="" ? <p>{allRelations} relations added <IconButton onClick={() => handleAddAllButtons("")}> <CloseIcon /></IconButton></p>  : <div>
@@ -115,9 +129,13 @@ function RelationMenu(props) {
                                                     label="Out"
                                                 ></FormControlLabel>
                                             </div>
-                                            <div>
+                                            <div className={classes.flexColumn}>
                                                 <TextField className={classes.textFieldClass} value={element.text} name="text" variant="outlined" label="Name of relation" onChange={(e) => handleTextChange(index, e)}> </TextField>
                                             </div>
+                                            <Button
+                                                onClick={(index) => removeRelation(index)}>
+                                                <DeleteForever></DeleteForever>
+                                            </Button>
                                         </div>
                                         <hr></hr>
                                     </div>)
@@ -216,6 +234,10 @@ function RelationMenu(props) {
     textFieldClass: {
         marginTop: "15px"
     },
-
+    relationsHeader: {
+        display: "flex",
+        justifyContent: "space-between",
+        aligntItems: "center"
+    },
 
   });
