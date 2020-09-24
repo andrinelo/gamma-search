@@ -23,11 +23,9 @@ function RelationMenu(props) {
     
     React.useEffect(() => {
         let id = props.edgeId
-        console.log(stateRelations)
         //if there exists a object in the state for this menu(id), then load that state to this component
         if (stateRelations[id]){
             let tmpRelations = stateRelations[id].relations
-            console.log(tmpRelations)
             setLocalRelations([...tmpRelations])
             let tmpAllRelation = stateRelations[id].allRelations
             setAllRelations(tmpAllRelation)
@@ -57,7 +55,6 @@ function RelationMenu(props) {
     }
 
     const handleCheckboxChange = (index, event) => {
-        console.log(index)
         let name =event.target.name
         localRelations[index][name] = event.target.checked
         setLocalRelations([...localRelations])
@@ -97,11 +94,8 @@ function RelationMenu(props) {
     
     // Removes relation from component local storage
     const removeRelation = (index) => {
-        console.log(index);
-        console.log(localRelations);
         localRelations.splice(index, 1)
         setLocalRelations([...localRelations])
-        console.log(localRelations);
     }   
       
 
