@@ -47,7 +47,7 @@ function RelationMenu(props) {
         },
     ]);
 
-    //this state can be "", "Inn", "Out" or "All". If this parameter is not "", that localRealtions is not used, beacuse 
+    //this state can be "", "Inn", "Out" or "All". If this parameter is not "", that localReltions is not used, beacuse 
     //than you only have check if the user wants all connections inn, out or both
     const [allRelations, setAllRelations] = React.useState("");
 
@@ -68,7 +68,7 @@ function RelationMenu(props) {
     }
 
 
-    const addRealtion = () => {
+    const addRelation = () => {
         localRelations.push({
             checkedIn: false,
             checkedOut: false,
@@ -100,7 +100,7 @@ function RelationMenu(props) {
                 <p>hei</p>
             </CardHeader>
             <CardContent>
-                {allRelations!=="" ? <p>{allRelations} realtions added <IconButton onClick={() => handleAddAllButtons("")}> <CloseIcon /></IconButton></p>  : <div>
+                {allRelations!=="" ? <p>{allRelations} relations added <IconButton onClick={() => handleAddAllButtons("")}> <CloseIcon /></IconButton></p>  : <div>
                     <FormGroup>
                         {localRelations.map((element, index) => {
                             return( <div key={index}>
@@ -125,7 +125,7 @@ function RelationMenu(props) {
                         
                     </FormGroup >
                     
-                    <IconButton onClick={() => addRealtion()}>
+                    <IconButton onClick={() => addRelation()}>
                         <AddIcon />
                     </IconButton>
                 </div>}
