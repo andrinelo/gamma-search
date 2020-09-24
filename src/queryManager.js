@@ -1,7 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
 function useQuery(input=undefined){
   async function postData(data = {}) {
-      //let correctData = (typeof data === 'object' ) ? JSON.stringify(data) : data;
       let correctData = JSON.stringify({"query": data})
       const response = await fetch('http://localhost:3000/api', {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
