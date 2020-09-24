@@ -4,6 +4,7 @@ import OutputPaginationReducer from "./OutputPaginationReducer.js";
 import OutputTextReducer from "./OutputTextReducer.js";
 import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js'
 import RelationReducer from "./RelationReducer.js"
+import initialSearchParameterReducer from "./InitialSearchParameterReducer.js";
 
 // Combines all reducers and export them
 export default combineReducers({
@@ -12,4 +13,5 @@ export default combineReducers({
   outputText: OutputTextReducer,
   gremlinQuery: GremlinQueryDisplayReducer,
   relations: RelationReducer,
+  InitialSearchParameter: initialSearchParameterReducer,
 });
