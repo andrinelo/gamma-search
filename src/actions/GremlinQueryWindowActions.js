@@ -8,3 +8,4 @@ export function setGremlinWindowText(gremlinText) {
     type: SET_GREMLIN_QUERY_DISPLAY_TEXT
   };
 }
+
