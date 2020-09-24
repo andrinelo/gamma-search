@@ -4,7 +4,6 @@ import OutputPaginationReducer from "./OutputPaginationReducer.js";
 import OutputTextReducer from "./OutputTextReducer.js";
 import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js';
 import AutocompleteSuggestionReducer from './AutocompleteSuggestionReducer.js';
-import GremlinQueryDisplayReducer from './GremlinQueryDisplayReducer.js'
 import RelationReducer from "./RelationReducer.js"
 import initialSearchParameterReducer from "./InitialSearchParameterReducer.js";
 
@@ -14,7 +13,7 @@ export default combineReducers({
   currentOutputPage: OutputPaginationReducer,
   outputText: OutputTextReducer,
   gremlinQuery: GremlinQueryDisplayReducer,
-  autoComplete: AutocompleteSuggestionReducer
+  autoComplete: AutocompleteSuggestionReducer,
   relations: RelationReducer,
   InitialSearchParameter: initialSearchParameterReducer,
 });
