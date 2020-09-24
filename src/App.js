@@ -4,7 +4,6 @@ import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccord
 import OutputAccordion from './components/OutputAccordion'
 import CloudButton from './components/CloudButton'
 
-import RelationMenu from "./components/RelationMenu"
 import RelationButton from "./components/RelationButton"
 /*
 <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>

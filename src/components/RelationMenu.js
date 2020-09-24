@@ -1,57 +1,44 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import { makeStyles } from '@material-ui/core/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import TextField from '@material-ui/core/TextField';
-
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
 import Checkbox from '@material-ui/core/Checkbox';
-
 import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
-
 import IconButton from '@material-ui/core/IconButton';
-
 import { withStyles } from '@material-ui/core/styles';
-
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
 
 function RelationMenu(props) {
 
     const stateRelations = useSelector(state => state.relations)
-    //console.log(stateRelations)
-
     
     React.useEffect(() => {
-        //const stateRelations = useSelector(state => state.relations)
         let id = props.edgeId
         console.log(stateRelations)
+        //if there exists a object in the state for this menu(id), then load that state to this component
         if (stateRelations[id]){
             let tmpRelations = stateRelations[id].relations
             console.log(tmpRelations)
             setLocalRelations([...tmpRelations])
-
             let tmpAllRelation = stateRelations[id].allRelations
             setAllRelations(tmpAllRelation)
         }
-        
-        //setRelations(stateRelations.por)
-    }, [])
+    }, [stateRelations, props])
     
 
     const dispatch = useDispatch();
-
     const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
-
     const classes = useStyles();
 
+    //the menu gets initialized with one empty relation
     const [localRelations, setLocalRelations] = React.useState([
         {
             checkedIn: false,
@@ -60,25 +47,24 @@ function RelationMenu(props) {
         },
     ]);
 
+    //this state can be "", "Inn", "Out" or "All". If this parameter is not "", that localRealtions is not used, beacuse 
+    //than you only have check if the user wants all connections inn, out or both
     const [allRelations, setAllRelations] = React.useState("");
 
     const handleAddAllButtons = (name) => {
         setAllRelations(name)
-        //console.log(allRelations);
     }
 
     const handleCheckboxChange = (index, event) => {
         let name =event.target.name
         localRelations[index][name] = event.target.checked
         setLocalRelations([...localRelations])
-        //console.log(relations);
     }
 
     const handleTextChange = (index, event) => {
         let name =event.target.name
         localRelations[index][name] = event.target.value
         setLocalRelations([...localRelations])
-        //console.log(relations);
     }
 
 
@@ -89,11 +75,11 @@ function RelationMenu(props) {
             text: "",
         })
         setLocalRelations([...localRelations])
-        //console.log(relations)
     }
 
+    //when the sasve button is pressed, this function saves the local state to redux. It also sends inn the id of the edge 
+    //it's connected to, so that the diffrent menues can be saved in redux at the same time. 
     const updateRelation = (relations, allRelations, edgeId) => {
-        //console.log(relations)
         dispatch(
             SetRelation(
                 {relations, allRelations}, edgeId
@@ -102,7 +88,6 @@ function RelationMenu(props) {
       }
     
       const closeRelationMenu = () => {
-        //console.log(props.edgeId)
         updateRelation(localRelations, allRelations, props.edgeId);
         props.showMenu()
       }

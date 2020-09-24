@@ -1,8 +1,7 @@
 import { SET_RELATION } from './types.js';
 
-// Action used to update the sort term
+// Action used to update the relations
 export default function setRelation (relationValue, edgeId) {
-    //console.log(edgeId)
   return {
     value: relationValue,
     edgeId: edgeId,
