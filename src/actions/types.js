@@ -1,4 +1,6 @@
 // Constants used to make sure two actions does not have the same name.
+export const TEST_ACTION = "TEST_ACTION";
+export const SET_RELATION = "SET_RELATION";
 
 export const SET_ACTIVE_WINDOW = 'SET_ACTIVE_WINDOW';
 export const OUTPUT_NEXT_PAGE = "NEXT_PAGE";
@@ -8,3 +10,4 @@ export const SET_OUTPUT_TEXT = "SET_OUTPUT_TEXT";
 export const SET_GREMLIN_QUERY_DISPLAY_TEXT = "SET_GREMLIN_QUERY_DISPLAY_TEXT"
 export const SET_AUTOCOMPLETE_OPTIONS = "SET_AUTOCOMPLETE_OPTIONS"
 export const AUTOCOMPLETE_SET_DEBUG = "AUTOCOMPLETE_SET_DEBUG"
+export const SET_INITIAL_SEARCH_PARAMETER = "SET_INITIAL_SEARCH_PARAMETER";
