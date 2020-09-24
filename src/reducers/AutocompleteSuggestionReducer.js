@@ -1,4 +1,4 @@
-import { SET_AUTOCOMPLETE_OPTIONS } from '../actions/types.js'
+import { SET_AUTOCOMPLETE_OPTIONS, AUTOCOMPLETE_SET_DEBUG } from '../actions/types.js'
 
 
 
@@ -8,6 +8,9 @@ export default (state = {"testData1":[{text: "Apple"}, {text: "Banana"},
     switch (action.type) {
         case (SET_AUTOCOMPLETE_OPTIONS):
             state[action.id] = action.options
+            return state
+        case (AUTOCOMPLETE_SET_DEBUG): // To check that function dispatching passed through props works
+            console.log(action.debugText)
             return state
         default:
             return state
