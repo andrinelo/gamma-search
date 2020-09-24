@@ -4,6 +4,7 @@ import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccord
 import OutputAccordion from './components/OutputAccordion'
 import CloudButton from './components/CloudButton'
 import StartNodeInputField from './components/StartNodeInputField.js'
+import Graph from "./components/Graph.js"
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           </OutputAccordion>
           <CloudButton></CloudButton>
           <StartNodeInputField></StartNodeInputField>
+          <Graph></Graph>
         </div>
   );
 }
