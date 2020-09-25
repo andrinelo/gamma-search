@@ -2,15 +2,13 @@ import React from 'react';
 import ReactDOM from "react-dom";
 import Graph from "react-graph-vis";
 
-import cloud from "./cloud.png"
-
 //import "./network.css";
 
 function GraphView() {
 
   const graph = {
     nodes: [
-      { id: 1, label: "Persons", x: 100, y : 100, shape: "image", image: "./cloud.png" },
+      { id: 1, label: "Persons", x: 100, y : 100, group: "clouds" },
       { id: 2, label: "Result", shape: "diamond", x: 100, y : 200},
     ],
     edges: [
@@ -31,10 +29,13 @@ function GraphView() {
       enabled: false,
     },
     groups: {
-      users: {
+      clouds: {
         shape: "image",
-        image: "./cloud.png"
+        image: require("../assets/cloud.png")
       },
+    },
+    nodes: {
+      widthConstraint: 150,
     }
 
   };
