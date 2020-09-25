@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from "react-dom";
 import Graph from "react-graph-vis";
 
 //import "./network.css";
@@ -9,7 +8,7 @@ function GraphView() {
   const graph = {
     nodes: [
       { id: 1, label: "Persons", x: 100, y : 100, group: "clouds" },
-      { id: 2, label: "Result", shape: "diamond", x: 100, y : 200},
+      { id: 2, label: "Result", shape: "diamond", x: 100, y : 250},
     ],
     edges: [
       { from: 1, to: 2 },
@@ -17,9 +16,9 @@ function GraphView() {
   };
 
   const options = {
-    layout: {
+    //layout: {
       //hierarchical: true
-    },
+    //},
     edges: {
       color: "#000000"
     },
@@ -40,22 +39,19 @@ function GraphView() {
 
   };
 
+  /*
   const events = {
     select: function(event) {
       var { nodes, edges } = event;
     }
   };
-
-  
+  */
 
   return (
     <Graph
       graph={graph}
       options={options}
-      events={events}
-      getNetwork={network => {
-        //  if you want access to vis.js network api you can set the state in a parent component using this property
-      }}
+      //events={events}
     />
   );
 }
