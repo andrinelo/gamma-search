@@ -7,7 +7,12 @@ import AutocompleteTextField from './components/AutocompleteTextField'
 import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
 import StartNodeInputField from './components/StartNodeInputField.js'
 import RelationButton from "./components/RelationButton"
+import useQuery from './queryManager';
+
 function App() {
+  //const queryData = useQuery("g.V().hasLabel('Person').limit(10)");
+  //console.log(queryData)
+
 
   return (
 
