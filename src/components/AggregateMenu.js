@@ -31,8 +31,11 @@ import AddIcon from '@material-ui/icons/Add';
     const classes = useStyles();  
 
     const addAggregateChoices = () => { 
-      //TODO
-      return 0;
+      localAggregations.push({
+        proptype: "",
+        aggregateFunction: ""
+      });
+      setLocalAggregation([...localAggregations]);
     }
 
     // closes the aggregate menu when pressing x or saving
@@ -40,9 +43,21 @@ import AddIcon from '@material-ui/icons/Add';
       props.setActiveWindow("");
     }
 
+    const [localAggregations, setLocalAggregation] = React.useState([{proptype: "", aggregateFunction: ""}]);
+
+    const handleChange = (e, id, index) => {
+      localAggregations[index][id] = e.target.value;
+      setLocalAggregation([...localAggregations]);
+    };
+
+    const handleDeleteAggregation = (index) => {
+      localAggregations.splice(index, 1);
+      setLocalAggregation([...localAggregations]);
+    }
+
     return (
       // shows aggregatemenu if it has been set as active by the cloud button
-      props.activeWindow === "aggregate" && <Card className={classes.cardContainer} variant="outlined">
+      props.activeWindow === "aggregate" && <Card className={classes.root} variant="outlined">
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
             <div class={classes.relationsHeader}>
               <div></div>
@@ -55,14 +70,20 @@ import AddIcon from '@material-ui/icons/Add';
         </CardHeader>
         <CardContent>
           <div>
-            <SelectPropertyView/> 
+            {localAggregations.map((element, index) => {
+              return (
+                <div key={index}>
+                  <SelectPropertyView onChange={(e, id)=>handleChange(e, id, index)} onDelete={()=>handleDeleteAggregation(index)} proptype={element.proptype} aggregateFunction={element.aggregateFunction}/> 
+                </div>
+              )
+            })}
             <IconButton onClick={()=> addAggregateChoices()}>  
-              <AddIcon></AddIcon>
+              <AddIcon/>
             </IconButton>
           </div>
         </CardContent>
         <CardActions>
-          <Button onClick={()=> closeAggregateMenu()} size="small" startIcon={<SaveIcon />} variant="contained" color="primary" className={classes.saveButtonClass}>Save</Button>
+          <Button onClick={()=> closeAggregateMenu()} size="large" startIcon={<SaveIcon />} variant="contained" color="primary" className={classes.saveButtonClass}>Save</Button>
         </CardActions>
       </Card>
     );

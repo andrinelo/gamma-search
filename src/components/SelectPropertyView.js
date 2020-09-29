@@ -7,19 +7,16 @@ import IconButton from '@material-ui/core/IconButton';
 import { DeleteForever } from '@material-ui/icons';
 
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return { 
     nodes: state.outputText
   }
 }
 
 function SelectPropertyView(props){
-  
+
   const nodePropertyValues = ["all", "name", "age", "city", "horse"];
   const aggregateFunctions = ["count", "sum", "avg"];
-  const menuItem = (value, text) => <MenuItem key={value} value={value}>{text}</MenuItem>;
-  const handleChange = () => {console.log("true")};
-
   return(
     <div>
       <Box display="flex" flexDirection="row">
@@ -28,12 +25,12 @@ function SelectPropertyView(props){
             <Box>Property type:</Box>
             <Box>
               <Select
-                labelId="select aggregate function"
-                id="select-prop"
-                onChange={handleChange}
-                value=''
+                labelId="select property type"
+                id="proptype"
+                onChange={(e) => props.onChange(e, "proptype")}
+                value={props.proptype}
               >
-                {nodePropertyValues.map((value,key) => menuItem(key, value))}
+                {nodePropertyValues.map((value,key) => <MenuItem key={key} value={value}>{value}</MenuItem>)}
               </Select>
             </Box>
           </Box>
@@ -42,20 +39,20 @@ function SelectPropertyView(props){
             <Box>
               <Select
                 labelId="select aggregate function"
-                id="select-prop"
-                onChange={handleChange}
-                value=''
+                id="aggregateFunction"
+                onChange={(e) => props.onChange(e, "aggregateFunction")}
+                value={props.aggregateFunction}
               >
-                {aggregateFunctions.map((value,key) => menuItem(key, value))}
+                {aggregateFunctions.map((value,key) => <MenuItem key={key} value={value}>{value}</MenuItem>)}
               </Select>
             </Box>
           </Box>
         </Box>
-        <IconButton>
+        <IconButton onClick={()=>props.onDelete()}>
           <DeleteForever/>
         </IconButton>
       </Box>
-      
+      <hr/>
     </div>
   );
 };
