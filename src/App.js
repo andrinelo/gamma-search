@@ -9,10 +9,11 @@ import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 
 import RelationButton from "./components/RelationButton"
-import useQuery from './queryManager';
 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchResultItems } from './actions/ResultItemActions.js';
+import { fetchQueryItems } from './actions/QueryManagerActions.js';
+import { FULL_RESULT_ITEMS } from './actions/QueryKeys.js'
+
 
 import Graph from "react-graph-vis";
 
@@ -22,8 +23,12 @@ function App() {
   
   const dispatch = useDispatch()
 
-  dispatch(fetchResultItems(gremlinQuery))
-
+  useEffect(() => {
+    if(gremlinQuery !== ""){
+      dispatch(fetchQueryItems(gremlinQuery, FULL_RESULT_ITEMS))
+    }
+  })
+  
 
   //const queryData = useQuery("g.V().hasLabel('Person').limit(1)");
   //console.log(queryData.result)

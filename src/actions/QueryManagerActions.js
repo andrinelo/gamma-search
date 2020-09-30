@@ -1,26 +1,36 @@
-import { RESET_RESULT_ITEMS , ADD_RESULT_ITEMS } from './types.js';
+import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS } from './types.js';
 
-// Empties the state
-export function resetResultItems() {
+
+// Empties the state, based on the queryKey
+export function resetAllQueryItems() {
   return {
-    type: RESET_RESULT_ITEMS
+    type: RESET_ALL_QUERY_ITEMS,
+  };
+}
+
+// Empties the state, based on the queryKey
+export function resetQueryItems(key) {
+  return {
+    type: RESET_QUERY_ITEMS,
+    queryKey: key
   };
 }
 
 // Add more items to the search result
-export function addResultItems(resultItems) {
+export function setQueryItems(items, key) {
 
   return {
-    type: ADD_RESULT_ITEMS,
+    type: SET_QUERY_ITEMS,
     payload: {
-      itemsToAdd: resultItems.result
+      queryItems: items.result,
+      queryKey: key
     }
   };
 }
 
 // Asynchronous action creator using redux-thunk. Fetches new items to add to
 // the search-result
-export function fetchResultItems(gremlinQuery) {
+export function fetchQueryItems(gremlinQuery, key) {
 
   return async function(dispatch) {
     try {
@@ -41,7 +51,7 @@ export function fetchResultItems(gremlinQuery) {
       });
 
       const results = await response.json()
-      dispatch(addResultItems(results))
+      dispatch(setQueryItems(results, key))
     }
     catch(error) {
       console.log("Could not fetch data: ", error)
