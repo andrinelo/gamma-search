@@ -12,23 +12,16 @@ import SaveIcon from '@material-ui/icons/Save';
 import { connect } from 'react-redux';
 import {setActiveWindow} from '../actions/SetActiveWindow.js';
 import AddIcon from '@material-ui/icons/Add';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 
 
-  function mapStateToProps(state){
-    return {activeWindow: state.activeWindow};
-  } 
 
-  const mapDispatchToProps = dispatch => {
-    return {
-        setActiveWindow: (type) => dispatch(setActiveWindow(type)),
-    }
-}
-
-  function AggregateMenu(props) {
-
+  export default function AggregateMenu(props) {
+    const window = useSelector(state => state.activeWindow);
     const classes = useStyles();  
+    const dispatch = useDispatch();
 
     const addAggregateChoices = () => { 
       localAggregations.push({
@@ -40,7 +33,7 @@ import AddIcon from '@material-ui/icons/Add';
 
     // closes the aggregate menu when pressing x or saving
     const closeAggregateMenu = () => {
-      props.setActiveWindow("");
+      dispatch(setActiveWindow(""));
     }
 
     const [localAggregations, setLocalAggregation] = React.useState([{proptype: "", aggregateFunction: ""}]);
@@ -57,7 +50,7 @@ import AddIcon from '@material-ui/icons/Add';
 
     return (
       // shows aggregatemenu if it has been set as active by the cloud button
-      props.activeWindow === "aggregate" && <Card className={classes.root} variant="outlined">
+      window === "aggregate" && <Card className={classes.root} variant="outlined">
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
             <div class={classes.relationsHeader}>
               <div></div>
@@ -141,5 +134,3 @@ import AddIcon from '@material-ui/icons/Add';
     },
 
   });
-
-  export default connect(mapStateToProps, mapDispatchToProps)(AggregateMenu);
