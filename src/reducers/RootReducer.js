@@ -6,11 +6,13 @@ import AutocompleteSuggestionReducer from './AutocompleteSuggestionReducer.js';
 import RelationReducer from "./RelationReducer.js"
 import gremlinQueryReducer from "./GremlinQueryReducer.js";
 import queryReducer from "./QueryReducer.js"
+import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
 
 // Combines all reducers and export them
 export default combineReducers({
   allQueryResults: queryReducer,
   gremlinQueryParts: gremlinQueryReducer,
+  initialSearchParameter: InitialSearchParameterReducer,
   activeWindow: windowReducer,
   currentOutputPage: OutputPaginationReducer,
   gremlinQueryDisplay: GremlinQueryDisplayReducer,

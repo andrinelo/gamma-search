@@ -1,7 +1,6 @@
 import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS } from './types.js';
 
-
-// Empties the state, based on the queryKey
+// Empties the query state
 export function resetAllQueryItems() {
   return {
     type: RESET_ALL_QUERY_ITEMS,
