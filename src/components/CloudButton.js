@@ -5,21 +5,16 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import React from 'react';
 
 import {setActiveWindow} from '../actions/SetActiveWindow.js';
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import PropTypes from 'prop-types';
 
-// Sets which window to open based on click
 
-const mapDispatchToProps = dispatch => {
-    return {
-        setActiveWindow: (type) => dispatch(setActiveWindow(type)),
-    }
-}
 
 // button for clicking 
-function CloudButton(props){
+export default function CloudButton(props){
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const dispatch = useDispatch()
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget); // move menu to where the ... button is
@@ -27,26 +22,26 @@ function CloudButton(props){
 
     const handleClose = () => {
         setAnchorEl(null); 
-        props.setActiveWindow('');
+        dispatch(setActiveWindow(''));
     };
 
     // dispatches action to open filter window
     const handleOpenFilter = () => {
         setAnchorEl(null); 
-        props.setActiveWindow('filter');
+        dispatch(setActiveWindow('filter'));
     };
 
     // dispatches action to open aggregatewindow
     const handleOpenAggregate = () => {
         setAnchorEl(null); 
-        props.setActiveWindow('aggregate');
+        dispatch(setActiveWindow('aggregate'));
 
     };
 
     // dispatches action to inspect cloud
     const handleOpenInspect = () => {
         setAnchorEl(null); 
-        props.setActiveWindow('inspect');
+        dispatch(setActiveWindow('inspect'));
     };
 
     return (
@@ -73,4 +68,3 @@ CloudButton.propTypes = {
     setActiveWindow: PropTypes.func.isRequired
 }
 
-export default connect(null, mapDispatchToProps)(CloudButton);
