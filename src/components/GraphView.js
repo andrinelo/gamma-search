@@ -1,19 +1,10 @@
 import React from 'react';
 import Graph from "react-graph-vis";
+import { v4 as uuidv4 } from "uuid";
 
 //import "./network.css";
 
-function GraphView() {
-
-  const graph = {
-    nodes: [
-      { id: 1, label: "Persons", x: 100, y : 100, group: "clouds" },
-      { id: 2, label: "Result", shape: "diamond", x: 100, y : 250},
-    ],
-    edges: [
-      { from: 1, to: 2 },
-    ]
-  };
+function GraphView({graph}) {
 
   const options = {
     //layout: {
@@ -36,9 +27,14 @@ function GraphView() {
     nodes: {
       widthConstraint: 150,
     }
-
   };
 
+  return (
+    <Graph key={uuidv4} graph={graph} options={options}></Graph>
+  )
+
+
+ 
   /*
   const events = {
     select: function(event) {
@@ -47,13 +43,6 @@ function GraphView() {
   };
   */
 
-  return (
-    <Graph
-      graph={graph}
-      options={options}
-      //events={events}
-    />
-  );
 }
 
 
