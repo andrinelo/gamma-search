@@ -9,7 +9,6 @@ import SelectPropertyView from './SelectPropertyView';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
-import { connect } from 'react-redux';
 import {setActiveWindow} from '../actions/SetActiveWindow.js';
 import AddIcon from '@material-ui/icons/Add';
 import { useDispatch, useSelector } from 'react-redux';

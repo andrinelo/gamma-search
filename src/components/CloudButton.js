@@ -9,13 +9,7 @@ import { useDispatch } from 'react-redux'
 
 import PropTypes from 'prop-types';
 
-// Sets which window to open based on click
 
-const mapDispatchToProps = dispatch => {
-    return {
-        setActiveWindow: (type) => dispatch(setActiveWindow(type)),
-    }
-}
 
 // button for clicking 
 export default function CloudButton(props){
