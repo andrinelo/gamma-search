@@ -7,7 +7,7 @@ import { resetGremlinQuery, appendToGremlinQuery} from "../actions/GremlinQueryA
 import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
 import { resetPageNumber } from './../actions/OutputPageActions.js';
 import { ALL_AVAILABLE_LABELS, FULL_RESULT_ITEMS } from './../actions/QueryKeys.js'
-
+import { setInitialSearchParameter } from "./../actions/InitialSearchParameterActions"
 
 export default function StartNodeInputField() {
   const dispatch = useDispatch();
@@ -35,9 +35,11 @@ export default function StartNodeInputField() {
                   dispatch(resetGremlinQuery())
                   dispatch(resetQueryItems(FULL_RESULT_ITEMS))
                   dispatch(resetPageNumber())
+                  dispatch(setInitialSearchParameter(""))
 
                   // We update the gremlin query only if the new input is not null
                   if(newInputValue != null){
+                    dispatch(setInitialSearchParameter(newInputValue))
                     dispatch(appendToGremlinQuery("g.V().hasLabel('" + newInputValue + "')"))
                   }
                 }}
