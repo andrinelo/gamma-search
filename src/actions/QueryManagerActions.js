@@ -1,7 +1,40 @@
-import {useState, useEffect, useCallback} from 'react';
-function useQuery(input=undefined){
-  async function postData(data = {}) {
-      let correctData = JSON.stringify({"query": data})
+import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS } from './types.js';
+
+
+// Empties the state, based on the queryKey
+export function resetAllQueryItems() {
+  return {
+    type: RESET_ALL_QUERY_ITEMS,
+  };
+}
+
+// Empties the state, based on the queryKey
+export function resetQueryItems(key) {
+  return {
+    type: RESET_QUERY_ITEMS,
+    queryKey: key
+  };
+}
+
+// Add more items to the search result
+export function setQueryItems(items, key) {
+
+  return {
+    type: SET_QUERY_ITEMS,
+    payload: {
+      queryItems: items.result,
+      queryKey: key
+    }
+  };
+}
+
+// Asynchronous action creator using redux-thunk. Fetches new items to add to
+// the search-result
+export function fetchQueryItems(gremlinQuery, key) {
+
+  return async function(dispatch) {
+    try {
+      let correctData = JSON.stringify({"query": gremlinQuery})
       const response = await fetch('http://localhost:3000/api', {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',                                               // no-cors, *cors, same-origin
@@ -16,33 +49,12 @@ function useQuery(input=undefined){
         referrerPolicy: 'no-referrer',                              // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: correctData                                  // body data type must match "Content-Type" header
       });
-      
-    return response;
-  }
 
-  const [result, setResult] = useState({status:"not called", result:undefined, count:undefined, from:undefined, size:undefined});
-
-  function RunQuery(queryInput) {
-    const fetchMyAPI = useCallback(async() => {
-      let response = await postData(queryInput)
-      response = await response.json()
-      setResult(response)
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
-    
-    
-    useEffect(() => {
-      fetchMyAPI()
-    }, [fetchMyAPI])
+      const results = await response.json()
+      dispatch(setQueryItems(results, key))
+    }
+    catch(error) {
+      console.log("Could not fetch data: ", error)
+    }
   }
-
-  if (input === undefined){
-    return [RunQuery, result];
-  }
-  else{
-    RunQuery(input);
-    return result
-  }
-}
-  
-
-export default useQuery;
+};
