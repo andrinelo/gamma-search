@@ -4,22 +4,21 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
 import { resetGremlinQuery, appendToGremlinQuery} from "../actions/GremlinQueryActions.js";
-import useQuery from '../queryManager';
-import { resetResultItems } from './../actions/ResultItemActions.js';
-import { fetchAllAvailableLabels } from './../actions/AllAvailableLabelsActions.js';
+import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
 import { resetPageNumber } from './../actions/OutputPageActions.js';
+import { ALL_AVAILABLE_LABELS, FULL_RESULT_ITEMS } from './../actions/QueryKeys.js'
 
 
 export default function StartNodeInputField() {
   const dispatch = useDispatch();
 
   // Fetches all possible labels, to be used as auto-suggestions
-  const allLabels = useSelector(state => state.allAvailableLabels)
+  const allLabels = useSelector(state => state.allQueryResults[ALL_AVAILABLE_LABELS])
 
   // Passing an empty array as a second parameter to useEffect makes it run only on initial render of the web page.
   useEffect(() => {
     // Updates the list of all available labels
-    dispatch(fetchAllAvailableLabels())
+    dispatch(fetchQueryItems("g.V().label().dedup()", ALL_AVAILABLE_LABELS))
   }, [])
 
   return (
@@ -34,7 +33,7 @@ export default function StartNodeInputField() {
                   
                   // Regardless of what the new input is, we reset the current query and results
                   dispatch(resetGremlinQuery())
-                  dispatch(resetResultItems())
+                  dispatch(resetQueryItems(FULL_RESULT_ITEMS))
                   dispatch(resetPageNumber())
 
                   // We update the gremlin query only if the new input is not null

@@ -1,7 +1,5 @@
 import { SET_AUTOCOMPLETE_OPTIONS, AUTOCOMPLETE_SET_DEBUG } from '../actions/types.js'
 
-
-
 export default (state = {"testData1":[{text: "Apple"}, {text: "Banana"},
                          {text: "Citrus"}, {text: "Dynosys"}, {text: "E"}, {text: "Frankriket"}, 
                         {text: "God mat"}, {text: "Helse"}, {text: "Ikke"}]}, action) => {
