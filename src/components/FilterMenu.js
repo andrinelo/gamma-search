@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import CardHeader from "@material-ui/core/CardHeader";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
@@ -14,13 +14,12 @@ import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
 import SetFilter from "../actions/SetFilter.js";
 import { DeleteForever } from "@material-ui/icons";
-import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import EpmtyIcon from "./emptyIcon.js"
+import EmptyIcon from "./emptyIcon.js";
 import Select from "@material-ui/core/Select";
 
 const operators = {
-  "=": "=",
+  "==": "=",
   "!=": "≠",
   ">=": "≥",
   ">": ">",
@@ -30,7 +29,6 @@ const operators = {
 
 function FilterMenu(props) {
   const stateFilters = useSelector((state) => state.filters);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     let id = props.cloudId;
@@ -47,7 +45,7 @@ function FilterMenu(props) {
   const [localFilters, setLocalFilters] = useState([
     {
       property: "",
-      operator: "=",
+      operator: "==",
       value: "",
     },
   ]);
@@ -56,14 +54,6 @@ function FilterMenu(props) {
     let name = event.target.name;
     localFilters[index][name] = event.target.value;
     setLocalFilters([...localFilters]);
-  };
-
-  const handleOperatorClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleOperatorClose = () => {
-    setAnchorEl(null);
   };
 
   const handleOperatorChange = (index, event) => {
@@ -82,7 +72,7 @@ function FilterMenu(props) {
   const addFilter = () => {
     localFilters.push({
       property: "",
-      operator: "=",
+      operator: "==",
       value: "",
     });
     setLocalFilters([...localFilters]);
@@ -140,58 +130,34 @@ function FilterMenu(props) {
                         </TextField>
                       </div>
                       <div className={classes.operatorButtonContainer}>
-            
-                        <div>
-                        <Select
-                          onChange={(e) => handleOperatorChange(index, e)}
-                          variant="outlined"
-                          value={localFilters[index].operator}
-                          IconComponent={() => (
-                            < EpmtyIcon/>
-                          )}
-                        >
-                          <MenuItem
-
-                            value="="
-                            name="operator"
+                        <FormControl style={{ width: "36px" }}>
+                          <Select
+                            className={classes.fixPadding}
+                            onChange={(e) => handleOperatorChange(index, e)}
+                            variant="outlined"
+                            value={localFilters[index].operator}
+                            IconComponent={() => <EmptyIcon />}
                           >
-                            {`=`}
-                            
-                          </MenuItem>
-                          <MenuItem
-                            value="!="
-                            name="operator"
-                          >
-                            {`≠`}
-                          </MenuItem>
-                          <MenuItem
-                            value=">="
-                            name="operator"
-                          >
-                            {`≥`}
-                          </MenuItem>
-                          <MenuItem
-                            value=">"
-                            name="operator"
-                          >
-                            {`>`}
-                          </MenuItem>
-                          <MenuItem
-                            value="<"
-                            name="operator"
-                          >
-                            {`<`}
-                          </MenuItem>
-                          <MenuItem
-                            value="=<"
-                            name="operator"
-                          >
-                            {`≤`}
-                          </MenuItem>
-
-                        </Select>
-
-                        </div>
+                            <MenuItem value="==" name="operator">
+                              {`=`}
+                            </MenuItem>
+                            <MenuItem value="!=" name="operator">
+                              {`≠`}
+                            </MenuItem>
+                            <MenuItem value=">=" name="operator">
+                              {`≥`}
+                            </MenuItem>
+                            <MenuItem value=">" name="operator">
+                              {`>`}
+                            </MenuItem>
+                            <MenuItem value="<" name="operator">
+                              {`<`}
+                            </MenuItem>
+                            <MenuItem value="=<" name="operator">
+                              {`≤`}
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
                       </div>
                       <div className={classes.flexColumn}>
                         <TextField
@@ -215,7 +181,6 @@ function FilterMenu(props) {
                       </div>
                     </div>
                     <hr></hr>
-                    
                   </div>
                 );
               })}
@@ -244,7 +209,6 @@ function FilterMenu(props) {
     </div>
   );
 }
-
 
 export default FilterMenu;
 
@@ -276,10 +240,9 @@ const useStyles = makeStyles({
   },
 
   operatorButtonContainer: {
-    justifyContent: "center",
-    alignItems: "center",
     display: "flex",
-    margin: "15px",
+    marginTop: "15px",
+    padding: "5px",
   },
 
   removeButtonContainer: {
@@ -304,6 +267,11 @@ const useStyles = makeStyles({
     aligntItems: "center",
   },
   MuiSelectIcon: {
-    color: "white"
-  }
+    color: "white",
+  },
+  fixPadding: {
+    "& .MuiSelect-outlined.MuiSelect-outlined": {
+      paddingRight: "6px",
+    },
+  },
 });
