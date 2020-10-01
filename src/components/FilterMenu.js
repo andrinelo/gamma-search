@@ -16,6 +16,8 @@ import SetFilter from "../actions/SetFilter.js";
 import { DeleteForever } from "@material-ui/icons";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import EpmtyIcon from "./emptyIcon.js"
+import Select from "@material-ui/core/Select";
 
 const operators = {
   "=": "=",
@@ -65,8 +67,8 @@ function FilterMenu(props) {
   };
 
   const handleOperatorChange = (index, event) => {
-    let name = event.target.getAttribute("name");
-    localFilters[index][name] = event.target.getAttribute("value");
+    let name = "operator";
+    localFilters[index][name] = event.target.value;
     setLocalFilters([...localFilters]);
   };
 
@@ -80,7 +82,7 @@ function FilterMenu(props) {
   const addFilter = () => {
     localFilters.push({
       property: "",
-      operator: "",
+      operator: "=",
       value: "",
     });
     setLocalFilters([...localFilters]);
@@ -126,7 +128,7 @@ function FilterMenu(props) {
                       <div className={classes.flexColumn}>
                         <TextField
                           className={classes.textFieldClass}
-                          value={element.text}
+                          value={element.property}
                           name="property"
                           variant="outlined"
                           label="Select a property"
@@ -138,73 +140,63 @@ function FilterMenu(props) {
                         </TextField>
                       </div>
                       <div className={classes.operatorButtonContainer}>
-                        <Button
+            
+                        <div>
+                        <Select
+                          onChange={(e) => handleOperatorChange(index, e)}
                           variant="outlined"
-                          backgroundColor="#770079"
-                          aria-label="open-menu"
-                          aria-controls="simple-menu"
-                          aria-haspopup="true"
-                          onClick={handleOperatorClick}
-                        >
-                          {localFilters[index].operator in operators
-                            ? operators[localFilters[index].operator]
-                            : "="}
-                        </Button>
-                        <Menu
-                          id="simple-menu"
-                          anchorEl={anchorEl}
-                          keepMounted
-                          open={Boolean(anchorEl)}
-                          onClose={handleOperatorClose}
+                          value={localFilters[index].operator}
+                          IconComponent={() => (
+                            < EpmtyIcon/>
+                          )}
                         >
                           <MenuItem
-                            onClick={(e) => handleOperatorChange(index, e)}
+
                             value="="
                             name="operator"
                           >
                             {`=`}
+                            
                           </MenuItem>
                           <MenuItem
                             value="!="
                             name="operator"
-                            onClick={(e) => handleOperatorChange(index, e)}
                           >
                             {`≠`}
                           </MenuItem>
                           <MenuItem
                             value=">="
                             name="operator"
-                            onClick={(e) => handleOperatorChange(index, e)}
                           >
                             {`≥`}
                           </MenuItem>
                           <MenuItem
                             value=">"
                             name="operator"
-                            onClick={(e) => handleOperatorChange(index, e)}
                           >
                             {`>`}
                           </MenuItem>
                           <MenuItem
                             value="<"
                             name="operator"
-                            onClick={(e) => handleOperatorChange(index, e)}
                           >
                             {`<`}
                           </MenuItem>
                           <MenuItem
                             value="=<"
                             name="operator"
-                            onClick={(e) => handleOperatorChange(index, e)}
                           >
                             {`≤`}
                           </MenuItem>
-                        </Menu>
+
+                        </Select>
+
+                        </div>
                       </div>
                       <div className={classes.flexColumn}>
                         <TextField
                           className={classes.textFieldClass}
-                          value={element.text}
+                          value={element.value}
                           name="value"
                           variant="outlined"
                           label="Select a value"
@@ -223,6 +215,7 @@ function FilterMenu(props) {
                       </div>
                     </div>
                     <hr></hr>
+                    
                   </div>
                 );
               })}
@@ -251,6 +244,7 @@ function FilterMenu(props) {
     </div>
   );
 }
+
 
 export default FilterMenu;
 
@@ -309,4 +303,7 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     aligntItems: "center",
   },
+  MuiSelectIcon: {
+    color: "white"
+  }
 });
