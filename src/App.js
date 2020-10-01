@@ -16,11 +16,16 @@ import { FULL_RESULT_ITEMS } from './actions/QueryKeys.js'
 
 
 import Graph from "react-graph-vis";
+import { v4 as uuidv4 } from "uuid";
+
+import CytoscapeComponent from 'react-cytoscapejs';
+
+
+
 
 
 function App() {
   let gremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
-  
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -29,12 +34,6 @@ function App() {
     }
   })
   
-
-  //const queryData = useQuery("g.V().hasLabel('Person').limit(1)");
-  //console.log(queryData.result)
-
-  //const queryData2 = useQuery(gremlinQuery);
-  //console.log(queryData2.result)
 
   const graph = {
     nodes: [
@@ -46,26 +45,47 @@ function App() {
     ]
   };
 
+  const elements = [
+    { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
+    { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
+    { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } }
+ ];
 
-  const [graphData, setGraphData] = useState(graph);
+
+ const myStyle = [
+  {
+    selector: 'node',
+    style: {
+      width: 100,
+      height: 100,
+      shape: 'rectangle',
+      backgroundOpacity: 0,
+      backgroundImage: require("./assets/cloud.png"),
+      backgroundFit: 'contain',
+    }
+  },
+  {
+    selector: 'edge',
+    style: {
+      width: 5
+    }
+  }
+  ];
+
+
 
 
   return (
 
     <div>
         <StartNodeInputField></StartNodeInputField>
+        <CytoscapeComponent elements={elements} style={ { width: '100%', height: '600px' } } pan={ { x: 650, y: 300 } } stylesheet={myStyle}/>
+        <RelationButton edgeId = {1}></RelationButton>
+        <CloudButton></CloudButton>
 
         <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
         <OutputAccordion>
         </OutputAccordion>
-        <CloudButton></CloudButton>
-        
-        <RelationButton edgeId = {1}></RelationButton>
-        <RelationButton edgeId = {2}></RelationButton>
-        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} ></AutocompleteTextField> {/*It is
-         possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
-        <GraphView graph={graphData}></GraphView>
-        
     </div>
   );
 }

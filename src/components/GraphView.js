@@ -4,7 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 
 //import "./network.css";
 
-function GraphView({graph}) {
+function GraphView({graph, key}) {
+
+
 
   const options = {
     //layout: {
@@ -16,7 +18,7 @@ function GraphView({graph}) {
     height: "500px",
 
     physics:{
-      enabled: false,
+      enabled: true,
     },
     groups: {
       clouds: {
@@ -30,7 +32,7 @@ function GraphView({graph}) {
   };
 
   return (
-    <Graph key={uuidv4} graph={graph} options={options}></Graph>
+    <Graph key={key} graph={graph} options={options}></Graph>
   )
 
 
