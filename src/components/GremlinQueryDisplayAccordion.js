@@ -5,7 +5,6 @@ import { ExpandMore } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { useSelector } from 'react-redux';
-import GremlinQueryDisplayReducer from '../reducers/GremlinQueryDisplayReducer';
 
 const useStyles = makeStyles({
     root: {
