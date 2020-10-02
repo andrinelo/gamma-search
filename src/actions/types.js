@@ -1,5 +1,6 @@
 // Constants used to make sure two actions does not have the same name.
 export const SET_RELATION = "SET_RELATION";
+export const SET_FILTER = "SET_FILTER";  
 export const SET_ACTIVE_WINDOW = 'SET_ACTIVE_WINDOW';
 export const OUTPUT_NEXT_PAGE = "NEXT_PAGE";
 export const OUTPUT_PREVIOUS_PAGE = "PREVIOUS_PAGE";

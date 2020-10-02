@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccordion';
@@ -49,9 +50,7 @@ function App() {
 
   const [graphData, setGraphData] = useState(graph);
 
-
   return (
-
     <div>
         <StartNodeInputField></StartNodeInputField>
 
@@ -69,8 +68,5 @@ function App() {
     </div>
   );
 }
-
-
-
 
 export default App;
