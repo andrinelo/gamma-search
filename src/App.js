@@ -9,11 +9,13 @@ import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
 import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 
+import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 import RelationButton from "./components/RelationButton"
+
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INTERNAL_EDGES_IN_INSPECTED_NODES } from './actions/QueryKeys.js'
 
 
 import Graph from "react-graph-vis";
@@ -27,6 +29,8 @@ function App() {
   useEffect(() => {
     if(gremlinQuery !== ""){
       dispatch(fetchQueryItems(gremlinQuery, FULL_RESULT_ITEMS))
+      dispatch(fetchQueryItems(gremlinQuery + ".dedup().union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INTERNAL_EDGES_IN_INSPECTED_NODES))
+
     }
   })
   
@@ -52,6 +56,7 @@ function App() {
 
   return (
     <div>
+        <GraphQueryVisualizer></GraphQueryVisualizer>
         <StartNodeInputField></StartNodeInputField>
 
         <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>

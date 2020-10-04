@@ -1,7 +1,7 @@
 import { SET_QUERY_ITEMS, RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS } from "../actions/types.js";
-import { FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS } from "../actions/QueryKeys.js";
+import { FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INTERNAL_EDGES_IN_INSPECTED_NODES } from "../actions/QueryKeys.js";
 
-const keys = [FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS]
+const keys = [FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INTERNAL_EDGES_IN_INSPECTED_NODES]
 const initialState = {};
 keys.map(key => initialState[key] = [])
 
