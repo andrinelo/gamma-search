@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
+import { setNodeToInspect, setInspectWindowActive } from './../actions/InspectNodeActions.js';
+
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -36,7 +38,6 @@ export default function GraphQueryVisualizer() {
         { // edge ab
           data: { id: 'ab', source: 'a', target: 'b' },
           selectable: false,
-          events: false
         },
         { // edge bc
           data: { id: 'bc', source: 'b', target: 'c' },
@@ -55,13 +56,14 @@ export default function GraphQueryVisualizer() {
           selectable: false,
         }
       ],
-    
+      
       style: [ // the stylesheet for the graph
         {
           selector: 'node',
           style: {
-            'background-image': 'url(https://app.ardoq.com/api/attachment/workspace/5d6521661fa32c5a0ca7094b/Cop_Pink_Icon.png?org=tdt42902019)',
-            //'background-image': 'url(https://cdn3.iconfinder.com/data/icons/computer-system-and-data/512/1-256.png)',
+
+            // Uses https://cors-anywhere.herokuapp.com as proxy for the image
+            'background-image': "https://cors-anywhere.herokuapp.com/https://app.ardoq.com/api/attachment/workspace/0a046b79362471623d97a644/gao_yue.png?org=tdt42902019",
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
             'background-size': 'contain',
@@ -121,6 +123,9 @@ let defaults = {
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        dispatch(setNodeToInspect(ele.data()['nodeNum']))
+        dispatch(setInspectWindowActive(true))
+
       },
       enabled: true // whether the command is selectable
     },
@@ -137,7 +142,7 @@ let defaults = {
 
     { // example command
       fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: "", // html/text content to be displayed in the menu
+      content: "Lorem Ipsum", // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
@@ -162,12 +167,10 @@ let defaults = {
 };
 
 let menu = cy.cxtmenu( defaults );
-console.log(menu)
 
 cy.panningEnabled(false)
 cy.autoungrabify(true)
 
-console.log(cy.edges())
 
   })
 

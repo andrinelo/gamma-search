@@ -132,7 +132,7 @@ function RelationMenu(props) {
                                 onChange={(e) => handleCheckboxChange(index, e)}
                               ></ArdoqThemedCheckbox>
                             }
-                            label="Inn"
+                            label="In"
                           ></FormControlLabel>
                           <FormControlLabel
                             control={

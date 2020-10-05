@@ -9,37 +9,46 @@ import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
 import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 
+import InspectedNodeWindow from "./components/InspectedNodeWindow"
 import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 import RelationButton from "./components/RelationButton"
 
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS, INTERNAL_EDGES_IN_INSPECTED_NODES } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INTERNAL_EDGES_IN_INSPECTED_NODES, INSPECTED_NODES } from './actions/QueryKeys.js'
 
 
 import Graph from "react-graph-vis";
 
+let inspectDataModelOpen = false;
 
 function App() {
-  let gremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
   
+  // The node the user chose to inspect
+  let nodeToInspect = useSelector(state => state.nodeToInspect)
+
+  // Full current gremlin query
+  let fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join("") + ".dedup()")
+  
+  // Gremlin query corresponding to the current inspected dataset
+  let inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, nodeToInspect + 1).join("") + ".dedup()")
+
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if(gremlinQuery !== ""){
-      dispatch(fetchQueryItems(gremlinQuery, FULL_RESULT_ITEMS))
-      dispatch(fetchQueryItems(gremlinQuery + ".dedup().union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INTERNAL_EDGES_IN_INSPECTED_NODES))
+    // The full current gremlin query results
+    if(fullGremlinQuery !== ""){
+      dispatch(fetchQueryItems(fullGremlinQuery, FULL_RESULT_ITEMS))
+    }
 
+    // The gremlin query results corresponding to the inspected node
+    if(inspectedGremlinQuery !== ""){
+      dispatch(fetchQueryItems(inspectedGremlinQuery, INSPECTED_NODES))
+      dispatch(fetchQueryItems(inspectedGremlinQuery + ".dedup().union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INTERNAL_EDGES_IN_INSPECTED_NODES))
     }
   })
   
-
-  //const queryData = useQuery("g.V().hasLabel('Person').limit(1)");
-  //console.log(queryData.result)
-
-  //const queryData2 = useQuery(gremlinQuery);
-  //console.log(queryData2.result)
 
   const graph = {
     nodes: [
@@ -58,17 +67,18 @@ function App() {
     <div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <StartNodeInputField></StartNodeInputField>
+        <InspectedNodeWindow></InspectedNodeWindow>
 
         <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
         <OutputAccordion>
         </OutputAccordion>
-        <CloudButton></CloudButton>
+        <CloudButton cloudId={0}></CloudButton>
         
         <RelationButton edgeId = {1}></RelationButton>
         <RelationButton edgeId = {2}></RelationButton>
         <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} ></AutocompleteTextField> {/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
-        <GraphView graph={graphData}></GraphView>
+        {/* <GraphView graph={graphData}></GraphView> */}
         
     </div>
   );
