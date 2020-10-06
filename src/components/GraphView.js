@@ -19,10 +19,10 @@ function GraphView({graph}) {
       enabled: false,
     },
     groups: {
-      clouds: {
+      /* clouds: {
         shape: "image",
         image: require("../assets/cloud.png")
-      },
+      }, */
     },
     nodes: {
       widthConstraint: 150,
