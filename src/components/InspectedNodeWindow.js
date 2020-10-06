@@ -121,7 +121,7 @@ export default function InspectedNodeWindow(props) {
               'background-repeat': 'no-repeat',
               "background-fit": "cover cover",
               //'background-size': 'contain',
-              'background-color': '#666',
+              'background-color': '#add8e6',
               'label': 'data(name)',
               //'background-opacity': '0',
               'background-clip': 'none',
