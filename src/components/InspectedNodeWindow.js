@@ -1,13 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { setInspectWindowActive } from './../actions/InspectNodeActions.js';
+import { resetSelectedNode } from './../actions/SelectedNodeActions.js';
+
 import cytoscape from 'cytoscape';
 // import cxtmenu from 'cytoscape-cxtmenu';
 // cytoscape.use( cxtmenu ); // register extension
@@ -30,8 +29,14 @@ export default function InspectedNodeWindow(props) {
   const inspectedNodesIDs = inspectedNodes.map(node => node['id'])
   const graphInspectContainer = useRef(null)
 
+  const selectedNode = useSelector(state => state.selectedNode)
+
+  // Gremlin query corresponding to the current inspected dataset
+  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, selectedNode + 1).join("")) + ".dedup()"
+
   const handleClose = () => {
     dispatch(setInspectWindowActive(false));
+    dispatch(resetSelectedNode());
     
   };
   const handleClickOpen = () => {
@@ -41,6 +46,7 @@ export default function InspectedNodeWindow(props) {
 
 
   useEffect(() => {
+
     if(graphInspectContainer.current !== null){
 
       // Nodes and edges
@@ -77,12 +83,20 @@ export default function InspectedNodeWindow(props) {
         }
       };
 
+      // Adds all the edges
       for (var i=0; i<inspectedEdges.length; i++) {
         try{
           var edge = inspectedEdges[i]
+
+          // Checks that our edge is between nodes in our graph
           if(inspectedNodesIDs.includes(edge['inV']) && inspectedNodesIDs.includes(edge['outV'])){
             elements.push({
-              data: {id: edge['id'], source: edge['outV'], target: edge['inV']}
+              data: {
+                id: edge['id'], 
+                source: edge['outV'], 
+                target: edge['inV'],
+                fullJSON: JSON.stringify(edge),
+              }
             })
           }
         }
@@ -110,7 +124,7 @@ export default function InspectedNodeWindow(props) {
               'background-color': '#666',
               'label': 'data(name)',
               //'background-opacity': '0',
-              'background-clip': 'none'
+              'background-clip': 'none',
 
             }
             
@@ -123,16 +137,31 @@ export default function InspectedNodeWindow(props) {
               'line-color': '#ccc',
               'target-arrow-color': '#ccc',
               'curve-style': 'bezier',
-              'target-arrow-shape': 'triangle' // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
+              'target-arrow-shape': 'triangle', // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
             },
-          }
+          },
       
-          /* {
-
-            selector: 'node:active',
+          {
+            selector: 'node:selected',
               style: {
+                'border-width': '3px',
+                'border-style': 'dashed',
+                'border-color': '#006400',
+                'width': '45%',
+                'height': '45%'
             }
-          } */
+          },
+
+          {
+            selector: 'edge:selected',
+              style: {
+                'width': '4px',
+                'line-style': 'dashed',
+                'line-color': '#006400',
+                'target-arrow-color': '#006400',
+            }
+          } 
+
         ],
       
         layout: {
@@ -170,7 +199,7 @@ export default function InspectedNodeWindow(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogTitle id="alert-dialog-slide-title">{"Nodes in this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/></DialogTitle>
+        <DialogTitle id="alert-dialog-slide-title">{"Nodes in the dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/></DialogTitle>
         <DialogContent style={{ width: '80vw', height: '80vh' }}>
           
           <div style={containerStyle}>

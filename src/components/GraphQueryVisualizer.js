@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { setNodeToInspect, setInspectWindowActive } from './../actions/InspectNodeActions.js';
-
+import { setInspectWindowActive } from './../actions/InspectNodeActions.js';
+import { setSelectedNode } from './../actions/SelectedNodeActions'
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -63,10 +63,10 @@ export default function GraphQueryVisualizer() {
           style: {
 
             // Uses https://cors-anywhere.herokuapp.com as proxy for the image
-            'background-image': "https://cors-anywhere.herokuapp.com/https://app.ardoq.com/api/attachment/workspace/0a046b79362471623d97a644/gao_yue.png?org=tdt42902019",
+            'background-image': "url(/PlaceholderNodeImage.png)",
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
-            'background-size': 'contain',
+            //'background-size': 'contain',
             'background-color': '#666',
             'label': 'data(nodeNum)',
             //'background-opacity': '0',
@@ -81,7 +81,18 @@ export default function GraphQueryVisualizer() {
           selector: 'node:active',
             style: {
           }
-        } */
+        }, */
+
+        {
+          selector: 'edge',
+          style: {
+            'width': 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'curve-style': 'bezier',
+            'target-arrow-shape': 'triangle' // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
+          },
+        }
       ],
     
       layout: {
@@ -123,7 +134,7 @@ let defaults = {
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-        dispatch(setNodeToInspect(ele.data()['nodeNum']))
+        dispatch(setSelectedNode(ele.data()['nodeNum']))
         dispatch(setInspectWindowActive(true))
 
       },

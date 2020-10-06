@@ -7,7 +7,7 @@ import FilterReducer from "./FilterReducer.js";
 import gremlinQueryReducer from "./GremlinQueryReducer.js";
 import queryReducer from "./QueryReducer.js"
 import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
-import ActiveInspectedNodeReducer from "./ActiveInspectedNodeReducer.js"
+import SelectedNodeReducer from "./SelectedNodeReducer.js"
 import InspectedNodeWindowReducer from "./InspectedNodeWindowReducer.js"
 
 // Combines all reducers and export them
@@ -20,6 +20,6 @@ export default combineReducers({
   autoComplete: AutocompleteSuggestionReducer,
   relations: RelationReducer,
   filters: FilterReducer,  
-  nodeToInspect: ActiveInspectedNodeReducer,
+  selectedNode: SelectedNodeReducer,
   inspectNodeWindowActive: InspectedNodeWindowReducer,
 });
