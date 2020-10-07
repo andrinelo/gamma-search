@@ -17,15 +17,14 @@ export default function GraphQueryVisualizer() {
   const stateRelations = useSelector((state) => state.relations);
   const stateRelationsArray = Object.entries(stateRelations);
 
-
-  const NodesArray = [{     //Initiate with initial node
-    data: { id: "0", nodeNum: 0, label: "Startnode"},
-  }]
+  const NodesArray = [
+    {data: { id: "0", nodeNum: 0, label: "Startnode"},},      //Initial node
+  ]
 
   stateRelationsArray.map((relation) => {   //Add nodes from relations
     NodesArray.push(
       { //node
-        data: { id: relation[0], nodeNum: parseInt(relation[0])},
+        data: { id: relation[0], nodeNum: parseInt(relation[0]), label: relation[1].relations[0].text},
       },
       { // edge ab
         data: { id: NodesArray[parseInt(relation[0])-1].data.id +"-" + relation[0], source: NodesArray[parseInt(relation[0])-1].data.id, target: relation[0], label: relation[1].relations[0].text },
@@ -34,7 +33,14 @@ export default function GraphQueryVisualizer() {
     );
   })
 
-  console.log("NODESARRAY: ", NodesArray)
+  const lastNodeId = stateRelationsArray.length.toString();
+
+  NodesArray.push(
+    {data: { id: "resultNode", label: "Result"},},
+    {data: { id: "0-result", source: lastNodeId, target: "resultNode", label:"Result"}, selectable: false,}
+  );
+
+  console.log("Last Node ID: ", lastNodeId)
   
 
   useEffect(() => {
