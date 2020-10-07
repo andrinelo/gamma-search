@@ -117,7 +117,6 @@ let defaults = {
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
         dispatch(setSelectedNode(ele.data()['nodeNum']))
         dispatch(setFilterWindowActive(true))
-        console.log("yo")
       },
       enabled: true // whether the command is selectable
     },

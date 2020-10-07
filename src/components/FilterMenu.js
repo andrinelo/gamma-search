@@ -23,6 +23,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
 import { resetSelectedNode } from './../actions/SelectedNodeActions.js';
+import { resetGremlinQuery, appendToGremlinQuery} from "../actions/GremlinQueryActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -39,18 +40,27 @@ const operators = {
 
 function FilterMenu(props) {
   const open = useSelector(state => state.filterNodeWindowsActive)
-  const selectedNode = useSelector(state => state.selectedNode)
-  console.log(open);
-  
+  const selectedNode = useSelector(state => state.selectedNode)  
 
   const stateFilters = useSelector((state) => state.filters);
 
   useEffect(() => {
     let id = selectedNode;
     console.log(id)
+    //console.log(stateFilters[id])
     if (stateFilters[id]) {
+      console.log("eksisterer")
       let tmpFilters = stateFilters[id].filters;
       setLocalFilters([...tmpFilters]);
+    }
+    else{
+      setLocalFilters([
+        {
+          property: "",
+          operator: "==",
+          value: "",
+        },
+      ]);
     }
   }, [stateFilters, props]);
 
@@ -102,6 +112,7 @@ function FilterMenu(props) {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
+    dispatch(appendToGremlinQuery(".test()"))
     //props.showFilter();
   };
 
@@ -109,6 +120,7 @@ function FilterMenu(props) {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
+    dispatch(appendToGremlinQuery(".test()"))
   };
 
   // Removes filter from component local storage
@@ -124,8 +136,8 @@ function FilterMenu(props) {
       <Dialog
         open={open}
         TransitionComponent={Transition}
-        keepMounted
-        //onClose={handleClose}
+        //keepMounted
+        onClose={handleClose}
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}

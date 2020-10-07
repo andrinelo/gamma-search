@@ -50,10 +50,15 @@ export default function StartNodeInputField() {
                     // If the chosen label is "everything", we use the appropriate gremlin string
                     if(newInputValue !== "Include All Categories"){
                       dispatch(appendToGremlinQuery("g.V().hasLabel('" + newInputValue + "')"))
+                      dispatch(appendToGremlinQuery(""))
                       dispatch(appendToGremlinQuery(".out()"))
+                      dispatch(appendToGremlinQuery(""))
                       dispatch(appendToGremlinQuery(".out()"))
+                      dispatch(appendToGremlinQuery(""))
                       dispatch(appendToGremlinQuery(".out()"))
+                      dispatch(appendToGremlinQuery(""))
                       dispatch(appendToGremlinQuery(".out()"))
+                      dispatch(appendToGremlinQuery(""))
                       dispatch(appendToGremlinQuery(".out()"))
                       
 
