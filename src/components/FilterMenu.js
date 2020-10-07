@@ -116,12 +116,14 @@ function FilterMenu(props) {
   };
 
   const localFiltersToGreminParser = () => {
-    let localGremlin = ".has('"
+    let localGremlin = ""
     for (let id in localFilters){
+      localGremlin = localGremlin.concat(".has('")
       console.log(localFilters[id])
       localGremlin = localGremlin.concat(localFilters[id].property)
       localGremlin = localGremlin.concat("', ")
       switch(localFilters[id].operator){
+        
         case "==":
           localGremlin = localGremlin.concat("eq")
           break;
@@ -156,12 +158,12 @@ function FilterMenu(props) {
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
 
-    
+
     dispatch(removeGremlinQueryStepsAfterIndex((selectedNode*2)+1))
 
     let localGremlinQuery = localFiltersToGreminParser()
     dispatch(appendToGremlinQuery(localGremlinQuery))
-    
+    dispatch(appendToGremlinQuery(""))
     //fjern alle element fra liste som kommer etter
     
 

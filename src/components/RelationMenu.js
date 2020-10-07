@@ -16,6 +16,8 @@ import { withStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
 import { DeleteForever } from "@material-ui/icons";
+import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
+
 
 function RelationMenu(props) {
   const stateRelations = useSelector((state) => state.relations);
@@ -82,6 +84,7 @@ function RelationMenu(props) {
 
   const closeRelationMenu = () => {
     updateRelation(localRelations, allRelations, props.edgeId);
+    dispatch(appendToGremlinQuery(""))
     props.showMenu();
   };
 
