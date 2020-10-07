@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { setInspectWindowActive } from './../actions/InspectNodeActions.js';
+import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
 import { setSelectedNode } from './../actions/SelectedNodeActions'
 
 cytoscape.use( cxtmenu ); // register extension
@@ -115,6 +116,7 @@ let defaults = {
       select: function(ele){ // a function to execute when the command is selected
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
         dispatch(setSelectedNode(ele.data()['nodeNum']))
+        dispatch(setFilterWindowActive(true))
         console.log("yo")
       },
       enabled: true // whether the command is selectable
