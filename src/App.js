@@ -66,7 +66,7 @@ function App() {
         </OutputAccordion>
         <CloudButton></CloudButton>
         <StartNodeInputField></StartNodeInputField>
-        <AggregateMenu/>
+        <AggregateMenu cloudId={0}/>
         <CloudButton cloudId={0}></CloudButton>
         
         <RelationButton edgeId = {1}></RelationButton>

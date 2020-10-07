@@ -9,13 +9,11 @@ import SelectPropertyView from './SelectPropertyView';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
-import {setActiveWindow} from '../actions/SetActiveWindow.js';
+import { setActiveWindow } from '../actions/SetActiveWindow.js';
+import { setAggregation } from '../actions/SetAggregation.js';
 import AddIcon from '@material-ui/icons/Add';
 import { useDispatch, useSelector } from 'react-redux';
-
-
-
-
+import PropTypes from "prop-types";
 
   export default function AggregateMenu(props) {
     const window = useSelector(state => state.activeWindow);
@@ -30,9 +28,20 @@ import { useDispatch, useSelector } from 'react-redux';
       setLocalAggregation([...localAggregations]);
     }
 
-    // closes the aggregate menu when pressing x or saving
+    // closes the aggregate menu when pressing x, remove local state
     const closeAggregateMenu = () => {
+      setLocalAggregation([{
+        proptype: "",
+        aggregateFunction: ""
+      }]);
       dispatch(setActiveWindow(""));
+    }
+
+    // close the aggregate menu, save state 
+    const save = () => {
+      dispatch(setAggregation(localAggregations, props.cloudId));
+      dispatch(setActiveWindow(""));
+      // TODO add to redux
     }
 
     const [localAggregations, setLocalAggregation] = React.useState([{proptype: "", aggregateFunction: ""}]);
@@ -75,10 +84,14 @@ import { useDispatch, useSelector } from 'react-redux';
           </div>
         </CardContent>
         <CardActions>
-          <Button onClick={()=> closeAggregateMenu()} size="large" startIcon={<SaveIcon />} variant="contained" color="primary" className={classes.saveButtonClass}>Save</Button>
+          <Button onClick={()=> save()} size="large" startIcon={<SaveIcon />} variant="contained" color="primary" className={classes.saveButtonClass}>Save</Button>
         </CardActions>
       </Card>
     );
+  }
+
+  AggregateMenu.propTypes = {
+    cloudId: PropTypes.number.isRequired,
   }
 
   const useStyles = makeStyles({

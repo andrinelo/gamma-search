@@ -9,6 +9,7 @@ import queryReducer from "./QueryReducer.js"
 import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
 import SelectedNodeReducer from "./SelectedNodeReducer.js"
 import InspectedNodeWindowReducer from "./InspectedNodeWindowReducer.js"
+import AggregationReducer from "./AggregationReducer.js";
 
 // Combines all reducers and export them
 export default combineReducers({
@@ -22,4 +23,5 @@ export default combineReducers({
   filters: FilterReducer,  
   selectedNode: SelectedNodeReducer,
   inspectNodeWindowActive: InspectedNodeWindowReducer,
+  aggregation: AggregationReducer
 });

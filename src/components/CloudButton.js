@@ -7,13 +7,6 @@ import React from "react";
 import {setActiveWindow} from '../actions/SetActiveWindow.js';
 import { useDispatch } from 'react-redux'
 
-import PropTypes from "prop-types";
-
-//
-
-import FilterMenu from "./FilterMenu.js";
-
-
 
 // button for clicking 
 export default function CloudButton(props){
@@ -67,8 +60,3 @@ export default function CloudButton(props){
         </div>
     )
 }
-
-CloudButton.propTypes = {
-  setActiveWindow: PropTypes.func.isRequired,
-};
-
