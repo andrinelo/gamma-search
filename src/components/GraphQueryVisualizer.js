@@ -114,6 +114,8 @@ let defaults = {
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
         console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        dispatch(setSelectedNode(ele.data()['nodeNum']))
+        console.log("yo")
       },
       enabled: true // whether the command is selectable
     },
