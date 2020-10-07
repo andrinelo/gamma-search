@@ -14,7 +14,6 @@ import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 import RelationButton from "./components/RelationButton"
 import AggregateMenu from './components/AggregateMenu.js';
 
-
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
 import { FULL_RESULT_ITEMS, INTERNAL_EDGES_IN_INSPECTED_NODES, INSPECTED_NODES } from './actions/QueryKeys.js'
