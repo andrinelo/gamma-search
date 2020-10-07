@@ -5,7 +5,6 @@ import { ExpandMore } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { useSelector } from 'react-redux';
-import GremlinQueryDisplayReducer from '../reducers/GremlinQueryDisplayReducer';
 
 const useStyles = makeStyles({
     root: {
@@ -20,7 +19,7 @@ const useStyles = makeStyles({
 });
 
 export default function GremlinQueryDisplayAccordion(props) {
-    const displayText = useSelector(state => state.gremlinQuery)
+    const displayText = useSelector(store => store.gremlinQueryParts.join(""))
     const classes = useStyles();
     return (
         <Accordion class={classes.root}>
