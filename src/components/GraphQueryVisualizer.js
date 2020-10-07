@@ -34,7 +34,7 @@ export default function GraphQueryVisualizer() {
     );
   })
 
-  console.log("NODESARRAY: ", NodesArray)
+  //console.log("NODESARRAY: ", NodesArray)
   
 
   useEffect(() => {

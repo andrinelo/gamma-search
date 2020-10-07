@@ -23,7 +23,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
 import { resetSelectedNode } from './../actions/SelectedNodeActions.js';
-import { resetGremlinQuery, appendToGremlinQuery} from "../actions/GremlinQueryActions.js";
+import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -46,8 +46,6 @@ function FilterMenu(props) {
 
   useEffect(() => {
     let id = selectedNode;
-    console.log(id)
-    //console.log(stateFilters[id])
     if (stateFilters[id]) {
       console.log("eksisterer")
       let tmpFilters = stateFilters[id].filters;
@@ -112,15 +110,61 @@ function FilterMenu(props) {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
-    dispatch(appendToGremlinQuery(".test()"))
+
+    //dispatch(appendToGremlinQuery(".test()"))
     //props.showFilter();
   };
+
+  const localFiltersToGreminParser = () => {
+    let localGremlin = ".has('"
+    for (let id in localFilters){
+      console.log(localFilters[id])
+      localGremlin = localGremlin.concat(localFilters[id].property)
+      localGremlin = localGremlin.concat("', ")
+      switch(localFilters[id].operator){
+        case "==":
+          localGremlin = localGremlin.concat("eq")
+          break;
+        case "<":
+          localGremlin = localGremlin.concat("gt")
+          break;
+        case ">":
+          localGremlin = localGremlin.concat("lt")
+          break
+        case "<": 
+          localGremlin = localGremlin.concat("gt")
+          break
+        case ">=": 
+          localGremlin = localGremlin.concat("lte")
+          break
+        case "<=": 
+          localGremlin = localGremlin.concat("gte")
+          break
+        case "!=": 
+          localGremlin = localGremlin.concat("neq")
+          break
+      }
+      localGremlin = localGremlin.concat("('")
+      localGremlin = localGremlin.concat(localFilters[id].value)
+      localGremlin = localGremlin.concat("'))")
+    }
+    return(localGremlin)
+  }
 
   const closeFilterMenu = () => {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
-    dispatch(appendToGremlinQuery(".test()"))
+
+    
+    dispatch(removeGremlinQueryStepsAfterIndex((selectedNode*2)+1))
+
+    let localGremlinQuery = localFiltersToGreminParser()
+    dispatch(appendToGremlinQuery(localGremlinQuery))
+    
+    //fjern alle element fra liste som kommer etter
+    
+
   };
 
   // Removes filter from component local storage
