@@ -10,6 +10,7 @@ import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 
 import InspectedNodeWindow from "./components/InspectedNodeWindow"
+import FilterMenu from "./components/FilterMenu"
 import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 import RelationButton from "./components/RelationButton"
 
@@ -60,6 +61,7 @@ function App() {
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <StartNodeInputField></StartNodeInputField>
         <InspectedNodeWindow></InspectedNodeWindow>
+        <FilterMenu></FilterMenu>
 
         <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
         <OutputAccordion>
