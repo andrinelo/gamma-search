@@ -30,9 +30,12 @@ export default function InspectedNodeWindow(props) {
   const graphInspectContainer = useRef(null)
 
   const selectedNode = useSelector(state => state.selectedNode)
+  //TODO: gremlin query is correct, but data from "inspectedNodes" is not correct 
+  //const indexInGremlinQuery = (selectedNode * 2) +1
+  const indexInGremlinQuery = selectedNode
 
   // Gremlin query corresponding to the current inspected dataset
-  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, selectedNode + 1).join("")) + ".dedup()"
+  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, indexInGremlinQuery + 1).join("")) + ".dedup()"
 
   const handleClose = () => {
     dispatch(setInspectWindowActive(false));

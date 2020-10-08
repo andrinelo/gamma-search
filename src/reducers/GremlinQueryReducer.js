@@ -1,4 +1,4 @@
-import { RESET_CURRENT_GREMLIN_QUERY, APPEND_TO_CURRENT_GREMLIN_QUERY, REMOVE_GREMLIN_QUERY_STEPS_AFTER_INDEX } from '../actions/types.js';
+import { RESET_CURRENT_GREMLIN_QUERY, APPEND_TO_CURRENT_GREMLIN_QUERY, REMOVE_GREMLIN_QUERY_STEPS_AFTER_INDEX, SET_GREMLIN_QUERY_STEP } from '../actions/types.js';
 
 const gremlinQueryReducer = (state = [], action) => {
   
@@ -9,9 +9,10 @@ const gremlinQueryReducer = (state = [], action) => {
       state.push(action.queryPart);
       return state  
     case REMOVE_GREMLIN_QUERY_STEPS_AFTER_INDEX:
-      console.log(state)
-      state.splice(action.index,50)
-      //fjern lengden av lista, 50 er stor sett alletid lenger enn lista, så det fungerer enn så lenge
+      state.splice(action.index,state.length)
+      return state
+    case SET_GREMLIN_QUERY_STEP:
+      state[action.index] = action.queryPart
       return state
     default:
       return state;

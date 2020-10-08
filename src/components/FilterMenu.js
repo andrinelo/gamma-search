@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import { makeStyles } from "@material-ui/core/styles";
-import CardHeader from "@material-ui/core/CardHeader";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControl from "@material-ui/core/FormControl";
 import AddIcon from "@material-ui/icons/Add";
-import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
@@ -23,7 +19,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
 import { resetSelectedNode } from './../actions/SelectedNodeActions.js';
-import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
+import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -47,7 +43,6 @@ function FilterMenu(props) {
   useEffect(() => {
     let id = selectedNode;
     if (stateFilters[id]) {
-      console.log("eksisterer")
       let tmpFilters = stateFilters[id].filters;
       setLocalFilters([...tmpFilters]);
     }
@@ -60,7 +55,7 @@ function FilterMenu(props) {
         },
       ]);
     }
-  }, [stateFilters, props]);
+  }, [stateFilters, props, selectedNode]);
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -106,20 +101,16 @@ function FilterMenu(props) {
     dispatch(SetFilter({ filters }, cloudId));
   };
 
+  //run when cross is pressed. Closes the menu without saving to redux
   const handleClose = () => {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
-    updateFilter(localFilters, selectedNode);
-
-    //dispatch(appendToGremlinQuery(".test()"))
-    //props.showFilter();
   };
 
   const localFiltersToGreminParser = () => {
     let localGremlin = ""
     for (let id in localFilters){
       localGremlin = localGremlin.concat(".has('")
-      console.log(localFilters[id])
       localGremlin = localGremlin.concat(localFilters[id].property)
       localGremlin = localGremlin.concat("', ")
       switch(localFilters[id].operator){
@@ -133,9 +124,6 @@ function FilterMenu(props) {
         case ">":
           localGremlin = localGremlin.concat("lt")
           break
-        case "<": 
-          localGremlin = localGremlin.concat("gt")
-          break
         case ">=": 
           localGremlin = localGremlin.concat("lte")
           break
@@ -144,7 +132,9 @@ function FilterMenu(props) {
           break
         case "!=": 
           localGremlin = localGremlin.concat("neq")
-          break
+          break;
+        default:
+          break;
       }
       localGremlin = localGremlin.concat("('")
       localGremlin = localGremlin.concat(localFilters[id].value)
@@ -157,14 +147,15 @@ function FilterMenu(props) {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedNode());
     updateFilter(localFilters, selectedNode);
-
-
-    dispatch(removeGremlinQueryStepsAfterIndex((selectedNode*2)+1))
+    let localIndex = (selectedNode * 2) +1
 
     let localGremlinQuery = localFiltersToGreminParser()
-    dispatch(appendToGremlinQuery(localGremlinQuery))
-    dispatch(appendToGremlinQuery(""))
-    //fjern alle element fra liste som kommer etter
+    dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
+
+    //Commented code removes all queries after this filter
+    //dispatch(removeGremlinQueryStepsAfterIndex((selectedNode*2)+1))
+    //dispatch(appendToGremlinQuery(localGremlinQuery))
+    //dispatch(appendToGremlinQuery(""))
     
 
   };
@@ -193,7 +184,7 @@ function FilterMenu(props) {
 
       <DialogTitle id="alert-dialog-slide-title">
         {"Filter"}
-        <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
+        <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
       </DialogTitle>
         
           {/*}
