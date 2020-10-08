@@ -2,97 +2,109 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { setInspectWindowActive } from './../actions/InspectNodeActions.js';
-import { setSelectedNode } from './../actions/SelectedNodeActions'
+import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
+import { setSelectedDataset } from './../actions/SelectedDatasetActions'
 
 cytoscape.use( cxtmenu ); // register extension
 
 export default function GraphQueryVisualizer() {
   const dispatch = useDispatch();
   const graphContainer = useRef(null)
-  
+
+  // The number of nodes in the graph is the same as the number of gremlin query parts
+  const numberOfNodes = useSelector(store => store.gremlinQueryParts).length
+
 
   useEffect(() => {
+
+    let elements = []
+
+    for(var i = 0; i < numberOfNodes; i++){
+ 
+      // Creates the nodes, the last / right-most node gets a different style
+      elements.push(
+        { data: {
+          id: i, 
+          nodeName: "Dataset " + (i+1),
+          borderWidth: i === (numberOfNodes - 1) ? '3px' : '1px',
+          borderStyle: i === (numberOfNodes - 1) ? 'dashed' : 'solid',
+          borderColor: i === (numberOfNodes - 1) ? '#006400' : 'black',
+          }
+        },
+      )
+
+      // Creates the edges
+      if(i>0){
+        elements.push({
+          data: {
+            id: 'edge' + (i-1), 
+            source: i-1, 
+            target: i,
+          },
+          selectable: false,
+        })
+      }
+    }
+
     var cy = cytoscape({
       container: graphContainer.current, // container to render in
 
-      elements: [ // list of graph elements to start with
-        { // node a
-          data: { id: 'a', nodeNum: 0 },
-        },
-        { // node b
-          data: { id: 'b', nodeNum: 1 },
-        },
-        { // node c
-          data: { id: 'c', nodeNum: 2 },
-        },
-        { // node d
-          data: { id: 'd', nodeNum: 3 },
-        },
-        { // node e
-          data: { id: 'e', nodeNum: 4 },
-        },
-        { // node f
-          data: { id: 'f', nodeNum: 5 },
-        },
-        { // edge ab
-          data: { id: 'ab', source: 'a', target: 'b' },
-          selectable: false,
-        },
-        { // edge bc
-          data: { id: 'bc', source: 'b', target: 'c' },
-          selectable: false,
-        },
-        { // edge cd
-          data: { id: 'cd', source: 'c', target: 'd' },
-          selectable: false,
-        },
-        { // edge de
-          data: { id: 'de', source: 'd', target: 'e' },
-          selectable: false,
-        },
-        { // edge ef
-          data: { id: 'ef', source: 'e', target: 'f' },
-          selectable: false,
-        }
-      ],
+      // Nodes and edges
+      elements: elements,
       
       style: [ // the stylesheet for the graph
+        {
+          selector: 'core',
+            style: {
+              'active-bg-opacity': '0',
+              'selection-box-opacity': '0',
+          }
+        }, 
+      
         {
           selector: 'node',
           style: {
 
             // Uses https://cors-anywhere.herokuapp.com as proxy for the image
-            'background-image': "url(/PlaceholderNodeImage.png)",
+            'background-image': "url(/NodeImage1.png)",
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
-            //'background-size': 'contain',
             'background-color': '#666',
-            'label': 'data(nodeNum)',
-            //'background-opacity': '0',
-            'background-clip': 'none'
-
+            'label': 'data(nodeName)',
+            'background-clip': 'none',
+            'width': '40%',
+            'height': '40%',
+            'border-width': 'data(borderWidth)',
+            'border-style': 'data(borderStyle)',
+            'border-color': 'data(borderColor)',
           }
           
         },
-    
-        /* {
 
+        {
           selector: 'node:active',
             style: {
+              'overlay-opacity': '0',
           }
-        }, */
+        }, 
 
         {
           selector: 'edge',
           style: {
-            'width': 3,
+            'width': '3px',
             'line-color': '#ccc',
             'target-arrow-color': '#ccc',
             'curve-style': 'bezier',
             'target-arrow-shape': 'triangle' // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
           },
-        }
+        },
+
+        {
+          selector: 'edge:active',
+            style: {
+              'overlay-opacity': '0',
+          }
+        }, 
       ],
     
       layout: {
@@ -113,7 +125,7 @@ let defaults = {
       content: 'Filter this dataset', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
       },
       enabled: true // whether the command is selectable
     },
@@ -123,7 +135,7 @@ let defaults = {
       content: 'Aggregate dataset', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
       },
       enabled: true // whether the command is selectable
     },
@@ -133,8 +145,8 @@ let defaults = {
       content: 'Inspect this dataset', // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-        dispatch(setSelectedNode(ele.data()['nodeNum']))
+        console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+        dispatch(setSelectedDataset(ele.data()['id']))
         dispatch(setInspectWindowActive(true))
 
       },
@@ -146,7 +158,7 @@ let defaults = {
       content: "Explore dataset's relations", // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
       },
       enabled: true // whether the command is selectable
     },
@@ -156,7 +168,7 @@ let defaults = {
       content: "Lorem Ipsum", // html/text content to be displayed in the menu
       contentStyle: {}, // css key:value pairs to set the command's css in js if you want
       select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
+        console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
       },
       enabled: true // whether the command is selectable
     }
