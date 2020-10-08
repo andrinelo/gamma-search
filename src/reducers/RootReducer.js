@@ -7,6 +7,7 @@ import FilterReducer from "./FilterReducer.js";
 import gremlinQueryReducer from "./GremlinQueryReducer.js";
 import queryReducer from "./QueryReducer.js"
 import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
+import FilterNodeWindowsReducer from "./FilterNodeWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
 
@@ -20,6 +21,7 @@ export default combineReducers({
   autoComplete: AutocompleteSuggestionReducer,
   relations: RelationReducer,
   filters: FilterReducer,  
+  filterNodeWindowsActive: FilterNodeWindowsReducer,
   selectedDataset: SelectedDatasetReducer,
   inspectDatasetWindowActive: InspectedDatasetWindowReducer,
 });

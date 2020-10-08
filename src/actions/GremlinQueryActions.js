@@ -24,10 +24,11 @@ export function appendToGremlinQueryStep(gremlinQueryPart) {
   };
 }
 
-// Action used to set the current gremlin query step
-export function setGremlinQueryStep(gremlinQueryPart) {
+// Action used to set the gremlin query step by index
+export function setGremlinQueryStep(gremlinQueryPart, index) {
   return {
     queryPart: gremlinQueryPart,
+    index: index,
     type: SET_GREMLIN_QUERY_STEP
   };
 }
