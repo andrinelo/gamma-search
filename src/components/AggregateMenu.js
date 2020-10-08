@@ -17,43 +17,70 @@ import PropTypes from "prop-types";
 
   export default function AggregateMenu(props) {
     const window = useSelector(state => state.activeWindow);
+    const stateAggregations = useSelector(state => state.aggregation);
     const classes = useStyles();  
     const dispatch = useDispatch();
+    const [localAggregations, setLocalAggregation] = React.useState([{proptype: '', aggregateFunction: ''}]);
 
+    // Adds another line with aggregate choices
     const addAggregateChoices = () => { 
       localAggregations.push({
-        proptype: "",
-        aggregateFunction: ""
+        proptype: '',
+        aggregateFunction: ''
       });
       setLocalAggregation([...localAggregations]);
     }
 
-    // closes the aggregate menu when pressing x, remove local state
+    // closes the aggregate menu when pressing x, remove unsaved local change
     const closeAggregateMenu = () => {
-      setLocalAggregation([{
-        proptype: "",
-        aggregateFunction: ""
-      }]);
+      console.log("Hei");
+      if(stateAggregations[props.cloudId]){
+        setLocalAggregation(stateAggregations[props.cloudId]);
+      }
+      else {
+        setLocalAggregation([{proptype: '', aggregateFunction: ''}]);
+      }
       dispatch(setActiveWindow(""));
     }
 
     // close the aggregate menu, save state 
     const save = () => {
-      dispatch(setAggregation(localAggregations, props.cloudId));
+      console.log("save");
+      dispatch(setAggregation(JSON.parse(JSON.stringify(localAggregations)), props.cloudId)); //JALLAFIX actually needs to be fixed in redux I think
       dispatch(setActiveWindow(""));
       // TODO add to redux
     }
 
-    const [localAggregations, setLocalAggregation] = React.useState([{proptype: "", aggregateFunction: ""}]);
-
+    // this updates local state when a user selects a property or aggregation type
     const handleChange = (e, id, index) => {
       localAggregations[index][id] = e.target.value;
       setLocalAggregation([...localAggregations]);
     };
 
+    // deletes an aggregation if the user presses the trash icon
+    // if there is only one left, make fields empty
     const handleDeleteAggregation = (index) => {
       localAggregations.splice(index, 1);
       setLocalAggregation([...localAggregations]);
+      if (localAggregations.length === 0){
+        addAggregateChoices();
+      }
+    }
+
+    // validitycheck
+    const aggregatefieldsAreNotFilled = () => {
+      const notFilled = (aggregateObj) => (aggregateObj.proptype === '' || aggregateObj.aggregateFunction === '');
+      return localAggregations.some(notFilled);
+    }
+
+    const disableSaveAggregations = () => {
+      if(aggregatefieldsAreNotFilled()){
+        if(localAggregations.length === 1){
+          return false;
+        }
+        return true;
+      }
+      return false;
     }
 
     return (
@@ -78,13 +105,26 @@ import PropTypes from "prop-types";
                 </div>
               )
             })}
-            <IconButton onClick={()=> addAggregateChoices()}>  
+            <IconButton 
+              onClick={()=> addAggregateChoices()} 
+              disabled={aggregatefieldsAreNotFilled()}
+            >  
               <AddIcon/>
             </IconButton>
           </div>
         </CardContent>
         <CardActions>
-          <Button onClick={()=> save()} size="large" startIcon={<SaveIcon />} variant="contained" color="primary" className={classes.saveButtonClass}>Save</Button>
+          <Button 
+            onClick={()=> save()} 
+            size="large" 
+            startIcon={<SaveIcon />} 
+            variant="contained" 
+            color="primary" 
+            className={classes.saveButtonClass}
+            disabled={disableSaveAggregations()}
+          >
+            Save
+          </Button>
         </CardActions>
       </Card>
     );
