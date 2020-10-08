@@ -20,18 +20,20 @@ import { Autocomplete } from "@material-ui/lab";
 
 function RelationMenu(props) {
   const stateRelations = useSelector((state) => state.relations);
-
+  console.log(stateRelations)
+  
   React.useEffect(() => {
     let id = props.edgeId;
     //if there exists a object in the state for this menu(id), then load that state to this component
     if (stateRelations[id]) {
-      let tmpRelations = Object.assign({}, stateRelations[id].relations);
-      console.log(tmpRelations);
-      setLocalRelations(tmpRelations);
-      let tmpAllRelation = Object.assign({}, stateRelations[id].allRelations);
+      //console.log(stateRelations[id].relations);
+      let tmpRelations = stateRelations[id].relations;
+      //console.log(tmpRelations);
+      setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
+      let tmpAllRelation = stateRelations[id].allRelations;
       setAllRelations(tmpAllRelation);
     }
-  }, [stateRelations, props]);
+  }, [props]);
 
   const dispatch = useDispatch();
   const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
