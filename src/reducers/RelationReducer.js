@@ -4,10 +4,11 @@ import { SET_RELATION } from "./../actions/types.js";
 const relationReducer = (state = {}, action) => {
   switch (action.type) {
     case SET_RELATION:
-        let relation = {...state, [action.edgeId]: action.value}
+        const relation = JSON.parse(JSON.stringify(state));
+        relation[action.edgeId] = action.value;
         return relation;
     default:
-        return state;
+        return JSON.parse(JSON.stringify(state));
   }
 };
 
