@@ -168,6 +168,14 @@ function FilterMenu(props) {
 
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
+  // checks whether the newly added filter has its fields filled
+  // if not if should not be possible to add another filter
+  // or apply filters at all
+  const filterlineIsNotFilled = () => {
+    const notFilled = (filterLine) => (filterLine.property === "" || filterLine.value === "");
+    return localFilters.some(notFilled);
+  }
+
   return (
     <div>
       <Dialog
@@ -279,7 +287,7 @@ function FilterMenu(props) {
                 })}
               </FormGroup>
 
-              <IconButton onClick={() => addFilter()}>
+              <IconButton onClick={() => addFilter()} disabled={filterlineIsNotFilled()}>
                 <AddIcon />
               </IconButton>
             </div>
@@ -287,6 +295,7 @@ function FilterMenu(props) {
 
             <div className={classes.saveButtonContainer}>
               <Button
+                disabled={filterlineIsNotFilled()}
                 onClick={() => closeFilterMenu()}
                 variant="contained"
                 color="primary"
@@ -294,7 +303,7 @@ function FilterMenu(props) {
                 className={classes.saveButtonClass}
                 startIcon={<SaveIcon />}
               >
-                Save
+                Apply Filters
               </Button>
             </div>
 

@@ -16,7 +16,8 @@ export default function OutputPaginator(props) {
     const classes = useStyles();
     const value = useSelector(state => state.currentOutputPage)
     const dispatch = useDispatch()
-    if (value == 0 && value >= props.pageCount) {
+    console.log(props.pageCount);
+    if (value == 0 && value >= props.pageCount) { // Only one page
         return (
             <Box class={classes.flexBox}>
                 <Typography>
@@ -25,7 +26,17 @@ export default function OutputPaginator(props) {
             </Box>
         )
     }
-    else if (value == 0) {
+    else if (value >= props.pageCount) { // Only previous pages
+      return (
+        <Box class={classes.flexBox}>
+          <Button onClick={() => dispatch(decreasePageNumber())}>Previous page</Button>
+          <Typography>
+            {value}
+          </Typography>
+        </Box>
+      );
+    }
+    else if (value == 0) { // Only next pages
       return (
         <Box class={classes.flexBox}>
           <Typography>
@@ -36,7 +47,7 @@ export default function OutputPaginator(props) {
       )
     }
     else {
-      return (
+      return ( // Next and previous pages
         <Box class={classes.flexBox}>
           <Button onClick={() => dispatch(decreasePageNumber())}>Previous page</Button>
           <Typography>
@@ -47,4 +58,3 @@ export default function OutputPaginator(props) {
       )
     }
 }
-
