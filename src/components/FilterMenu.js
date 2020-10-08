@@ -18,7 +18,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
-import { resetSelectedNode } from './../actions/SelectedNodeActions.js';
+import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -36,12 +36,12 @@ const operators = {
 
 function FilterMenu(props) {
   const open = useSelector(state => state.filterNodeWindowsActive)
-  const selectedNode = useSelector(state => state.selectedNode)  
+  const selectedDataset = useSelector(state => state.selectedDataset)  
 
   const stateFilters = useSelector((state) => state.filters);
 
   useEffect(() => {
-    let id = selectedNode;
+    let id = selectedDataset;
     if (stateFilters[id]) {
       let tmpFilters = stateFilters[id].filters;
       setLocalFilters([...tmpFilters]);
@@ -55,7 +55,7 @@ function FilterMenu(props) {
         },
       ]);
     }
-  }, [stateFilters, props, selectedNode]);
+  }, [stateFilters, props, selectedDataset]);
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -67,7 +67,7 @@ function FilterMenu(props) {
       operator: "==",
       value: "",
     },
-  ], [selectedNode]);
+  ], [selectedDataset]);
 
   const handlePropertyChange = (index, event) => {
     let name = event.target.name;
@@ -104,7 +104,7 @@ function FilterMenu(props) {
   //run when cross is pressed. Closes the menu without saving to redux
   const handleClose = () => {
     dispatch(setFilterWindowActive(false));
-    dispatch(resetSelectedNode());
+    dispatch(resetSelectedDataset());
   };
 
   const localFiltersToGreminParser = () => {
@@ -145,18 +145,16 @@ function FilterMenu(props) {
 
   const closeFilterMenu = () => {
     dispatch(setFilterWindowActive(false));
-    dispatch(resetSelectedNode());
-    updateFilter(localFilters, selectedNode);
-    let localIndex = (selectedNode * 2) +1
+    dispatch(resetSelectedDataset());
+    updateFilter(localFilters, selectedDataset);
+    let localIndex = (selectedDataset * 2) +1
 
     let localGremlinQuery = localFiltersToGreminParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
 
-    //Commented code removes all queries after this filter
-    //dispatch(removeGremlinQueryStepsAfterIndex((selectedNode*2)+1))
-    //dispatch(appendToGremlinQuery(localGremlinQuery))
-    //dispatch(appendToGremlinQuery(""))
-    
+    // This code removes all queries after this filter, TODO: Remove the 'filters' in Redux that is 'after' the index of this filter
+    dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
+    dispatch(appendToGremlinQuery(localGremlinQuery))    
 
   };
 
@@ -187,13 +185,13 @@ function FilterMenu(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogContent style={{ width: '80vw', height: '80vh' }}>
-      <div className={classes.cardContainer}>
+        <DialogContent style={{ maxWidth: '80vw', height: '80vh' }}>
+          <div className={classes.cardContainer}>
 
-      <DialogTitle id="alert-dialog-slide-title">
-        {"Filter"}
-        <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
-      </DialogTitle>
+          <DialogTitle id="alert-dialog-slide-title">
+            {"Filter this dataset"}
+            <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
+          </DialogTitle>
         
           {/*}
           <CardHeader

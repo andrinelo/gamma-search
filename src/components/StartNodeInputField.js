@@ -54,6 +54,7 @@ export default function StartNodeInputField() {
                     }
                     else{
                       dispatch(appendToGremlinQuery("g.V()"))
+                      dispatch(appendToGremlinQuery(""))
                     }
                   }
                 }}

@@ -50,6 +50,9 @@ export default function InspectedDatasetWindow(props) {
   const [reviewItemHTML, setReviewItemHTML] = useState("View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
   const [cyRef, setCyRef] = useState(null)
 
+  // Gremlin query corresponding to the current inspected dataset
+  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
+
 
   const updateReviewedItemID = ({tabNum = activeTab, nodes = selectedNodes, edges = selectedEdges, nodePageNum = nodePage, edgePageNum = edgePage}) => {
     let id = null;
@@ -133,12 +136,10 @@ export default function InspectedDatasetWindow(props) {
     updateReviewedItemID({edgePageNum: value})
   };
 
-  // Gremlin query corresponding to the current inspected dataset
-  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, selectedDataset + 1).join("")) + ".dedup()"
-
   const handleClose = () => {
     setNodePage(1)
     setEdgePage(1)
+    setReviewItemHTML("View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
     dispatch(setInspectWindowActive(false));
     dispatch(resetSelectedDataset());
   };

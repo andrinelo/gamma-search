@@ -13,8 +13,7 @@ export default function GraphQueryVisualizer() {
   const graphContainer = useRef(null)
   
   // The number of nodes in the graph is the same as the number of gremlin query parts
-  const numberOfNodes = useSelector(store => store.gremlinQueryParts).length
-
+  const numberOfNodes = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2) 
 
   useEffect(() => {
 
@@ -72,7 +71,7 @@ export default function GraphQueryVisualizer() {
             'background-color': '#666',
 
             //'background-opacity': '0',
-            'background-clip': 'none'
+            'background-clip': 'none',
             'label': 'data(nodeName)',
             'background-clip': 'none',
             'width': '40%',
@@ -134,7 +133,7 @@ export default function GraphQueryVisualizer() {
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
-              dispatch(setInspectWindowActive(true))
+              dispatch(setFilterWindowActive(true))
             },
             enabled: true // whether the command is selectable
           },

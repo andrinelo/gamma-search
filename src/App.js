@@ -19,20 +19,21 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
 import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET } from './actions/QueryKeys.js'
 
+import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
 function App() {
   
   // The node the user chose to inspect
-  let selectedDataset = useSelector(state => state.selectedDataset)
+  let selectedDataset = useSelector(store => store.selectedDataset)
 
   // Boolean value mapping to whether the inspected node window is active/open
-  const inspectWindowOpen = useSelector(state => state.inspectDatasetWindowActive)
+  const inspectWindowOpen = useSelector(store => store.inspectDatasetWindowActive)
 
   // Full current gremlin query
   let fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
 
   // Gremlin query corresponding to the current inspected dataset
-  let inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, selectedDataset + 1).join(""))
+  let inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
 
   const dispatch = useDispatch()
 
@@ -45,9 +46,15 @@ function App() {
       dispatch(fetchQueryItems(fullGremlinQuery, FULL_RESULT_ITEMS))
     }
 
+    console.log(inspectWindowOpen)
+    console.log(inspectedGremlinQuery)
+    console.log(selectedDataset)
+
     // The gremlin query results corresponding to the inspected node
     if(inspectWindowOpen && inspectedGremlinQuery !== "" && selectedDataset >= 0){
       inspectedGremlinQuery += ".dedup()"
+
+      console.log("FETCHING INSPECTED")
       
       dispatch(fetchQueryItems(inspectedGremlinQuery, INSPECTED_NODES_IN_DATASET))
       dispatch(fetchQueryItems(inspectedGremlinQuery + ".union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INSPECTED_EDGES_IN_DATASET))
@@ -61,6 +68,20 @@ function App() {
         <StartNodeInputField></StartNodeInputField>
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <FilterMenu></FilterMenu>
+
+        {/* Test-button to test node-adding */}
+        <button onClick={() => 
+          {
+            if(fullGremlinQuery === ""){
+              dispatch(appendToGremlinQuery("g.V()"))
+              dispatch(appendToGremlinQuery(""))
+            }
+            else{
+              dispatch(appendToGremlinQuery(".out()"))
+              dispatch(appendToGremlinQuery(""))
+            }
+          }
+        }>ADD DATASET (TEST-BUTTON)</button>
 
         <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
         <OutputAccordion>
