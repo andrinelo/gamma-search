@@ -16,6 +16,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
 import { DeleteForever } from "@material-ui/icons";
+import { Autocomplete } from "@material-ui/lab";
 
 function RelationMenu(props) {
   const stateRelations = useSelector((state) => state.relations);
@@ -24,9 +25,10 @@ function RelationMenu(props) {
     let id = props.edgeId;
     //if there exists a object in the state for this menu(id), then load that state to this component
     if (stateRelations[id]) {
-      let tmpRelations = stateRelations[id].relations;
-      setLocalRelations([...tmpRelations]);
-      let tmpAllRelation = stateRelations[id].allRelations;
+      let tmpRelations = Object.assign({}, stateRelations[id].relations);
+      console.log(tmpRelations);
+      setLocalRelations(tmpRelations);
+      let tmpAllRelation = Object.assign({}, stateRelations[id].allRelations);
       setAllRelations(tmpAllRelation);
     }
   }, [stateRelations, props]);
@@ -39,7 +41,7 @@ function RelationMenu(props) {
   const [localRelations, setLocalRelations] = React.useState([
     {
       checkedIn: false,
-      checkedOut: false,
+      checkedOut: true, // Out is default value
       text: "",
     },
   ]);
@@ -54,13 +56,21 @@ function RelationMenu(props) {
 
   const handleCheckboxChange = (index, event) => {
     let name = event.target.name;
+    // If checkedOut is only checked checkbox and it is unchecked automatically check in checkbox
+    if (name == "checkedOut" && localRelations[index]["checkedIn"] == false && localRelations[index][name] == true) {
+      localRelations[index]["checkedIn"] = true;
+    }
+    // Vice versa for in
+    if (name == "checkedIn" && localRelations[index]["checkedOut"] == false && localRelations[index][name] == true) {
+      localRelations[index]["checkedOut"] = true;
+    }
+    // Also update actual change
     localRelations[index][name] = event.target.checked;
     setLocalRelations([...localRelations]);
   };
 
-  const handleTextChange = (index, event) => {
-    let name = event.target.name;
-    localRelations[index][name] = event.target.value;
+  const handleTextChange = (index, value) => {
+    localRelations[index]["text"] = value;
     setLocalRelations([...localRelations]);
   };
 
@@ -68,11 +78,12 @@ function RelationMenu(props) {
   const addRelation = () => {
     localRelations.push({
       checkedIn: false,
-      checkedOut: false,
+      checkedOut: true, // Out is default value
       text: "",
     });
     setLocalRelations([...localRelations]);
   };
+
 
   //when the sasve button is pressed, this function saves the local state to redux. It also sends inn the id of the edge
   //it's connected to, so that the diffrent menues can be saved in redux at the same time.
@@ -80,8 +91,11 @@ function RelationMenu(props) {
     dispatch(SetRelation({ relations, allRelations }, edgeId));
   };
 
-  const closeRelationMenu = () => {
+  const saveAndCloseRelationMenu = () => {
     updateRelation(localRelations, allRelations, props.edgeId);
+    closeRelationMenu();
+  }
+  const closeRelationMenu = () => {
     props.showMenu();
   };
 
@@ -146,16 +160,18 @@ function RelationMenu(props) {
                           ></FormControlLabel>
                         </div>
                         <div className={classes.flexColumn}>
-                          <TextField
+                          <Autocomplete
                             className={classes.textFieldClass}
-                            value={element.text}
                             name="text"
-                            variant="outlined"
-                            label="Name of relation"
-                            onChange={(e) => handleTextChange(index, e)}
+                            onChange={(e, v, r) => handleTextChange(index, v)}
+                            options={tempAutocompleteOptions}
+                            getOptionLabel={(option) => option.value}
+                            value = {element.text}
+                            renderInput={(params) => <TextField {...params} className={classes.textFieldClass} 
+                                value={element.text} label="Name of relation" variant="outlined" name="text"/>}
                           >
                             {" "}
-                          </TextField>
+                          </Autocomplete>
                         </div>
                         <Button onClick={() => removeRelation(index)}>
                           <DeleteForever></DeleteForever>
@@ -167,7 +183,7 @@ function RelationMenu(props) {
                 })}
               </FormGroup>
 
-              <IconButton onClick={() => addRelation()}>
+              <IconButton disabled={localRelations.map((relation) => relation.text).includes("")} onClick={() => addRelation()}>
                 <AddIcon />
               </IconButton>
             </div>
@@ -209,14 +225,15 @@ function RelationMenu(props) {
 
           <div className={classes.saveButtonContainer}>
             <Button
-              onClick={() => closeRelationMenu()}
+              onClick={() => saveAndCloseRelationMenu()}
               variant="contained"
               color="primary"
               size="large"
               className={classes.saveButtonClass}
               startIcon={<SaveIcon />}
+              disabled={localRelations.map((relation) => relation.text).includes("")}
             >
-              Save
+              Save Changes
             </Button>
           </div>
         </CardContent>
@@ -279,6 +296,7 @@ const useStyles = makeStyles({
 
   textFieldClass: {
     marginTop: "15px",
+    width: "250px",
   },
   relationsHeader: {
     display: "flex",
@@ -286,3 +304,6 @@ const useStyles = makeStyles({
     aligntItems: "center",
   },
 });
+
+
+const tempAutocompleteOptions = [{"value":"ParentOf"}, {"value":"ChickenOf"}, {"value":"HasParent"}, {"value":"HasChicken"}];

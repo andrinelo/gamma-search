@@ -7,7 +7,7 @@ const relationReducer = (state = {}, action) => {
         let relation = {...state, [action.edgeId]: action.value}
         return relation;
     default:
-        return state;
+        return Object.assign({}, state);
   }
 };
 
