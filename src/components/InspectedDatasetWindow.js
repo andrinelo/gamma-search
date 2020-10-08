@@ -47,7 +47,7 @@ export default function InspectedDatasetWindow(props) {
   const [selectedEdges, setSelectedEdges] = useState([])
   const [activeTab, setActiveTab] = useState(0)
   const [reviewItemID, setReviewItemID] = useState(null)
-  const [reviewItemHTML, setReviewItemHTML] = useState("View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+  const [reviewItemHTML, setReviewItemHTML] = useState( activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
   const [cyRef, setCyRef] = useState(null)
 
   // Gremlin query corresponding to the current inspected dataset
@@ -88,15 +88,27 @@ export default function InspectedDatasetWindow(props) {
 
     setReviewItemID(id)
 
+    // User has selected at least one node or edge
     if(id !== null && id !== undefined && cyRef.current !== null){
       setReviewItemHTML(
-        <pre>
+        <pre style={{width: '100%'}}>
           {cyRef.current.$('#' + id).json()['data']['fullJSON']}
         </pre>
       )
     }
+
+    // User has not selected either a node or an edge
     else {
-      setReviewItemHTML("View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+
+      // Message for no nodes selected
+      if(tabNum === 0){
+        setReviewItemHTML("No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+      }
+
+      // Message for no edges selected
+      else if(tabNum === 1){
+        setReviewItemHTML("No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")  
+      }
     }
 
   }
@@ -136,10 +148,24 @@ export default function InspectedDatasetWindow(props) {
     updateReviewedItemID({edgePageNum: value})
   };
 
+  // Handle modal window closes
   const handleClose = () => {
     setNodePage(1)
     setEdgePage(1)
-    setReviewItemHTML("View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+    setReviewItemID(null)
+    setSelectedEdges([])
+    setSelectedNodes([])
+
+    // Message for no nodes selected
+    if(activeTab === 0){
+      setReviewItemHTML("No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+    }
+
+    // Message for no edges selected
+    else if(activeTab === 1){
+      setReviewItemHTML("No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")  
+    }
+    
     dispatch(setInspectWindowActive(false));
     dispatch(resetSelectedDataset());
   };
@@ -167,7 +193,7 @@ export default function InspectedDatasetWindow(props) {
         {reviewItemHTML}
       </div>
       <div className={classes.root}>
-        <Pagination style={{display: 'flex', justifyContent: 'center'}} count={selectedNodes.length} page={nodePage} siblingCount={0} onChange={handleNodePageChange} />
+        <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedNodes.length} page={nodePage} siblingCount={0} onChange={handleNodePageChange} />
       </div>
     </div>
   )
@@ -178,7 +204,7 @@ export default function InspectedDatasetWindow(props) {
         {reviewItemHTML}
       </div>
       <div className={classes.root}>
-        <Pagination style={{display: 'flex', justifyContent: 'center'}} count={selectedEdges.length} page={edgePage} siblingCount={0} onChange={handleEdgePageChange} />
+        <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedEdges.length} page={edgePage} siblingCount={0} onChange={handleEdgePageChange} />
       </div>
     </div>
   )
@@ -198,7 +224,7 @@ export default function InspectedDatasetWindow(props) {
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>
             <MemoInspectedDatasetGraph setCyRef={setCyRef} handleSelectedNodesAndEdgesChange={handleSelectedNodesAndEdgesChangeRef} inspectedNodes={inspectedNodes} inspectedEdges={inspectedEdges} open={open}></MemoInspectedDatasetGraph>
-            <div style={{ width: '29%', maxHeight: '99%' }}>
+            <div style={{ width: '34%', maxHeight: '99%' }}>
 
               <FullWidthTabs setActiveTab={handleActiveTabChange} tabNames={["Selected Nodes", "Selected Edges"]} tabValues={[tabValues[0], tabValues[1]]} tabWidth={'100%'}></FullWidthTabs>
 
@@ -389,7 +415,7 @@ function InspectedDatasetGraph(props){
 
   },)
 
-  return <div style={{ height: "99%", width: '70%' }} ref={graphInspectContainer}></div>
+  return <div style={{ height: "99%", width: '65%' }} ref={graphInspectContainer}></div>
 }
 
 const MemoInspectedDatasetGraph = React.memo(InspectedDatasetGraph);
