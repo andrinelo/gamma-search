@@ -31,7 +31,7 @@ function RelationMenu(props) {
       //console.log(tmpRelations);
       setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
       let tmpAllRelation = stateRelations[id].allRelations;
-      setAllRelations(tmpAllRelation);
+      setAllRelations(JSON.parse(JSON.stringify(tmpAllRelation)));
     }
   }, [props]);
 
