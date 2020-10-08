@@ -131,7 +131,7 @@ export default function GraphQueryVisualizer() {
         contentStyle: {}, // css key:value pairs to set the command's css in js if you want
         select: function(ele){ // a function to execute when the command is selected
           console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-          dispatch(setSelectedNode((ele.data()['nodeNum']) * 2 +1))
+          dispatch(setSelectedNode((ele.data()['nodeNum']) * 2 +1)) //*2 +1, beacause the index in the gremlinQueryParts list also has elemnests for egdes, adn first elements is initial search
           dispatch(setInspectWindowActive(true))
 
         },
