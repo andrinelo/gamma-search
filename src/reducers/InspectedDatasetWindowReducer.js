@@ -1,6 +1,6 @@
 import { SET_INSPECT_WINDOW_ACTIVE } from '../actions/types.js';
 
-const InspectedNodeWindowReducer = (state = false, action) => {
+const InspectedDatasetWindowReducer = (state = false, action) => {
     switch(action.type){
         case SET_INSPECT_WINDOW_ACTIVE:
             state = action.value
@@ -10,4 +10,4 @@ const InspectedNodeWindowReducer = (state = false, action) => {
     }
 };
 
-export default InspectedNodeWindowReducer;
+export default InspectedDatasetWindowReducer;

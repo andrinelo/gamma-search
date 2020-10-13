@@ -2,8 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { setInspectWindowActive } from './../actions/InspectNodeActions.js';
-import { setSelectedNode } from './../actions/SelectedNodeActions'
+import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
+import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
+import { setSelectedDataset } from './../actions/SelectedDatasetActions'
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -11,88 +12,105 @@ export default function GraphQueryVisualizer() {
   const dispatch = useDispatch();
   const graphContainer = useRef(null)
   
+  // The number of nodes in the graph is the same as the number of gremlin query parts
+  const numberOfNodes = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2) 
 
   useEffect(() => {
+
+    let elements = []
+
+    for(var i = 0; i < numberOfNodes; i++){
+ 
+      // Creates the nodes, the last / right-most node gets a different style
+      elements.push(
+        { data: {
+          id: i, 
+          nodeName: "Dataset " + (i+1),
+          borderWidth: i === (numberOfNodes - 1) ? '3px' : '1px',
+          borderStyle: i === (numberOfNodes - 1) ? 'dashed' : 'solid',
+          borderColor: i === (numberOfNodes - 1) ? '#006400' : 'black',
+          }
+        },
+      )
+
+      // Creates the edges
+      if(i>0){
+        elements.push({
+          data: {
+            id: 'edge' + (i-1), 
+            source: i-1, 
+            target: i,
+          },
+          selectable: false,
+        })
+      }
+    }
+
     var cy = cytoscape({
       container: graphContainer.current, // container to render in
 
-      elements: [ // list of graph elements to start with
-        { // node a
-          data: { id: 'a', nodeNum: 0 },
-        },
-        { // node b
-          data: { id: 'b', nodeNum: 1 },
-        },
-        { // node c
-          data: { id: 'c', nodeNum: 2 },
-        },
-        { // node d
-          data: { id: 'd', nodeNum: 3 },
-        },
-        { // node e
-          data: { id: 'e', nodeNum: 4 },
-        },
-        { // node f
-          data: { id: 'f', nodeNum: 5 },
-        },
-        { // edge ab
-          data: { id: 'ab', source: 'a', target: 'b' },
-          selectable: false,
-        },
-        { // edge bc
-          data: { id: 'bc', source: 'b', target: 'c' },
-          selectable: false,
-        },
-        { // edge cd
-          data: { id: 'cd', source: 'c', target: 'd' },
-          selectable: false,
-        },
-        { // edge de
-          data: { id: 'de', source: 'd', target: 'e' },
-          selectable: false,
-        },
-        { // edge ef
-          data: { id: 'ef', source: 'e', target: 'f' },
-          selectable: false,
-        }
-      ],
+      // Nodes and edges
+      elements: elements,
       
       style: [ // the stylesheet for the graph
         {
+          selector: 'core',
+            style: {
+              'active-bg-opacity': '0',
+              'selection-box-opacity': '0',
+          }
+        }, 
+      
+        {
           selector: 'node',
           style: {
-
-            // Uses https://cors-anywhere.herokuapp.com as proxy for the image
-            'background-image': "url(/PlaceholderNodeImage.png)",
+            
+            'background-image': "url(/NodeImage1.png)",
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
-            //'background-size': 'contain',
             'background-color': '#666',
-            'label': 'data(nodeNum)',
-            //'background-opacity': '0',
-            'background-clip': 'none'
 
+            //'background-opacity': '0',
+            'background-clip': 'none',
+            'label': 'data(nodeName)',
+            'background-clip': 'none',
+            'width': '40%',
+            'height': '40%',
+            'border-width': 'data(borderWidth)',
+            'border-style': 'data(borderStyle)',
+            'border-color': 'data(borderColor)',
           }
           
         },
-    
-        /* {
 
+        {
           selector: 'node:active',
             style: {
+              'overlay-opacity': '0',
           }
-        }, */
+        }, 
 
         {
           selector: 'edge',
           style: {
-            'width': 3,
+            'width': '3px',
+            // 'label': 'data(label)',
+            "color": "#fff",
+            "text-outline-color": "#7d7878",
+            "text-outline-width": 2,
             'line-color': '#ccc',
             'target-arrow-color': '#ccc',
             'curve-style': 'bezier',
             'target-arrow-shape': 'triangle' // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
           },
-        }
+        },
+
+        {
+          selector: 'edge:active',
+            style: {
+              'overlay-opacity': '0',
+          }
+        }, 
       ],
     
       layout: {
@@ -102,88 +120,80 @@ export default function GraphQueryVisualizer() {
     });
 
 
-    // the default values of each option are outlined below:
-let defaults = {
-  menuRadius: function(ele){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. 
-  selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
-  commands: [ // an array of commands to list in the menu or a function that returns the array
+    // the default values of each option are outlined below
+    let defaults = {
+        menuRadius: function(ele){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. 
+        selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
+        commands: [ // an array of commands to list in the menu or a function that returns the array
+
+          { // Filter command
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: 'Filter this dataset', // html/text content to be displayed in the menu
+            contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(ele){ // a function to execute when the command is selected
+              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+              dispatch(setSelectedDataset(ele.data()['id']))
+              dispatch(setFilterWindowActive(true))
+            },
+            enabled: true // whether the command is selectable
+          },
+
+          { // Aggregate command
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: 'Aggregate this dataset', // html/text content to be displayed in the menu
+            contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(ele){ // a function to execute when the command is selected
+              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+            },
+            enabled: true // whether the command is selectable
+          },
+
+          { // Inspect command
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: 'Inspect this dataset', // html/text content to be displayed in the menu
+            contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(ele){ // a function to execute when the command is selected
+              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+              dispatch(setSelectedDataset(ele.data()['id']))
+              dispatch(setInspectWindowActive(true))
+            },
+
+            enabled: true // whether the command is selectable
+          },
+
+          { // Relation command
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: "Explore dataset's relations", // html/text content to be displayed in the menu
+            contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(ele){ // a function to execute when the command is selected
+              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+            },
+            enabled: true // whether the command is selectable
+          },
+
+        ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
+      
+      fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
+      activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
+      activePadding: 20, // additional size in pixels for the active command
+      indicatorSize: 24, // the size in pixels of the pointer to the active command
+      separatorWidth: 3, // the empty spacing in pixels between successive commands
+      spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
+      minSpotlightRadius: 24, // the minimum radius in pixels of the spotlight
+      maxSpotlightRadius: 38, // the maximum radius in pixels of the spotlight
+      openMenuEvents: 'tapstart', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
+      itemColor: 'white', // the colour of text in the command's content
+      itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
+      zIndex: 9999, // the z-index of the ui div
+      atMouse: false // draw menu at mouse position
+      };
+
+      let menu = cy.cxtmenu( defaults );
+
+      cy.panningEnabled(false)
+      cy.autoungrabify(true)
     
-    { // example command
-      fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: 'Filter this dataset', // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-      },
-      enabled: true // whether the command is selectable
-    },
-
-    { // example command
-      fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: 'Aggregate dataset', // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-      },
-      enabled: true // whether the command is selectable
-    },
-
-    { // example command
-      fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: 'Inspect this dataset', // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-        dispatch(setSelectedNode(ele.data()['nodeNum']))
-        dispatch(setInspectWindowActive(true))
-
-      },
-      enabled: true // whether the command is selectable
-    },
-
-    { // example command
-      fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: "Explore dataset's relations", // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-      },
-      enabled: true // whether the command is selectable
-    },
-
-    { // example command
-      fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-      content: "Lorem Ipsum", // html/text content to be displayed in the menu
-      contentStyle: {}, // css key:value pairs to set the command's css in js if you want
-      select: function(ele){ // a function to execute when the command is selected
-        console.log( ele.data()['nodeNum'] ) // `ele` holds the reference to the active element
-      },
-      enabled: true // whether the command is selectable
-    }
-    
-  ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
-  fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
-  activeFillColor: 'rgba(1, 105, 217, 0.75)', // the colour used to indicate the selected command
-  activePadding: 20, // additional size in pixels for the active command
-  indicatorSize: 24, // the size in pixels of the pointer to the active command
-  separatorWidth: 3, // the empty spacing in pixels between successive commands
-  spotlightPadding: 4, // extra spacing in pixels between the element and the spotlight
-  minSpotlightRadius: 24, // the minimum radius in pixels of the spotlight
-  maxSpotlightRadius: 38, // the maximum radius in pixels of the spotlight
-  openMenuEvents: 'tapstart', // space-separated cytoscape events that will open the menu; only `cxttapstart` and/or `taphold` work here
-  itemColor: 'white', // the colour of text in the command's content
-  itemTextShadowColor: 'transparent', // the text shadow colour of the command's content
-  zIndex: 9999, // the z-index of the ui div
-  atMouse: false // draw menu at mouse position
-};
-
-let menu = cy.cxtmenu( defaults );
-
-cy.panningEnabled(false)
-cy.autoungrabify(true)
-
-
-  })
+    })
 
   return (
     <div style={{ display: 'flex',  justifyContent:'center', alignItems:'center' }}>

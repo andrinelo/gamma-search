@@ -14,11 +14,13 @@
     "cytoscape-cola": "^2.4.0",
     "cytoscape-cxtmenu": "git+https://github.com/cytoscape/cytoscape.js-cxtmenu.git",
     "cytoscape-fcose": "^1.2.3",
+    "jquery": "^3.5.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-graph-vis": "^1.0.5",
     "react-redux": "^7.2.1",
     "react-scripts": "3.4.3",
+    "react-swipeable-views": "^0.13.9",
     "redux-devtools-extension": "^2.13.8"
   },
   "proxy": "https://app.ardoq.com/api/graph-search?org=tdt42902019",

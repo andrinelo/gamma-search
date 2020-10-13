@@ -19,7 +19,8 @@ const useStyles = makeStyles({
 });
 
 export default function GremlinQueryDisplayAccordion(props) {
-    const displayText = useSelector(store => store.gremlinQueryParts.join(""))
+    let displayText = useSelector(store => store.gremlinQueryParts.join(""))
+    
     const classes = useStyles();
     return (
         <Accordion class={classes.root}>
