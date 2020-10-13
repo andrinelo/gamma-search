@@ -63,10 +63,10 @@ function App() {
   
   return (
     <div>
-        <GraphQueryVisualizer></GraphQueryVisualizer>
-        <StartNodeInputField></StartNodeInputField>
-        <InspectedDatasetWindow></InspectedDatasetWindow>
-        <FilterMenu></FilterMenu>
+        <GraphQueryVisualizer/>
+        <StartNodeInputField/>
+        <InspectedDatasetWindow/>
+        <FilterMenu/>
         <AggregateMenu cloudId={0}/>
 
         {/* Test-button to test node-adding */}
@@ -83,16 +83,10 @@ function App() {
           }
         }>ADD DATASET (TEST-BUTTON)</button>
 
-        <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
-        <OutputAccordion>
-        </OutputAccordion>
-        <CloudButton></CloudButton>
-        <StartNodeInputField></StartNodeInputField>
-        <CloudButton cloudId={0}></CloudButton>
-        
-        <RelationButton edgeId = {1}></RelationButton>
-        <RelationButton edgeId = {2}></RelationButton>
-        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} ></AutocompleteTextField> {/*It is
+        <GremlinQueryDisplayAccordion/>
+        <OutputAccordion/>
+        <StartNodeInputField/>
+        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> {/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
         {/* <GraphView graph={graphData}></GraphView> */}
         

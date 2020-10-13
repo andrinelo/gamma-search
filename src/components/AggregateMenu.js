@@ -14,6 +14,10 @@ import { setAggregation } from '../actions/SetAggregation.js';
 import AddIcon from '@material-ui/icons/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from "prop-types";
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { DialogActions } from '@material-ui/core';
 
   export default function AggregateMenu(props) {
     const window = useSelector(state => state.activeWindow);
@@ -33,7 +37,6 @@ import PropTypes from "prop-types";
 
     // closes the aggregate menu when pressing x, remove unsaved local change
     const closeAggregateMenu = () => {
-      console.log("Hei");
       if(stateAggregations[props.cloudId]){
         setLocalAggregation(stateAggregations[props.cloudId]);
       }
@@ -45,7 +48,6 @@ import PropTypes from "prop-types";
 
     // close the aggregate menu, save state 
     const save = () => {
-      console.log("save");
       dispatch(setAggregation(JSON.parse(JSON.stringify(localAggregations)), props.cloudId)); //JALLAFIX actually needs to be fixed in redux I think
       dispatch(setActiveWindow(""));
       // TODO add to redux
@@ -85,7 +87,7 @@ import PropTypes from "prop-types";
 
     return (
       // shows aggregatemenu if it has been set as active by the cloud button
-      window === "aggregate" && <Card className={classes.root} variant="outlined">
+      <Dialog open={window==="aggregate"}>
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
             <div class={classes.relationsHeader}>
               <div></div>
@@ -96,7 +98,7 @@ import PropTypes from "prop-types";
             </div>
           }>
         </CardHeader>
-        <CardContent>
+        <DialogContent>
           <div>
             {localAggregations.map((element, index) => {
               return (
@@ -112,8 +114,8 @@ import PropTypes from "prop-types";
               <AddIcon/>
             </IconButton>
           </div>
-        </CardContent>
-        <CardActions>
+        </DialogContent>
+        <DialogActions>
           <Button 
             onClick={()=> save()} 
             size="large" 
@@ -125,8 +127,8 @@ import PropTypes from "prop-types";
           >
             Save
           </Button>
-        </CardActions>
-      </Card>
+        </DialogActions>
+      </Dialog>
     );
   }
 
