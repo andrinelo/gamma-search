@@ -10,9 +10,11 @@ import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
 import FilterNodeWindowsReducer from "./FilterNodeWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
+import aggregationReducer from "./AggregationReducer.js";
 
 // Combines all reducers and export them
 export default combineReducers({
+  aggregation: aggregationReducer,
   allQueryResults: queryReducer,
   gremlinQueryParts: gremlinQueryReducer,
   initialSearchParameter: InitialSearchParameterReducer,
