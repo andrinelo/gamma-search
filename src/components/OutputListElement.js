@@ -53,7 +53,7 @@ export default function OutputListElement(props) {
             <Collapse in={open} timeout="auto" unmountOnExit>
                 {values.map((element) => 
                     <Typography>
-                        {element.property}: {element.value}
+                        <b>{element.property}</b>: {element.value}
                     </Typography>
                 )}
             </Collapse>

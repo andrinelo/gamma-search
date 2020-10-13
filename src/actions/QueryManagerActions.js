@@ -1,4 +1,4 @@
-import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS } from './types.js';
+import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS, APPEND_QUERY_ITEMS } from './types.js';
 
 // Empties the query state
 export function resetAllQueryItems() {
@@ -27,13 +27,29 @@ export function setQueryItems(items, key) {
   };
 }
 
+// Add more items to the search result
+export function appendQueryItems(items, key) {
+
+  return {
+    type: APPEND_QUERY_ITEMS,
+    payload: {
+      queryItems: items.result,
+      queryKey: key
+    }
+  };
+}
+
 // Asynchronous action creator using redux-thunk. Fetches new items to add to
-// the search-result
-export function fetchQueryItems(gremlinQuery, key) {
+// the search-result. Normally returns max 1000 elements, but if parameter 'start'
+// is set to something above or equal to 0, we get all the elements.
+export function fetchQueryItems(gremlinQuery, key, start=-1) {
 
   return async function(dispatch) {
     try {
-      let correctData = JSON.stringify({"query": gremlinQuery})
+
+      // Adds the range to the gremlin query if start has been set to above or equal to 0
+      let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
+      
       const response = await fetch('http://localhost:3000/api', {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',                                               // no-cors, *cors, same-origin
@@ -50,7 +66,19 @@ export function fetchQueryItems(gremlinQuery, key) {
       });
 
       const results = await response.json()
-      dispatch(setQueryItems(results, key))
+      
+      // When we limit the results to 1000 elements
+      if(start <= 0){
+        dispatch(setQueryItems(results, key))
+      }
+      else{
+        dispatch(appendQueryItems(results, key))
+      }
+
+      // We fetch the complete results in intervals of 1000 elements
+      if(start >= 0 && results.result.length === 1000){
+        dispatch(fetchQueryItems(gremlinQuery, key, start + 1000))
+      }
     }
     catch(error) {
       console.log("Could not fetch data: ", error)

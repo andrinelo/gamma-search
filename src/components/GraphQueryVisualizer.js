@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
+import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
 import { setSelectedDataset } from './../actions/SelectedDatasetActions'
 
@@ -161,6 +161,19 @@ export default function GraphQueryVisualizer() {
             enabled: true // whether the command is selectable
           },
 
+          { // Command to remove query-parts that are after this dataset
+            fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+            content: 'End current query here', // html/text content to be displayed in the menu
+            contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+            select: function(ele){ // a function to execute when the command is selected
+              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+              dispatch(setSelectedDataset(ele.data()['id']))
+              dispatch(setInspectWindowActive(true))
+            },
+
+            enabled: true // whether the command is selectable
+          },
+
           { // Relation command
             fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
             content: "Explore dataset's relations", // html/text content to be displayed in the menu
@@ -197,7 +210,7 @@ export default function GraphQueryVisualizer() {
 
   return (
     <div style={{ display: 'flex',  justifyContent:'center', alignItems:'center' }}>
-      <div style={{ width: '80%', height: "250px", }} ref={graphContainer}>
+      <div style={{ width: '80%', height: "200px", }} ref={graphContainer}>
       </div>
     </div>
   );

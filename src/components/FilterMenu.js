@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -17,9 +18,12 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import { setFilterWindowActive } from './../actions/FilterNodeActions.js';
+import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
+import { ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from './../actions/QueryKeys.js'
+import { fetchQueryItems } from './../actions/QueryManagerActions.js';
+
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -35,31 +39,22 @@ const operators = {
 };
 
 function FilterMenu(props) {
-  const open = useSelector(state => state.filterNodeWindowsActive)
+  const allResults = useSelector(state => state.allQueryResults)
+  const open = useSelector(state => state.filterDatasetWindowActive)
   const selectedDataset = useSelector(state => state.selectedDataset)  
-
   const stateFilters = useSelector((state) => state.filters);
-
-  useEffect(() => {
-    let id = selectedDataset;
-    if (stateFilters[id]) {
-      let tmpFilters = stateFilters[id].filters;
-      setLocalFilters([...tmpFilters]);
-    }
-    else{
-      setLocalFilters([
-        {
-          property: "",
-          operator: "==",
-          value: "",
-        },
-      ]);
-    }
-  }, [stateFilters, props, selectedDataset]);
-
-  const dispatch = useDispatch();
+  const propertyValuesFetched = useState([])
+  const dispatch = useDispatch()
   const classes = useStyles();
 
+  
+  // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
+  let datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
+
+
+  // Fetches all possible labels, to be used as auto-suggestions
+  const allProperties = useSelector(state => state.allQueryResults[ALL_PROPERTIES_OF_DATASET])
+  
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
     {
@@ -69,9 +64,60 @@ function FilterMenu(props) {
     },
   ], [selectedDataset]);
 
-  const handlePropertyChange = (index, event) => {
-    let name = event.target.name;
-    localFilters[index][name] = event.target.value;
+  let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
+
+  // If the "Node ID" item has not already been added to the list, we add it
+  if(!allProperties.includes("Node ID") && allProperties.length > 0){
+    allProperties.unshift("Node ID")
+  }
+
+  // If the "Label / Type" item has not already been added to the list, we add it
+  if(!allProperties.includes("Label / Type") && allProperties.length > 0){
+    allProperties.unshift("Label / Type")
+  }
+
+  useEffect(() => {
+    console.log(localFilters)
+
+    // If the filter window is open and we have set the set filters from store flag, we set the filters from store
+    if(shouldSetFiltersFromStore && open){
+      let id = selectedDataset;
+      if (stateFilters[id]) {
+        let tmpFilters = stateFilters[id].filters;
+        setLocalFilters([...tmpFilters]);
+      }
+      else{
+        setLocalFilters([
+          {
+            property: "",
+            operator: "==",
+            value: "",
+          },
+        ]);
+      }
+      setshouldSetFiltersFromStore(false)
+    }
+  }, [stateFilters, props, selectedDataset, allResults]);
+
+
+  const handlePropertyChange = (index, selectedProperty) => {
+    if(selectedProperty === null){
+      selectedProperty = ""
+    }
+    else if(selectedProperty !== "Node ID"){
+      if(selectedProperty === "Label / Type"){
+        datasetBeforeFiltersGremlinQuery += ".dedup().label().dedup()"
+      }
+      else{
+        datasetBeforeFiltersGremlinQuery += ".dedup().properties('" + selectedProperty +"').value().dedup()"
+      }
+
+      // We fetch every possible value in the dataset for the selected property 
+      dispatch(fetchQueryItems(datasetBeforeFiltersGremlinQuery, VALUES_FOR_PROPERTY_IN_DATASET + selectedProperty, 0))
+    }
+    
+    let name = 'property';
+    localFilters[index][name] = selectedProperty;
     setLocalFilters([...localFilters]);
   };
 
@@ -81,9 +127,13 @@ function FilterMenu(props) {
     setLocalFilters([...localFilters]);
   };
 
-  const handleValueChange = (index, event) => {
-    let name = event.target.name;
-    localFilters[index][name] = event.target.value;
+  const handleValueChange = (index, selectedValue) => {
+    if(selectedValue === null){
+      selectedValue = ""
+    }
+    console.log(typeof selectedValue)
+    let name = 'value';
+    localFilters[index][name] = selectedValue;
     setLocalFilters([...localFilters]);
   };
 
@@ -101,53 +151,70 @@ function FilterMenu(props) {
     dispatch(SetFilter({ filters }, cloudId));
   };
 
-  //run when cross is pressed. Closes the menu without saving to redux
+  // run when cross is pressed. Closes the menu without saving to redux
   const handleClose = () => {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
+    setshouldSetFiltersFromStore(true)
   };
 
   const localFiltersToGreminParser = () => {
     let localGremlin = ""
     for (let id in localFilters){
-      localGremlin = localGremlin.concat(".has('")
-      localGremlin = localGremlin.concat(localFilters[id].property)
-      localGremlin = localGremlin.concat("', ")
-      switch(localFilters[id].operator){
-        
-        case "==":
-          localGremlin = localGremlin.concat("eq")
-          break;
-        case "<":
-          localGremlin = localGremlin.concat("gt")
-          break;
-        case ">":
-          localGremlin = localGremlin.concat("lt")
-          break
-        case ">=": 
-          localGremlin = localGremlin.concat("lte")
-          break
-        case "<=": 
-          localGremlin = localGremlin.concat("gte")
-          break
-        case "!=": 
-          localGremlin = localGremlin.concat("neq")
-          break;
-        default:
-          break;
+
+      if(localFilters[id].property === "Label / Type"){
+        localGremlin = localGremlin.concat(".hasLabel('")
+        localGremlin = localGremlin.concat(localFilters[id].value)
+        localGremlin = localGremlin.concat("')")
       }
-      localGremlin = localGremlin.concat("('")
-      localGremlin = localGremlin.concat(localFilters[id].value)
-      localGremlin = localGremlin.concat("'))")
+
+      else if (localFilters[id].property === "Node ID"){
+        localGremlin = localGremlin.concat(".hasId('")
+        localGremlin = localGremlin.concat(localFilters[id].value)
+        localGremlin = localGremlin.concat("')")
+      }
+      
+      else{
+        localGremlin = localGremlin.concat(".has('")
+        localGremlin = localGremlin.concat(localFilters[id].property)
+        localGremlin = localGremlin.concat("', ")
+        switch(localFilters[id].operator){
+          
+          case "==":
+            localGremlin = localGremlin.concat("eq")
+            break;
+          case "<":
+            localGremlin = localGremlin.concat("lt")
+            break;
+          case ">":
+            localGremlin = localGremlin.concat("gt")
+            break
+          case ">=": 
+            localGremlin = localGremlin.concat("gte")
+            break
+          case "<=": 
+            localGremlin = localGremlin.concat("lte")
+            break
+          case "!=": 
+            localGremlin = localGremlin.concat("neq")
+            break;
+          default:
+            break;
+        }
+        localGremlin = localGremlin.concat("('")
+        localGremlin = localGremlin.concat(localFilters[id].value)
+        localGremlin = localGremlin.concat("'))")
+      }
     }
     return(localGremlin)
   }
 
+  // Runs when filters are saved
   const closeFilterMenu = () => {
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
     updateFilter(localFilters, selectedDataset);
-    let localIndex = (selectedDataset * 2) +1
+    let localIndex = (selectedDataset * 2) + 1
 
     let localGremlinQuery = localFiltersToGreminParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
@@ -156,6 +223,7 @@ function FilterMenu(props) {
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
     dispatch(appendToGremlinQuery(localGremlinQuery))    
 
+    setshouldSetFiltersFromStore(true)
   };
 
   // Removes filter from component local storage
@@ -166,12 +234,20 @@ function FilterMenu(props) {
 
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
-  // checks whether the newly added filter has its fields filled
+  // checks whether all filter lines has its fields filled
   // if not if should not be possible to add another filter
   // or apply filters at all
   const filterlineIsNotFilled = () => {
-    const notFilled = (filterLine) => (filterLine.property === "" || filterLine.value === "");
-    return localFilters.some(notFilled);
+    // const notFilled = (filterLine) => (filterLine.property === "" || filterLine.vlauer === "")
+    // return localFilters.some(notFilled);
+
+    for(let i = 0; i < localFilters.length; i++){
+      if(localFilters[i]['property'] === "" || localFilters[i]['value'] === ""){
+        return true
+      } 
+    }
+
+    return false
   }
 
   return (
@@ -190,9 +266,10 @@ function FilterMenu(props) {
 
           <DialogTitle id="alert-dialog-slide-title">
             {"Filter this dataset"}
-            <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
+            <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
         
+
           {/*}
           <CardHeader
             style={{ textAlign: "center", paddingBottom: "0px" }}
@@ -215,7 +292,9 @@ function FilterMenu(props) {
                     <div key={index}>
                       <div className={classes.flexRow}>
                         <div className={classes.flexColumn}>
-                          <TextField
+
+
+                          {/* <TextField
                             className={classes.textFieldClass}
                             value={element.property}
                             name="property"
@@ -226,7 +305,25 @@ function FilterMenu(props) {
                             {localFilters[index].property !== ""
                               ? localFilters[index].property
                               : ""}
-                          </TextField>
+                          </TextField> */}
+
+
+                          <Autocomplete
+                            id="filter-properties-combo-box"
+                            name="property"
+                            options={allProperties}
+                            defaultValue={localFilters[index]['property'] !== "" && localFilters[index]['property'] !== undefined ? localFilters[index].property : null }
+                            getOptionLabel={(option) => option}
+                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0) : ""}
+                            style={{ width: '250px' }}
+                            onChange={(event, selectedProperty) => {
+                              handlePropertyChange(index, selectedProperty)
+                            }}
+                            
+                            renderInput={(params) => <TextField className={classes.textFieldClass} {...params} label="Filter by..." variant="outlined" />}
+                          />
+
+ 
                         </div>
                         <div className={classes.operatorButtonContainer}>
                           <FormControl style={{ width: "36px" }}>
@@ -259,16 +356,40 @@ function FilterMenu(props) {
                           </FormControl>
                         </div>
                         <div className={classes.flexColumn}>
-                          <TextField
+
+
+                          {/* <TextField
                             className={classes.textFieldClass}
                             value={element.value}
                             name="value"
                             variant="outlined"
-                            label="Select a value"
+                            label="Value"
                             onChange={(e) => handleValueChange(index, e)}
                           >
                             {" "}
-                          </TextField>
+                          </TextField> */}
+
+                          {/* Autocomplete with list of options, and the option to enter own value */}
+                          <Autocomplete
+                            freeSolo
+                            id="filter-values-combo-box"
+                            name="value"
+                            options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
+                            
+                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : null }
+
+                            
+                            getOptionLabel={(option) => option}
+                            groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
+                            style={{ width: '250px' }}
+                            onInputChange={(event, selectedValue) => {
+                              handleValueChange(index, selectedValue)
+                            }}
+                            
+                            renderInput={(params) => <TextField name="vlauer" className={classes.textFieldClass} {...params} label="Filter by..." variant="outlined" />}
+                          />
+
+
                         </div>
                         <div className={classes.removeButtonContainer}>
                           <Button
