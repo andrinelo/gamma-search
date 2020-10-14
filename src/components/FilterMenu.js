@@ -21,6 +21,7 @@ import Slide from '@material-ui/core/Slide';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
+import EditWarning from './EditWarning.js'
 import { ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from './../actions/QueryKeys.js'
 import { fetchQueryItems } from './../actions/QueryManagerActions.js';
 
@@ -42,6 +43,7 @@ function FilterMenu(props) {
   const allResults = useSelector(state => state.allQueryResults)
   const open = useSelector(state => state.filterDatasetWindowActive)
   const selectedDataset = useSelector(state => state.selectedDataset)  
+  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
   const stateFilters = useSelector((state) => state.filters);
   const propertyValuesFetched = useState([])
   const dispatch = useDispatch()
@@ -276,7 +278,7 @@ function FilterMenu(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogContent style={{ maxWidth: '80vw', height: '80vh' }}>
+        <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh' }}>
           <div className={classes.cardContainer}>
 
           <DialogTitle id="alert-dialog-slide-title">
@@ -287,18 +289,18 @@ function FilterMenu(props) {
 
           {/*}
           <CardHeader
-            style={{ textAlign: "center", paddingBottom: "0px" }}
-            title={
-              <div class={classes.filtersHeader}>
-                <div></div>
-                <h3>Filter</h3>
-                <Button onClick={() => closeFilterMenu()}>
-                  <CloseIcon></CloseIcon>
-                </Button>
-              </div>
-            }
+          style={{ textAlign: "center", paddingBottom: "0px" }}
+          title={
+            <div class={classes.filtersHeader}>
+            <div></div>
+            <h3>Filter</h3>
+            <Button onClick={() => closeFilterMenu()}>
+            <CloseIcon></CloseIcon>
+            </Button>
+            </div>
+          }
           ></CardHeader>
-          */}
+        */}
 
             <div>
               <FormGroup>
@@ -316,7 +318,7 @@ function FilterMenu(props) {
                             variant="outlined"
                             label="Select a property"
                             onChange={(e) => handlePropertyChange(index, e)}
-                          >
+                            >
                             {localFilters[index].property !== ""
                               ? localFilters[index].property
                               : ""}
@@ -348,7 +350,7 @@ function FilterMenu(props) {
                               variant="outlined"
                               value={localFilters[index].operator}
                               IconComponent={() => <EmptyIcon />}
-                            >
+                              >
                               <MenuItem value="==" name="operator">
                                 {`=`}
                               </MenuItem>
@@ -380,7 +382,7 @@ function FilterMenu(props) {
                             variant="outlined"
                             label="Value"
                             onChange={(e) => handleValueChange(index, e)}
-                          >
+                            >
                             {" "}
                           </TextField> */}
 
@@ -407,7 +409,7 @@ function FilterMenu(props) {
                           <Button
                             size="small"
                             onClick={() => removeFilter(index)}
-                          >
+                            >
                             <DeleteForever></DeleteForever>
                           </Button>
                         </div>
@@ -433,13 +435,20 @@ function FilterMenu(props) {
                 size="large"
                 className={classes.saveButtonClass}
                 startIcon={<SaveIcon />}
-              >
+                >
                 Apply Filters
               </Button>
             </div>
 
-      </div>
-      </DialogContent>
+            {/* Warning message when editing datasets that are not the head */}
+            <div style={{width: '100%'}}>
+              <div style={{maxWidth: "90%", margin: '0 auto'}}>
+                {selectedDataset < (numberOfDatasets-1) && open ? <EditWarning></EditWarning> : null}
+              </div>
+            </div>
+
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   );

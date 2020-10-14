@@ -19,7 +19,7 @@ function SelectPropertyView(props){
   const aggregateFunctions = ["count", "sum", "avg"];
   return(
     <div>
-      <Box display="flex" flexDirection="row">
+      <Box display="flex" flexDirection="row" justifyContent="center">
         <Box>
           <Box display="flex">
             <Box>Property type:</Box>

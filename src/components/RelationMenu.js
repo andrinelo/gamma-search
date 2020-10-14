@@ -16,7 +16,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
 import { DeleteForever } from "@material-ui/icons";
-
+import EditWarning from './EditWarning.js'
 import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import { Autocomplete } from "@material-ui/lab";
 
@@ -128,6 +128,7 @@ function RelationMenu(props) {
           }
         ></CardHeader>
         <CardContent>
+          <EditWarning></EditWarning>
           {allRelations !== "" ? (
             <p>
               {allRelations} relations added{" "}
