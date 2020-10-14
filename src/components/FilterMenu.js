@@ -192,29 +192,28 @@ function FilterMenu(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogContent style={{ maxWidth: '80vw', height: '80vh' }}>
+        <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh' }}>
           <div className={classes.cardContainer}>
 
           <DialogTitle id="alert-dialog-slide-title">
             {"Filter this dataset"}
             <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
-          {selectedDataset < (numberOfDatasets-1) ? <EditWarning></EditWarning> : null}
         
           {/*}
           <CardHeader
-            style={{ textAlign: "center", paddingBottom: "0px" }}
-            title={
-              <div class={classes.filtersHeader}>
-                <div></div>
-                <h3>Filter</h3>
-                <Button onClick={() => closeFilterMenu()}>
-                  <CloseIcon></CloseIcon>
-                </Button>
-              </div>
-            }
+          style={{ textAlign: "center", paddingBottom: "0px" }}
+          title={
+            <div class={classes.filtersHeader}>
+            <div></div>
+            <h3>Filter</h3>
+            <Button onClick={() => closeFilterMenu()}>
+            <CloseIcon></CloseIcon>
+            </Button>
+            </div>
+          }
           ></CardHeader>
-          */}
+        */}
 
             <div>
               <FormGroup>
@@ -230,7 +229,7 @@ function FilterMenu(props) {
                             variant="outlined"
                             label="Select a property"
                             onChange={(e) => handlePropertyChange(index, e)}
-                          >
+                            >
                             {localFilters[index].property !== ""
                               ? localFilters[index].property
                               : ""}
@@ -244,7 +243,7 @@ function FilterMenu(props) {
                               variant="outlined"
                               value={localFilters[index].operator}
                               IconComponent={() => <EmptyIcon />}
-                            >
+                              >
                               <MenuItem value="==" name="operator">
                                 {`=`}
                               </MenuItem>
@@ -274,7 +273,7 @@ function FilterMenu(props) {
                             variant="outlined"
                             label="Select a value"
                             onChange={(e) => handleValueChange(index, e)}
-                          >
+                            >
                             {" "}
                           </TextField>
                         </div>
@@ -282,7 +281,7 @@ function FilterMenu(props) {
                           <Button
                             size="small"
                             onClick={() => removeFilter(index)}
-                          >
+                            >
                             <DeleteForever></DeleteForever>
                           </Button>
                         </div>
@@ -308,13 +307,20 @@ function FilterMenu(props) {
                 size="large"
                 className={classes.saveButtonClass}
                 startIcon={<SaveIcon />}
-              >
+                >
                 Apply Filters
               </Button>
             </div>
 
-      </div>
-      </DialogContent>
+            {/* Warning message when editing datasets that are not the head */}
+            <div style={{width: '100%'}}>
+              <div style={{maxWidth: "90%", margin: '0 auto'}}>
+                {selectedDataset < (numberOfDatasets-1) && open ? <EditWarning></EditWarning> : null}
+              </div>
+            </div>
+
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   );
