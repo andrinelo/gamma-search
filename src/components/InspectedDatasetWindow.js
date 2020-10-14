@@ -220,7 +220,9 @@ export default function InspectedDatasetWindow(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close modal"/></DialogTitle>
+        <div style={{ width: '80vw'}}>
+          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+        </div>
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>
             <MemoInspectedDatasetGraph setCyRef={setCyRef} handleSelectedNodesAndEdgesChange={handleSelectedNodesAndEdgesChangeRef} inspectedNodes={inspectedNodes} inspectedEdges={inspectedEdges} open={open}></MemoInspectedDatasetGraph>

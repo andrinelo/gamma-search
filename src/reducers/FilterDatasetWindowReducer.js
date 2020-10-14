@@ -1,6 +1,6 @@
 import { SET_FILTER_WINDOW_ACTIVE } from '../actions/types.js';
 
-const FilterNodeWindowReducer = (state = false, action) => {
+const FilterDatasetWindowReducer = (state = false, action) => {
     switch(action.type){
         case SET_FILTER_WINDOW_ACTIVE:
             state = action.value
@@ -10,4 +10,4 @@ const FilterNodeWindowReducer = (state = false, action) => {
     }
 };
 
-export default FilterNodeWindowReducer;
+export default FilterDatasetWindowReducer;
