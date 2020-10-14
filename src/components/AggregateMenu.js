@@ -103,7 +103,7 @@ import EditWarning from './EditWarning.js'
             </div>
           }>
         </CardHeader>
-        {selectedDataset !== numberOfDatasets ? null : <EditWarning></EditWarning>}
+        {selectedDataset < (numberOfDatasets-1) ? <EditWarning></EditWarning> : null}
         <DialogContent>
           <div>
             {localAggregations.map((element, index) => {

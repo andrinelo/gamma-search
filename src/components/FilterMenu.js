@@ -41,6 +41,9 @@ function FilterMenu(props) {
   const selectedDataset = useSelector(state => state.selectedDataset)  
   const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
 
+  console.log("SELECTED: ", selectedDataset)
+  console.log("TOTAL: ", numberOfDatasets)
+
 
   const stateFilters = useSelector((state) => state.filters);
 
@@ -196,7 +199,7 @@ function FilterMenu(props) {
             {"Filter this dataset"}
             <img alt="icon" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
-          {selectedDataset !== numberOfDatasets ? null : <EditWarning></EditWarning>}
+          {selectedDataset < (numberOfDatasets-1) ? <EditWarning></EditWarning> : null}
         
           {/*}
           <CardHeader
