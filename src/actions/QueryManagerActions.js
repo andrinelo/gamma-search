@@ -1,4 +1,4 @@
-import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS, APPEND_QUERY_ITEMS } from './types.js';
+import { RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, SET_QUERY_ITEMS, APPEND_QUERY_ITEMS, DELETE_QUERY_ITEMS_BY_KEY } from './types.js';
 
 // Empties the query state
 export function resetAllQueryItems() {
@@ -11,6 +11,14 @@ export function resetAllQueryItems() {
 export function resetQueryItems(key) {
   return {
     type: RESET_QUERY_ITEMS,
+    queryKey: key
+  };
+}
+
+// Deletes the state, based on the queryKey
+export function deleteQueryItemsByKey(key) {
+  return {
+    type: DELETE_QUERY_ITEMS_BY_KEY,
     queryKey: key
   };
 }

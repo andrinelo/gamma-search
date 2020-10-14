@@ -76,6 +76,15 @@ function FilterMenu(props) {
     allProperties.unshift("Label / Type")
   }
 
+
+  // Deletes (from Redux-store) the values that has been fetched for different properties
+  const deleteFetchedPropertyValues = () => {
+    const keys = allResults.keys
+    for(let key in keys){
+      console.log("")
+    }
+  }
+
   useEffect(() => {
     console.log(localFilters)
 
@@ -153,6 +162,7 @@ function FilterMenu(props) {
 
   // run when cross is pressed. Closes the menu without saving to redux
   const handleClose = () => {
+    deleteFetchedPropertyValues()
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
     setshouldSetFiltersFromStore(true)
@@ -211,6 +221,7 @@ function FilterMenu(props) {
 
   // Runs when filters are saved
   const closeFilterMenu = () => {
+    deleteFetchedPropertyValues()
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
     updateFilter(localFilters, selectedDataset);
@@ -375,10 +386,7 @@ function FilterMenu(props) {
                             id="filter-values-combo-box"
                             name="value"
                             options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
-                            
                             defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : null }
-
-                            
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
@@ -386,7 +394,7 @@ function FilterMenu(props) {
                               handleValueChange(index, selectedValue)
                             }}
                             
-                            renderInput={(params) => <TextField name="vlauer" className={classes.textFieldClass} {...params} label="Filter by..." variant="outlined" />}
+                            renderInput={(params) => <TextField name="vlauer" className={classes.textFieldClass} {...params} label="Value..." variant="outlined" />}
                           />
 
 
