@@ -97,7 +97,6 @@ function App() {
 
         <GremlinQueryDisplayAccordion/>
         <OutputAccordion/>
-        <StartNodeInputField/>
         <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> {/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
         {/* <GraphView graph={graphData}></GraphView> */}
