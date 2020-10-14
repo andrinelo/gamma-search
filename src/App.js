@@ -20,6 +20,7 @@ import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATAS
 
 import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
+
 function App() {
   
   // The node the user chose to inspect

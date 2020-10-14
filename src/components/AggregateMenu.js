@@ -18,6 +18,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { DialogActions } from '@material-ui/core';
+import EditWarning from './EditWarning.js'
 
   export default function AggregateMenu(props) {
     const window = useSelector(state => state.activeWindow);
@@ -25,6 +26,10 @@ import { DialogActions } from '@material-ui/core';
     const classes = useStyles();  
     const dispatch = useDispatch();
     const [localAggregations, setLocalAggregation] = React.useState([{proptype: '', aggregateFunction: ''}]);
+
+    const selectedDataset = useSelector(state => state.selectedDataset)  
+    const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+  
 
     // Adds another line with aggregate choices
     const addAggregateChoices = () => { 
@@ -89,7 +94,7 @@ import { DialogActions } from '@material-ui/core';
       // shows aggregatemenu if it has been set as active by the cloud button
       <Dialog open={window==="aggregate"}>
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
-            <div class={classes.relationsHeader}>
+          <div class={classes.relationsHeader}>
               <div></div>
               <h3>Aggregate</h3>
               <IconButton onClick={() => closeAggregateMenu()}>
@@ -98,6 +103,7 @@ import { DialogActions } from '@material-ui/core';
             </div>
           }>
         </CardHeader>
+        {selectedDataset !== numberOfDatasets ? null : <EditWarning></EditWarning>}
         <DialogContent>
           <div>
             {localAggregations.map((element, index) => {
