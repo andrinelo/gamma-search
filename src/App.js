@@ -9,11 +9,10 @@ import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
 import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 import RelationButton from "./components/RelationButton"
-
+import AggregateMenu from "./components/AggregateMenu";
 import FilterMenu from "./components/FilterMenu"
 import InspectedDatasetWindow from "./components/InspectedDatasetWindow"
 import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
-
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
@@ -76,6 +75,8 @@ function App() {
         <StartNodeInputField></StartNodeInputField>
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <FilterMenu></FilterMenu>
+        <AggregateMenu cloudId={0}/>
+
 
         {/* Test-button to test node-adding */}
         <button onClick={() => 
@@ -93,14 +94,10 @@ function App() {
           }
         }>ADD DATASET (TEST-BUTTON)</button>
 
-        <GremlinQueryDisplayAccordion></GremlinQueryDisplayAccordion>
-        <OutputAccordion>
-        </OutputAccordion>
-        <CloudButton cloudId={0}></CloudButton>
-        
-        <RelationButton edgeId = {1}></RelationButton>
-        <RelationButton edgeId = {2}></RelationButton>
-        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} ></AutocompleteTextField> {/*It is
+        <GremlinQueryDisplayAccordion/>
+        <OutputAccordion/>
+        <StartNodeInputField/>
+        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> {/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
         {/* <GraphView graph={graphData}></GraphView> */}
         

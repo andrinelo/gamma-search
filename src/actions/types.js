@@ -1,4 +1,5 @@
 // Constants used to make sure two actions does not have the same name.
+export const SET_AGGREGATION = "SET_AGGREGATION";
 export const SET_RELATION = "SET_RELATION";
 export const SET_FILTER = "SET_FILTER";  
 export const SET_ACTIVE_WINDOW = 'SET_ACTIVE_WINDOW';

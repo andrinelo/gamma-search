@@ -4,7 +4,8 @@ import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
-import { setSelectedDataset } from './../actions/SelectedDatasetActions'
+import { setSelectedDataset } from './../actions/SelectedDatasetActions';
+import { setActiveWindow } from './../actions/SetActiveWindow';
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -144,6 +145,7 @@ export default function GraphQueryVisualizer() {
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+              dispatch(setActiveWindow('aggregate'));
             },
             enabled: true // whether the command is selectable
           },
