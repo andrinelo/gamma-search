@@ -260,7 +260,7 @@ function InspectedDatasetGraph(props){
 
           // Tries to fetch an image URL, if the node does not have an image we use the placeholder image
           if('image' in node['properties']){
-            imageURL = 'url(' + "https://cors-anywhere.herokuapp.com/https://app.ardoq.com" + node['properties']['image'][0]['value'] +")"
+            imageURL = 'url(' + node['properties']['image'][0]['value'] +")"
           }
           else{
             imageURL = "url(/PlaceholderNodeImage.png)"
