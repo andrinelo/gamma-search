@@ -1,4 +1,4 @@
-import { SET_QUERY_ITEMS, APPEND_QUERY_ITEMS, RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, DELETE_QUERY_ITEMS_BY_KEY } from "../actions/types.js";
+import { SET_QUERY_ITEMS, APPEND_QUERY_ITEMS, RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, DELETE_QUERY_ITEMS_BY_KEYS } from "../actions/types.js";
 import { FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from "../actions/QueryKeys.js";
 
 const keys = [FULL_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, ALL_PROPERTIES_OF_DATASET]
@@ -15,12 +15,14 @@ const queryReducer = (state = initialState, action) => {
       state = initialState
       return state
 
-    // Resets the entire query state
-    case DELETE_QUERY_ITEMS_BY_KEY:
+    // Deletes the elements defined by the list of keys
+    case DELETE_QUERY_ITEMS_BY_KEYS:
       newState = JSON.parse(JSON.stringify(state))
       
-      if(newState.hasOwnProperty(action.queryKey)){
-        delete newState[action.queryKey]
+      for(let i = 0; i < action.queryKeys.length; i++){
+        if(newState.hasOwnProperty(action.queryKeys[i])){
+          delete newState[action.queryKeys[i]]
+        }
       }
 
       return newState  
