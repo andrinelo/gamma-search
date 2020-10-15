@@ -255,15 +255,20 @@ function FilterMenu(props) {
     deleteFetchedPropertyValues()
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
+
+    //updates and removes the 'filters' in Redux that is 'after' the index of this filter
     updateFilter(localFilters, selectedDataset);
     let localIndex = (selectedDataset * 2) + 1
 
     let localGremlinQuery = localFiltersToGreminParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
 
-    // This code removes all queries after this filter, TODO: Remove the 'filters' in Redux that is 'after' the index of this filter
+    // This code removes all queries after this filter
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
-    dispatch(appendToGremlinQuery(localGremlinQuery))    
+    dispatch(appendToGremlinQuery(localGremlinQuery))
+
+
+
 
     setshouldSetFiltersFromStore(true)
   };

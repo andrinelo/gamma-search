@@ -76,7 +76,7 @@ function App() {
         <StartNodeInputField></StartNodeInputField>
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <FilterMenu></FilterMenu>
-        <AggregateMenu cloudId={0}/>
+        {/*<AggregateMenu cloudId={0}/>*/}
 
 
         {/* Test-button to test node-adding */}
@@ -97,9 +97,8 @@ function App() {
 
         <GremlinQueryDisplayAccordion/>
         <OutputAccordion/>
-        <AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> {/*It is
+        {/*<AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> */}{/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
-        {/* <GraphView graph={graphData}></GraphView> */}
         
     </div>
   );
