@@ -8,8 +8,10 @@ const filterReducer = (state = {}, action) => {
       //Makes a new state that only contains the filters up unitl this id
       let newState = {}
       for (let i = 0; i<action.cloudId+1; i++){
-
-        newState[i]= filter[i]
+        if (filter[i]){
+          newState[i]= filter[i]
+        }
+        
       }
       return newState;
     default:
