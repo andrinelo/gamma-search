@@ -10,6 +10,7 @@ import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
 import FilterDatasetWindowsReducer from "./FilterDatasetWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
+import RelationWindowReducer from "./RelationWindowReducer.js"
 import aggregationReducer from "./AggregationReducer.js";
 
 // Combines all reducers and export them
@@ -26,4 +27,5 @@ export default combineReducers({
   selectedDataset: SelectedDatasetReducer,
   inspectDatasetWindowActive: InspectedDatasetWindowReducer,
   filterDatasetWindowActive: FilterDatasetWindowsReducer,
+  relationWindowActive: RelationWindowReducer,
 });

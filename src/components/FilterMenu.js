@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from "react-redux";
 import SetFilter from "../actions/SetFilter.js";
 import { DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
-import EmptyIcon from "./emptyIcon.js";
+import EmptyIcon from "./EmptyIcon.js";
 import Select from "@material-ui/core/Select";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
