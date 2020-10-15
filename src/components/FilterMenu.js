@@ -142,6 +142,14 @@ function FilterMenu(props) {
     localFilters[index]['property'] = selectedProperty;
     localFilters[index]['value'] = "";
 
+    // If the chosen property is label or node id, and the chosen operator is not "equals" or "not equals", 
+    // we reset the operator as label and node id only allow "equals" and "not equals"
+    if((selectedProperty === "Label / Type" || selectedProperty === "Node ID") 
+      && localFilters[index]['operator'] !== "==" && localFilters[index]['operator'] !== "!="){
+      
+        localFilters[index]['operator'] = "=="
+    }
+
     setLocalFilters([...localFilters]);
   };
 
@@ -186,16 +194,34 @@ function FilterMenu(props) {
     for (let id in localFilters){
       let filterProperty = localFilters[id].property
 
+      // Labels aren't defined as a property and requires a different kind of query
       if(filterProperty === "Label / Type"){
-        localGremlin = localGremlin.concat(".hasLabel('")
-        localGremlin = localGremlin.concat(localFilters[id].value)
-        localGremlin = localGremlin.concat("')")
+        if(localFilters[id].operator === "!="){
+          localGremlin = localGremlin.concat(".not(")  
+          localGremlin = localGremlin.concat("hasLabel('")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("'))")
+        }
+        else {
+          localGremlin = localGremlin.concat(".hasLabel('")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("')")
+        }
       }
 
+      // ID's aren't defined as a property and requires a different kind of query
       else if (filterProperty === "Node ID"){
-        localGremlin = localGremlin.concat(".hasId('")
-        localGremlin = localGremlin.concat(localFilters[id].value)
-        localGremlin = localGremlin.concat("')")
+        if(localFilters[id].operator === "!="){
+          localGremlin = localGremlin.concat(".not(")  
+          localGremlin = localGremlin.concat("hasId('")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("'))")
+        }
+        else {
+          localGremlin = localGremlin.concat(".hasId('")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("')")
+        }
       }
       
       else{
@@ -358,7 +384,7 @@ function FilterMenu(props) {
                           <Autocomplete
                             name="property"
                             options={allProperties}
-                            value={localFilters[index]['property'] !== "" && localFilters[index]['property'] !== undefined ? localFilters[index].property : null }
+                            value={localFilters[index].property !== undefined && localFilters[index].property !== "" ? localFilters[index].property : null }
                             getOptionLabel={(option) => option}
                             groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0) : ""}
                             style={{ width: '250px' }}
@@ -386,18 +412,35 @@ function FilterMenu(props) {
                               <MenuItem value="!=" name="operator">
                                 {`≠`}
                               </MenuItem>
-                              <MenuItem value=">=" name="operator">
-                                {`≥`}
-                              </MenuItem>
-                              <MenuItem value=">" name="operator">
-                                {`>`}
-                              </MenuItem>
-                              <MenuItem value="<" name="operator">
-                                {`<`}
-                              </MenuItem>
-                              <MenuItem value="=<" name="operator">
-                                {`≤`}
-                              </MenuItem>
+                              
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value=">=" name="operator">
+                                  {`≥`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value=">" name="operator">
+                                  {`>`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value="<" name="operator">
+                                  {`<`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&  
+                                <MenuItem value="=<" name="operator">
+                                  {`≤`}
+                                </MenuItem>
+                              }  
+                              
                             </Select>
                           </FormControl>
                         </div>
@@ -417,11 +460,11 @@ function FilterMenu(props) {
 
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
-                            freeSolo
+                            freeSolo={localFilters[index].property !== "Label / Type"}
                             name="value"
                             options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
-                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
-                            inputValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
+                            defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
+                            inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
