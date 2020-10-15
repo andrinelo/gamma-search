@@ -16,7 +16,7 @@ export default function OutputPaginator(props) {
     const classes = useStyles();
     const value = useSelector(state => state.currentOutputPage)
     const dispatch = useDispatch()
-    console.log(props.pageCount);
+
     if (value == 0 && value >= props.pageCount) { // Only one page
         return (
             <Box class={classes.flexBox}>

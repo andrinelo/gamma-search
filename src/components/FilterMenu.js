@@ -23,7 +23,7 @@ import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 import EditWarning from './EditWarning.js'
 import { ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from './../actions/QueryKeys.js'
-import { fetchQueryItems } from './../actions/QueryManagerActions.js';
+import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -45,7 +45,6 @@ function FilterMenu(props) {
   const selectedDataset = useSelector(state => state.selectedDataset)  
   const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
   const stateFilters = useSelector((state) => state.filters);
-  const propertyValuesFetched = useState([])
   const dispatch = useDispatch()
   const classes = useStyles();
 
@@ -63,6 +62,7 @@ function FilterMenu(props) {
       property: "",
       operator: "==",
       value: "",
+      isNumber: false
     },
   ], [selectedDataset]);
 
@@ -79,22 +79,19 @@ function FilterMenu(props) {
   }
 
 
-  // Deletes (from Redux-store) the values that has been fetched for different properties
-  const deleteFetchedPropertyValues = () => {
-    const keys = allResults.keys
-    for(let key in keys){
-      console.log("")
-    }
-  }
-
   useEffect(() => {
-
+    
     // If the filter window is open and we have set the set filters from store flag, we set the filters from store
     if(shouldSetFiltersFromStore && open){
       let id = selectedDataset;
-      if (stateFilters[id]) {
+      if (stateFilters[id] && stateFilters[id].filters !== undefined && stateFilters[id].filters.length > 0) {
         let tmpFilters = stateFilters[id].filters;
         setLocalFilters([...tmpFilters]);
+
+        // Fetches possible values for the properties that was stored in redux
+        for(let i = 0; i < tmpFilters.length; i++){
+          fetchValuesForProperty(i, tmpFilters[i].property)
+        }
       }
       else{
         setLocalFilters([
@@ -110,30 +107,46 @@ function FilterMenu(props) {
   }, [stateFilters, props, selectedDataset, allResults]);
 
 
-  const handlePropertyChange = (index, selectedProperty) => {
-    if(selectedProperty === null){
-      selectedProperty = ""
-    }
-    else if(selectedProperty !== "Node ID"){
+  // Deletes (from Redux-store) the values that has been fetched for different properties
+  const deleteFetchedPropertyValues = () => {
+    let keys = Object.keys(allResults)
+    keys = keys.filter(key => key.includes(VALUES_FOR_PROPERTY_IN_DATASET))
+
+    dispatch(deleteQueryItemsByKeys(keys))    
+  }
+
+  const fetchValuesForProperty = (index, selectedProperty) => {
+    if(selectedProperty !== "Node ID" && selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
+      let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
+
       if(selectedProperty === "Label / Type"){
-        datasetBeforeFiltersGremlinQuery += ".dedup().label().dedup()"
+        
+        propertyValuesGremlinQuery += ".dedup().label().dedup()"
       }
       else{
-        datasetBeforeFiltersGremlinQuery += ".dedup().properties('" + selectedProperty +"').value().dedup()"
+        propertyValuesGremlinQuery += ".dedup().properties('" + selectedProperty +"').value().dedup()"
       }
-
+      
       // We fetch every possible value in the dataset for the selected property 
-      dispatch(fetchQueryItems(datasetBeforeFiltersGremlinQuery, VALUES_FOR_PROPERTY_IN_DATASET + selectedProperty, 0))
+      dispatch(fetchQueryItems(propertyValuesGremlinQuery, VALUES_FOR_PROPERTY_IN_DATASET + selectedProperty, 0))
     }
+  }
+
+  const handlePropertyChange = (index, selectedProperty) => {
+    if(selectedProperty === null || selectedProperty === undefined){
+      selectedProperty = ""
+    }
+
+    fetchValuesForProperty(index, selectedProperty)
     
-    let name = 'property';
-    localFilters[index][name] = selectedProperty;
+    localFilters[index]['property'] = selectedProperty;
+    localFilters[index]['value'] = "";
+
     setLocalFilters([...localFilters]);
   };
 
   const handleOperatorChange = (index, event) => {
-    let name = "operator";
-    localFilters[index][name] = event.target.value;
+    localFilters[index]['operator'] = event.target.value;
     setLocalFilters([...localFilters]);
   };
 
@@ -141,9 +154,8 @@ function FilterMenu(props) {
     if(selectedValue === null){
       selectedValue = ""
     }
-    //(typeof selectedValue)
-    let name = 'value';
-    localFilters[index][name] = selectedValue;
+
+    localFilters[index]['value'] = selectedValue;
     setLocalFilters([...localFilters]);
   };
 
@@ -172,14 +184,15 @@ function FilterMenu(props) {
   const localFiltersToGreminParser = () => {
     let localGremlin = ""
     for (let id in localFilters){
+      let filterProperty = localFilters[id].property
 
-      if(localFilters[id].property === "Label / Type"){
+      if(filterProperty === "Label / Type"){
         localGremlin = localGremlin.concat(".hasLabel('")
         localGremlin = localGremlin.concat(localFilters[id].value)
         localGremlin = localGremlin.concat("')")
       }
 
-      else if (localFilters[id].property === "Node ID"){
+      else if (filterProperty === "Node ID"){
         localGremlin = localGremlin.concat(".hasId('")
         localGremlin = localGremlin.concat(localFilters[id].value)
         localGremlin = localGremlin.concat("')")
@@ -187,8 +200,9 @@ function FilterMenu(props) {
       
       else{
         localGremlin = localGremlin.concat(".has('")
-        localGremlin = localGremlin.concat(localFilters[id].property)
+        localGremlin = localGremlin.concat(filterProperty)
         localGremlin = localGremlin.concat("', ")
+
         switch(localFilters[id].operator){
           
           case "==":
@@ -212,11 +226,27 @@ function FilterMenu(props) {
           default:
             break;
         }
-        localGremlin = localGremlin.concat("('")
-        localGremlin = localGremlin.concat(localFilters[id].value)
-        localGremlin = localGremlin.concat("'))")
+
+        // Value is a number (because all the property's values are numbers)
+        if(allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty] !== undefined && !allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty].some(isNaN)){
+          localGremlin = localGremlin.concat("(")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("))")
+        }
+
+        // Value is a string
+        else{
+          localGremlin = localGremlin.concat("('")
+          localGremlin = localGremlin.concat(localFilters[id].value)
+          localGremlin = localGremlin.concat("'))")
+        }
+        
       }
     }
+
+    // Updates the localfilters-state
+    setLocalFilters([...localFilters]);
+
     return(localGremlin)
   }
 
@@ -278,7 +308,7 @@ function FilterMenu(props) {
         aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh' }}>
+        <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
           <div className={classes.cardContainer}>
 
           <DialogTitle id="alert-dialog-slide-title">
@@ -326,10 +356,9 @@ function FilterMenu(props) {
 
 
                           <Autocomplete
-                            id="filter-properties-combo-box"
                             name="property"
                             options={allProperties}
-                            defaultValue={localFilters[index]['property'] !== "" && localFilters[index]['property'] !== undefined ? localFilters[index].property : null }
+                            value={localFilters[index]['property'] !== "" && localFilters[index]['property'] !== undefined ? localFilters[index].property : null }
                             getOptionLabel={(option) => option}
                             groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0) : ""}
                             style={{ width: '250px' }}
@@ -389,10 +418,10 @@ function FilterMenu(props) {
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
                             freeSolo
-                            id="filter-values-combo-box"
                             name="value"
                             options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
-                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : null }
+                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
+                            inputValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
