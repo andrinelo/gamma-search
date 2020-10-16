@@ -73,7 +73,7 @@ function App() {
         <div style={{height: '40px'}}></div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <div style={{height: '60px'}}></div>
-        <StartNodeInputField></StartNodeInputField>
+        {/*<StartNodeInputField></StartNodeInputField>*/}
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <FilterMenu></FilterMenu>
         {/*<AggregateMenu cloudId={0}/>*/}
