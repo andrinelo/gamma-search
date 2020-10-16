@@ -71,7 +71,6 @@ export default function GraphQueryVisualizer() {
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
             'background-color': '#666',
-
             //'background-opacity': '0',
             'background-clip': 'none',
             'label': 'data(nodeName)',
@@ -80,6 +79,9 @@ export default function GraphQueryVisualizer() {
             'border-width': 'data(borderWidth)',
             'border-style': 'data(borderStyle)',
             'border-color': 'data(borderColor)',
+            /* 'overlay-color': 'red',
+            'overlay-opacity': '0.35',
+            'overlay-padding': '5', */
           }
           
         },
@@ -88,6 +90,15 @@ export default function GraphQueryVisualizer() {
           selector: 'node:active',
             style: {
               'overlay-opacity': '0',
+          }
+        }, 
+
+        {
+          selector: 'node.hover',
+            style: {
+              'border-width': '3px',
+              'border-style': 'double',
+              'border-color': 'blue',
           }
         }, 
 
@@ -207,6 +218,25 @@ export default function GraphQueryVisualizer() {
 
       cy.panningEnabled(false)
       cy.autoungrabify(true)
+
+
+      // Hovers over node
+      cy.on('mouseover', 'node', function(e){
+        var sel = e.target;
+        sel.classes("hover")
+
+        // Sets the cursor to pointer
+        graphContainer.current.style.cursor = 'pointer'
+      })
+
+      // Hovers out from node
+      cy.on('mouseout', 'node', function(e){
+        var sel = e.target;
+        sel.classes("")
+        
+        // Sets the cursor to default
+        graphContainer.current.style.cursor = 'default'
+    });
     
     })
 
