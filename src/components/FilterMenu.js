@@ -66,6 +66,8 @@ function FilterMenu(props) {
     },
   ], [selectedDataset]);
 
+  const [andOrs, setAndOrs] = useState([], [selectedDataset]);
+
   let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
 
   // If the "Node ID" item has not already been added to the list, we add it
@@ -88,6 +90,9 @@ function FilterMenu(props) {
         let tmpFilters = stateFilters[id].filters;
         setLocalFilters([...tmpFilters]);
 
+        let tmpAndOrs = stateFilters[id].andOrs
+        setAndOrs([...tmpAndOrs]);
+      
         // Fetches possible values for the properties that was stored in redux
         for(let i = 0; i < tmpFilters.length; i++){
           fetchValuesForProperty(i, tmpFilters[i].property)
@@ -101,6 +106,7 @@ function FilterMenu(props) {
             value: "",
           },
         ]);
+        setAndOrs([]);
       }
       setshouldSetFiltersFromStore(false)
     }
@@ -150,6 +156,11 @@ function FilterMenu(props) {
     setLocalFilters([...localFilters]);
   };
 
+  const handleAndOrChange = (index, event) => {
+    andOrs[index] = event.target.value;
+    setAndOrs([...andOrs]);
+  }
+
   const handleValueChange = (index, selectedValue) => {
     if(selectedValue === null){
       selectedValue = ""
@@ -167,10 +178,17 @@ function FilterMenu(props) {
       value: "",
     });
     setLocalFilters([...localFilters]);
+
+    andOrs.push(
+      "AND"
+    )
+    setAndOrs([...andOrs]);
   };
 
-  const updateFilter = (filters, cloudId) => {
-    dispatch(SetFilter({ filters }, cloudId));
+  const updateFilter = (filters, cloudId, andOrs) => {
+    console.log(andOrs)
+    dispatch(SetFilter({ filters }, {andOrs}, cloudId));
+    //dispatch(SetFilter({ filters }, cloudId));
   };
 
   // run when cross is pressed. Closes the menu without saving to redux
@@ -257,7 +275,7 @@ function FilterMenu(props) {
     dispatch(resetSelectedDataset());
 
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
-    updateFilter(localFilters, selectedDataset);
+    updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
 
     let localGremlinQuery = localFiltersToGreminParser()
@@ -277,6 +295,12 @@ function FilterMenu(props) {
   const removeFilter = (index) => {
     localFilters.splice(index, 1);
     setLocalFilters([...localFilters]);
+    if (index >= 1){
+      andOrs.splice(index-1, 1)
+      setAndOrs([...andOrs])
+    } 
+
+    console.log(andOrs);
   };
 
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
@@ -443,6 +467,28 @@ function FilterMenu(props) {
                           </Button>
                         </div>
                       </div>
+                      {/* if the index of this row of filters is not the last, make an and/or button after the row
+                      This only adds and/or buttons in between rows and not at the end*/}
+                      {index+1 !== localFilters.length ? 
+                      <div className={classes.andOrButtonContainer}>
+                        <FormControl style={{ width: "72px" }}>
+                          <Select className={classes.withLine}
+                            className={classes.andOrButton}
+                            onChange={(e) => handleAndOrChange(index, e)}
+                            variant="outlined"
+                            value={andOrs[index]}
+                            IconComponent={() => <EmptyIcon />}
+                            >
+                            <MenuItem value="AND">
+                              {`AND`}
+                            </MenuItem>
+                            <MenuItem value="OR">
+                              {`OR`}
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </div>
+                      : null}
                       <hr></hr>
                     </div>
                   );
@@ -547,4 +593,17 @@ const useStyles = makeStyles({
       paddingRight: "6px",
     },
   },
+  andOrButtonContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    display: "flex",
+  },
+
+  andOrButton: {
+    //marginRight: '400px'
+    width: "90px",
+    margin: "0px"
+  
+  }
 });
