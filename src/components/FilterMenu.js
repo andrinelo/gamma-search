@@ -22,7 +22,7 @@ import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 import EditWarning from './EditWarning.js'
-import { ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from './../actions/QueryKeys.js'
+import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 
 
@@ -54,7 +54,7 @@ function FilterMenu(props) {
 
 
   // Fetches all possible labels, to be used as auto-suggestions
-  const allProperties = useSelector(state => state.allQueryResults[ALL_PROPERTIES_OF_DATASET])
+  const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
   
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
@@ -110,7 +110,7 @@ function FilterMenu(props) {
   // Deletes (from Redux-store) the values that has been fetched for different properties
   const deleteFetchedPropertyValues = () => {
     let keys = Object.keys(allResults)
-    keys = keys.filter(key => key.includes(VALUES_FOR_PROPERTY_IN_DATASET))
+    keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
 
     dispatch(deleteQueryItemsByKeys(keys))    
   }
@@ -128,7 +128,7 @@ function FilterMenu(props) {
       }
       
       // We fetch every possible value in the dataset for the selected property 
-      dispatch(fetchQueryItems(propertyValuesGremlinQuery, VALUES_FOR_PROPERTY_IN_DATASET + selectedProperty, 0))
+      dispatch(fetchQueryItems(propertyValuesGremlinQuery, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + selectedProperty, 0))
     }
   }
 
@@ -228,7 +228,7 @@ function FilterMenu(props) {
         }
 
         // Value is a number (because all the property's values are numbers)
-        if(allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty] !== undefined && !allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty].some(isNaN)){
+        if(allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty] !== undefined && !allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty].some(isNaN)){
           localGremlin = localGremlin.concat("(")
           localGremlin = localGremlin.concat(localFilters[id].value)
           localGremlin = localGremlin.concat("))")
@@ -419,9 +419,9 @@ function FilterMenu(props) {
                           <Autocomplete
                             freeSolo
                             name="value"
-                            options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
-                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
-                            inputValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
+                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']].map(String)}
+                            defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
+                            inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}

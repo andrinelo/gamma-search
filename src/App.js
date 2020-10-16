@@ -12,11 +12,12 @@ import RelationButton from "./components/RelationButton"
 import AggregateMenu from "./components/AggregateMenu";
 import FilterMenu from "./components/FilterMenu"
 import InspectedDatasetWindow from "./components/InspectedDatasetWindow"
+import PropertyTableWindow from "./components/PropertyTableWindow"
 import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, ALL_PROPERTIES_OF_DATASET } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, PROPERTY_TABLE_VALUES } from './actions/QueryKeys.js'
 
 import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
@@ -29,6 +30,8 @@ function App() {
   // Boolean value mapping to whether modals windows are active/open
   const inspectWindowOpen = useSelector(store => store.inspectDatasetWindowActive)
   const filterWindowOpen = useSelector(store => store.filterDatasetWindowActive)
+  const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
+
 
   // Full current gremlin query
   let fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
@@ -41,31 +44,42 @@ function App() {
 
   const dispatch = useDispatch()
 
+  // Fetches the full results whenever the current gremlin query changes
   useEffect(() => {
-    
-    // The full current gremlin query results
     if(fullGremlinQuery !== ""){
-      fullGremlinQuery += ".dedup()"
-      dispatch(fetchQueryItems(fullGremlinQuery, FULL_RESULT_ITEMS))
+      const gremlinQuery = fullGremlinQuery + ".dedup()"
+      dispatch(fetchQueryItems(gremlinQuery, FULL_RESULT_ITEMS))
     }
+  }, [fullGremlinQuery])
 
-    // The gremlin query results corresponding to the nodes and edges for the inspected dataset
+
+  // Whenever the inspectWindowOpen changes (to true), we fetch the gremlin query results 
+  // corresponding to the nodes and edges for the inspected dataset
+  useEffect(() => {
     if(inspectWindowOpen && inspectedGremlinQuery !== "" && selectedDataset >= 0){
-      inspectedGremlinQuery += ".dedup()"
+      const gremlinQuery = inspectedGremlinQuery + ".dedup()"
       
-      dispatch(fetchQueryItems(inspectedGremlinQuery, INSPECTED_NODES_IN_DATASET))
-      dispatch(fetchQueryItems(inspectedGremlinQuery + ".union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INSPECTED_EDGES_IN_DATASET))
+      dispatch(fetchQueryItems(gremlinQuery, INSPECTED_NODES_IN_DATASET))
+      dispatch(fetchQueryItems(gremlinQuery + ".union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INSPECTED_EDGES_IN_DATASET))
     }
+  }, [inspectWindowOpen])
 
-    // The gremlin query results corresponding to all the properties in the selected dataset
+
+  // Whenever the filterWindowOpen changes (to true), we fetch thee gremlin query results 
+  // corresponding to all the properties in the selected dataset without the dataset's filters
+  useEffect(() => {
     if(filterWindowOpen && propertiesBeforeFiltersGremlinQuery !== "" && selectedDataset >= 0){
-      propertiesBeforeFiltersGremlinQuery += ".dedup().properties().key().dedup()"
-      
-      dispatch(fetchQueryItems(propertiesBeforeFiltersGremlinQuery, ALL_PROPERTIES_OF_DATASET, 0))
+      const gremlinQuery = propertiesBeforeFiltersGremlinQuery + ".dedup().properties().key().dedup()"
+
+      dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, 0))
     }
+  }, [filterWindowOpen])
 
 
-  })
+  useEffect(() => {
+    dispatch(fetchQueryItems("g.V().hasLabel('Person').project('id', 'label', 'name').by(id).by(label).by(values('name').fold())", PROPERTY_TABLE_VALUES))
+    
+  }, [propertyTableWindowOpen])
   
   
   return (
@@ -75,6 +89,7 @@ function App() {
         <div style={{height: '60px'}}></div>
         <StartNodeInputField></StartNodeInputField>
         <InspectedDatasetWindow></InspectedDatasetWindow>
+        <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
         {/*<AggregateMenu cloudId={0}/>*/}
 
@@ -82,7 +97,7 @@ function App() {
         {/* Test-button to test node-adding */}
         <button onClick={() => 
           {
-            dispatch(fetchQueryItems("g.V().properties('name').value().dedup()", "test", 0))
+            // dispatch(fetchQueryItems("g.V().properties('name').value().dedup()", "test", 0))
 
             if(fullGremlinQuery === ""){
               dispatch(appendToGremlinQuery("g.V()"))

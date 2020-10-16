@@ -4,6 +4,7 @@ import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
+import { setPropertyTableWindowActive } from './../actions/PropertyTableWindowActions.js';
 import { setSelectedDataset } from './../actions/SelectedDatasetActions';
 import { setActiveWindow } from './../actions/SetActiveWindow';
 
@@ -74,7 +75,6 @@ export default function GraphQueryVisualizer() {
             //'background-opacity': '0',
             'background-clip': 'none',
             'label': 'data(nodeName)',
-            'background-clip': 'none',
             'width': '40%',
             'height': '40%',
             'border-width': 'data(borderWidth)',
@@ -163,14 +163,14 @@ export default function GraphQueryVisualizer() {
             enabled: true // whether the command is selectable
           },
 
-          { // Command to remove query-parts that are after this dataset
+          { // Command to open window where one can select properties and get the results as a table
             fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-            content: 'End current query here', // html/text content to be displayed in the menu
+            content: 'Create property table', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
-              dispatch(setInspectWindowActive(true))
+              dispatch(setPropertyTableWindowActive(true))
             },
 
             enabled: true // whether the command is selectable

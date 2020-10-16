@@ -11,6 +11,7 @@ import FilterDatasetWindowsReducer from "./FilterDatasetWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
 import RelationWindowReducer from "./RelationWindowReducer.js"
+import PropertyTableWindowReducer from "./PropertyTableWindowReducer"
 import aggregationReducer from "./AggregationReducer.js";
 
 // Combines all reducers and export them
@@ -28,4 +29,5 @@ export default combineReducers({
   inspectDatasetWindowActive: InspectedDatasetWindowReducer,
   filterDatasetWindowActive: FilterDatasetWindowsReducer,
   relationWindowActive: RelationWindowReducer,
+  propertyTableWindowActive: PropertyTableWindowReducer,
 });
