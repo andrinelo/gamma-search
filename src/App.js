@@ -77,7 +77,8 @@ function App() {
 
 
   useEffect(() => {
-    dispatch(fetchQueryItems("g.V().hasLabel('Person').project('id', 'label', 'name').by(id).by(label).by(values('name').fold())", PROPERTY_TABLE_VALUES))
+    dispatch(fetchQueryItems("g.V().hasLabel('Person').project('Node ID', 'label', 'name').by(id).by(label).by(values('name').fold())", PROPERTY_TABLE_VALUES))
+    //dispatch(fetchQueryItems("g.V().hasLabel('Application').project('Node ID','Label','api_deployments').by(id).by(label).by(values('api_deployments').fold())", PROPERTY_TABLE_VALUES))
     
   }, [propertyTableWindowOpen])
   

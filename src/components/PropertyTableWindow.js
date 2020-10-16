@@ -29,25 +29,38 @@ function PropertyTableWindow() {
   
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
-  tableRowsRaw.map(row => {
+  for(let i = 0; i < tableRowsRaw.length; i++) {
+    const row = tableRowsRaw[i]
     const rowKeys = Object.keys(row)
-    const modifiedRow = {}
+    const modifiedRow = {id: i}
 
-    for(let i = 0; i < rowKeys.length; i++){
-      modifiedRow[rowKeys[i]] = row[rowKeys[i]]
+    for(let j = 0; j < rowKeys.length; j++){
+      
+      // Most fields are lists with only one value; we only want the value, not the list (lists are not sortable)
+      if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length > 0){
+        modifiedRow[rowKeys[j]] = row[rowKeys[j]][0]
+      }
+
+      else if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length === 0){
+        modifiedRow[rowKeys[j]] = null
+      }
+
+      else{
+        modifiedRow[rowKeys[j]] = row[rowKeys[j]]
+      }
     }
 
-    console.log(modifiedRow)
     tableRows.push(modifiedRow)
-  })
+  }
+  console.log(tableRows)
 
 
 
-  // Whenever the values for the rows updates
+  // Whenever the values for the rows updates, we also update the columns
   useEffect(() => {
-    if(tableRowsRaw.length > 0){
+    tableColumns.push({ field: 'id', hide: true })
 
-      // We update the columns
+    if(tableRowsRaw.length > 0){
       const columnNames = Object.keys(tableRowsRaw[0])
       
       for(let i = 0; i < columnNames.length; i++){
@@ -56,14 +69,6 @@ function PropertyTableWindow() {
       
     }
   }, [tableRowsRaw])
-
-  
-  
-  const rows = [
-    { 'id': 1, 'lastName': 'Snow', 'firstName': 'Jon', 'age': 35 },
-    { 'id': 1, 'lastName': 'Snow', 'firstName': 'Jon', 'age': 35 }
-
-  ];
   
 
   // Handle modal window closes
@@ -72,6 +77,7 @@ function PropertyTableWindow() {
     dispatch(setPropertyTableWindowActive(false));
     dispatch(resetSelectedDataset());
   };
+
 
   return (
     <div>
@@ -85,7 +91,7 @@ function PropertyTableWindow() {
         maxWidth={false}
       >
         <div style={{ width: '60vw'}}>
-          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table of this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
 
         <div style={{width: '55vw', height: '380px', margin: 'auto', marginBottom: '2vw'}}>
