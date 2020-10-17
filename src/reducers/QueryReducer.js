@@ -45,12 +45,17 @@ const queryReducer = (state = initialState, action) => {
       }
 
       // If we're setting the available properties, we sort the list alphabetically
-      if(action.payload.queryKey == DATASET_PROPERTIES_BEFORE_DATASET_FILTERS){
+      else if(action.payload.queryKey == DATASET_PROPERTIES_BEFORE_DATASET_FILTERS){
+        action.payload.queryItems.sort()
+      }
+
+      // If we're setting the available properties, we sort the list alphabetically
+      else if(action.payload.queryKey == DATASET_PROPERTIES_AFTER_DATASET_FILTERS){
         action.payload.queryItems.sort()
       }
 
       // If we're setting the available values of a property, we sort the list alphabetically, and with numbers sorted risingly
-      if(action.payload.queryKey.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS)){
+      else if(action.payload.queryKey.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS)){
         action.payload.queryItems.sort(function(a, b) {
           if(!isNaN(a) && !isNaN(b)){
             return Number(a) - Number(b)

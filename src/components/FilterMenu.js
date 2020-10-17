@@ -18,6 +18,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
@@ -120,7 +122,6 @@ function FilterMenu(props) {
       let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
 
       if(selectedProperty === "Label / Type"){
-        
         propertyValuesGremlinQuery += ".dedup().label().dedup()"
       }
       else{
@@ -142,8 +143,8 @@ function FilterMenu(props) {
     localFilters[index]['property'] = selectedProperty;
     localFilters[index]['value'] = "";
 
-    // If the chosen property is label or node id, and the chosen operator is not "equals" or "not equals", 
-    // we reset the operator as label and node id only allow "equals" and "not equals"
+    // If the chosen property is label or node id, and the chosen operator is neither "equals" nor "not equals", 
+    // we reset the operator because label and node id only allow "equals" and "not equals"
     if((selectedProperty === "Label / Type" || selectedProperty === "Node ID") 
       && localFilters[index]['operator'] !== "==" && localFilters[index]['operator'] !== "!="){
       
@@ -293,9 +294,6 @@ function FilterMenu(props) {
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
     dispatch(appendToGremlinQuery(localGremlinQuery))
 
-
-
-
     setshouldSetFiltersFromStore(true)
   };
 
@@ -386,13 +384,28 @@ function FilterMenu(props) {
                             options={allProperties}
                             value={localFilters[index].property !== undefined && localFilters[index].property !== "" ? localFilters[index].property : null }
                             getOptionLabel={(option) => option}
-                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0) : ""}
+                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
                             style={{ width: '250px' }}
                             onChange={(event, selectedProperty) => {
                               handlePropertyChange(index, selectedProperty)
                             }}
                             
                             renderInput={(params) => <TextField className={classes.textFieldClass} {...params} label="Filter by..." variant="outlined" />}
+
+                            renderOption={(option, { inputValue }) => {
+                              const matches = match(option, inputValue);
+                              const parts = parse(option, matches);
+                      
+                              return (
+                                <div>
+                                  {parts.map((part, index) => (
+                                    <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                      {part.text}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }}
                           />
 
  
@@ -463,7 +476,7 @@ function FilterMenu(props) {
                             freeSolo={localFilters[index].property !== "Label / Type"}
                             name="value"
                             options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']].map(String)}
-                            defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
+                            defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : null}
                             inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
@@ -472,11 +485,26 @@ function FilterMenu(props) {
                               handleValueChange(index, selectedValue)
                             }}
                             
-                            renderInput={(params) => <TextField name="vlauer" className={classes.textFieldClass} {...params} label="Value..." variant="outlined" />}
+                            renderInput={(params) => <TextField name="value" className={classes.textFieldClass} {...params} label="Value..." variant="outlined" />}
+
+                            renderOption={(option, { inputValue }) => {
+                              const matches = match(option, inputValue);
+                              const parts = parse(option, matches);
+                      
+                              return (
+                                <div>
+                                  {parts.map((part, index) => (
+                                    <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                      {part.text}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }}
                           />
 
-
                         </div>
+
                         <div className={classes.removeButtonContainer}>
                           <Button
                             size="small"
