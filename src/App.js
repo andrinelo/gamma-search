@@ -17,32 +17,32 @@ import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, PROPERTY_TABLE_VALUES } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, PROPERTY_TABLE_VALUES } from './actions/QueryKeys.js'
 
 import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
 
 function App() {
   
-  // The node the user chose to inspect
-  let selectedDataset = useSelector(store => store.selectedDataset)
-
   // Boolean value mapping to whether modals windows are active/open
   const inspectWindowOpen = useSelector(store => store.inspectDatasetWindowActive)
   const filterWindowOpen = useSelector(store => store.filterDatasetWindowActive)
   const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
+  
+  const dispatch = useDispatch()
 
+  // The node the user chose to inspect
+  const selectedDataset = useSelector(store => store.selectedDataset)
 
   // Full current gremlin query
-  let fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
+  const fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
 
   // Gremlin query corresponding to the current inspected dataset
-  let inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+  const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
   
-  // Gremlin query corresponding to the properties in the selected dataset, ignoring any filters on this particular dataset
-  let propertiesBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
+  // Gremlin query corresponding to the selected dataset, ignoring any filters on this particular dataset
+  const datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
 
-  const dispatch = useDispatch()
 
   // Fetches the full results whenever the current gremlin query changes
   useEffect(() => {
@@ -56,8 +56,8 @@ function App() {
   // Whenever the inspectWindowOpen changes (to true), we fetch the gremlin query results 
   // corresponding to the nodes and edges for the inspected dataset
   useEffect(() => {
-    if(inspectWindowOpen && inspectedGremlinQuery !== "" && selectedDataset >= 0){
-      const gremlinQuery = inspectedGremlinQuery + ".dedup()"
+    if(inspectWindowOpen && datasetAfterFiltersGremlinQuery !== "" && selectedDataset >= 0){
+      const gremlinQuery = datasetAfterFiltersGremlinQuery + ".dedup()"
       
       dispatch(fetchQueryItems(gremlinQuery, INSPECTED_NODES_IN_DATASET))
       dispatch(fetchQueryItems(gremlinQuery + ".union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INSPECTED_EDGES_IN_DATASET))
@@ -65,20 +65,25 @@ function App() {
   }, [inspectWindowOpen])
 
 
-  // Whenever the filterWindowOpen changes (to true), we fetch thee gremlin query results 
+  // Whenever the filterWindowOpen changes (to true), we fetch the gremlin query results 
   // corresponding to all the properties in the selected dataset without the dataset's filters
   useEffect(() => {
-    if(filterWindowOpen && propertiesBeforeFiltersGremlinQuery !== "" && selectedDataset >= 0){
-      const gremlinQuery = propertiesBeforeFiltersGremlinQuery + ".dedup().properties().key().dedup()"
+    if(filterWindowOpen && datasetBeforeFiltersGremlinQuery !== "" && selectedDataset >= 0){
+      const gremlinQuery = datasetBeforeFiltersGremlinQuery + ".dedup().properties().key().dedup()"
 
       dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, 0))
     }
   }, [filterWindowOpen])
 
 
+  // Whenever the propertyTabelWindowOpen changes (to true), we fetch the gremlin query results 
+  // corresponding to all the properties in the selected dataset with the dataset's filters
   useEffect(() => {
-    dispatch(fetchQueryItems("g.V().hasLabel('Person').project('Node ID', 'label', 'name').by(id).by(label).by(values('name').fold())", PROPERTY_TABLE_VALUES))
-    //dispatch(fetchQueryItems("g.V().hasLabel('Application').project('Node ID','Label','api_deployments').by(id).by(label).by(values('api_deployments').fold())", PROPERTY_TABLE_VALUES))
+    if(propertyTableWindowOpen && datasetAfterFiltersGremlinQuery !== "" && selectedDataset >= 0){
+      const gremlinQuery = datasetAfterFiltersGremlinQuery + ".limit(1000).dedup().properties().key().dedup()"
+
+      dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, 0))
+    }
     
   }, [propertyTableWindowOpen])
   
