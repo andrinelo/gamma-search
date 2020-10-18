@@ -10,9 +10,9 @@ import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
 import SetFilter from "../actions/SetFilter.js";
-import { DeleteForever } from "@material-ui/icons";
+import { ContactSupportOutlined, DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
-import EmptyIcon from "./emptyIcon.js";
+import EmptyIcon from "./EmptyIcon.js";
 import Select from "@material-ui/core/Select";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -201,6 +201,16 @@ function FilterMenu(props) {
 
   const localFiltersToGreminParser = () => {
     let localGremlin = ""
+    console.log(andOrs);
+
+    let gremlinAndOrs = []
+
+    if (andOrs.length !== 0){
+      //localGremlin = localGremlin.concat(andOrs[])
+      gremlinAndOrs.push()
+    }
+
+    //TODO: lag om til liste med strenger for kvar has, putt inn in and ors
     for (let id in localFilters){
       let filterProperty = localFilters[id].property
 
