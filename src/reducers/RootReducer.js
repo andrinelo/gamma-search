@@ -7,10 +7,13 @@ import FilterReducer from "./FilterReducer.js";
 import gremlinQueryReducer from "./GremlinQueryReducer.js";
 import queryReducer from "./QueryReducer.js"
 import InitialSearchParameterReducer from "./InitialSearchParameterReducer.js"
-import FilterDatasetWindowsReducer from "./FilterDatasetWindowReducer"
+import FilterDatasetWindowReducer from "./FilterDatasetWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
+import RelationWindowReducer from "./RelationWindowReducer.js"
+import { PropertyTableWindowReducer, PropertyTableLoadingReducer, PropertyTableLatestFetchReducer } from "./PropertyTableWindowReducer"
 import aggregationReducer from "./AggregationReducer.js";
+
 
 // Combines all reducers and export them
 export default combineReducers({
@@ -25,5 +28,9 @@ export default combineReducers({
   filters: FilterReducer,  
   selectedDataset: SelectedDatasetReducer,
   inspectDatasetWindowActive: InspectedDatasetWindowReducer,
-  filterDatasetWindowActive: FilterDatasetWindowsReducer,
+  filterDatasetWindowActive: FilterDatasetWindowReducer,
+  relationWindowActive: RelationWindowReducer,
+  propertyTableWindowActive: PropertyTableWindowReducer,
+  propertyTableIsFetching: PropertyTableLoadingReducer,
+  propertyTableLatestFetchID: PropertyTableLatestFetchReducer,
 });

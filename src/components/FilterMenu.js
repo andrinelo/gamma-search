@@ -18,11 +18,13 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 import EditWarning from './EditWarning.js'
-import { ALL_PROPERTIES_OF_DATASET, VALUES_FOR_PROPERTY_IN_DATASET } from './../actions/QueryKeys.js'
+import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 
 
@@ -54,7 +56,7 @@ function FilterMenu(props) {
 
 
   // Fetches all possible labels, to be used as auto-suggestions
-  const allProperties = useSelector(state => state.allQueryResults[ALL_PROPERTIES_OF_DATASET])
+  const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
   
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
@@ -116,7 +118,7 @@ function FilterMenu(props) {
   // Deletes (from Redux-store) the values that has been fetched for different properties
   const deleteFetchedPropertyValues = () => {
     let keys = Object.keys(allResults)
-    keys = keys.filter(key => key.includes(VALUES_FOR_PROPERTY_IN_DATASET))
+    keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
 
     dispatch(deleteQueryItemsByKeys(keys))    
   }
@@ -126,7 +128,6 @@ function FilterMenu(props) {
       let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
 
       if(selectedProperty === "Label / Type"){
-        
         propertyValuesGremlinQuery += ".dedup().label().dedup()"
       }
       else{
@@ -134,7 +135,7 @@ function FilterMenu(props) {
       }
       
       // We fetch every possible value in the dataset for the selected property 
-      dispatch(fetchQueryItems(propertyValuesGremlinQuery, VALUES_FOR_PROPERTY_IN_DATASET + selectedProperty, 0))
+      dispatch(fetchQueryItems(propertyValuesGremlinQuery, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + selectedProperty, 0))
     }
   }
 
@@ -147,6 +148,14 @@ function FilterMenu(props) {
     
     localFilters[index]['property'] = selectedProperty;
     localFilters[index]['value'] = "";
+
+    // If the chosen property is label or node id, and the chosen operator is neither "equals" nor "not equals", 
+    // we reset the operator because label and node id only allow "equals" and "not equals"
+    if((selectedProperty === "Label / Type" || selectedProperty === "Node ID") 
+      && localFilters[index]['operator'] !== "==" && localFilters[index]['operator'] !== "!="){
+      
+        localFilters[index]['operator'] = "=="
+    }
 
     setLocalFilters([...localFilters]);
   };
@@ -207,16 +216,34 @@ function FilterMenu(props) {
 
       let filterProperty = localFilters[id].property
 
+      // Labels aren't defined as a property and requires a different kind of query
       if(filterProperty === "Label / Type"){
-        tmpQuery = tmpQuery.concat("hasLabel('")
-        tmpQuery = tmpQuery.concat(localFilters[id].value)
-        tmpQuery = tmpQuery.concat("')")
+        if(localFilters[id].operator === "!="){
+          tmpQuery = tmpQuery.concat("not(")  
+          tmpQuery = tmpQuery.concat("hasLabel('")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("'))")
+        }
+        else {
+          tmpQuery = tmpQuery.concat("hasLabel('")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("')")
+        }
       }
 
+      // ID's aren't defined as a property and requires a different kind of query
       else if (filterProperty === "Node ID"){
-        tmpQuery = tmpQuery.concat("hasId('")
-        tmpQuery = tmpQuery.concat(localFilters[id].value)
-        tmpQuery = tmpQuery.concat("')")
+        if(localFilters[id].operator === "!="){
+          tmpQuery = tmpQuery.concat("not(")  
+          tmpQuery = tmpQuery.concat("hasId('")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("'))")
+        }
+        else {
+          tmpQuery = tmpQuery.concat("hasId('")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("')")
+        }
       }
       
       else{
@@ -249,7 +276,7 @@ function FilterMenu(props) {
         }
 
         // Value is a number (because all the property's values are numbers)
-        if(allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty] !== undefined && !allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty].some(isNaN)){
+        if(allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty] !== undefined && !allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty].some(isNaN)){
           tmpQuery = tmpQuery.concat("(")
           tmpQuery = tmpQuery.concat(localFilters[id].value)
           tmpQuery = tmpQuery.concat("))")
@@ -404,15 +431,30 @@ function FilterMenu(props) {
                           <Autocomplete
                             name="property"
                             options={allProperties}
-                            value={localFilters[index]['property'] !== "" && localFilters[index]['property'] !== undefined ? localFilters[index].property : null }
+                            value={localFilters[index].property !== undefined && localFilters[index].property !== "" ? localFilters[index].property : null }
                             getOptionLabel={(option) => option}
-                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0) : ""}
+                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
                             style={{ width: '250px' }}
                             onChange={(event, selectedProperty) => {
                               handlePropertyChange(index, selectedProperty)
                             }}
                             
                             renderInput={(params) => <TextField className={classes.textFieldClass} {...params} label="Filter by..." variant="outlined" />}
+
+                            renderOption={(option, { inputValue }) => {
+                              const matches = match(option, inputValue);
+                              const parts = parse(option, matches);
+                      
+                              return (
+                                <div>
+                                  {parts.map((part, index) => (
+                                    <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                      {part.text}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }}
                           />
 
  
@@ -432,18 +474,35 @@ function FilterMenu(props) {
                               <MenuItem value="!=" name="operator">
                                 {`≠`}
                               </MenuItem>
-                              <MenuItem value=">=" name="operator">
-                                {`≥`}
-                              </MenuItem>
-                              <MenuItem value=">" name="operator">
-                                {`>`}
-                              </MenuItem>
-                              <MenuItem value="<" name="operator">
-                                {`<`}
-                              </MenuItem>
-                              <MenuItem value="=<" name="operator">
-                                {`≤`}
-                              </MenuItem>
+                              
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value=">=" name="operator">
+                                  {`≥`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value=">" name="operator">
+                                  {`>`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&
+                                <MenuItem value="<" name="operator">
+                                  {`<`}
+                                </MenuItem>
+                              }
+
+                              {localFilters[index].property !== "Label / Type" &&
+                                localFilters[index].property !== "Node ID" &&  
+                                <MenuItem value="=<" name="operator">
+                                  {`≤`}
+                                </MenuItem>
+                              }  
+                              
                             </Select>
                           </FormControl>
                         </div>
@@ -463,11 +522,11 @@ function FilterMenu(props) {
 
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
-                            freeSolo
+                            freeSolo={localFilters[index].property !== "Label / Type"}
                             name="value"
-                            options={allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']] === undefined ? [] : allResults[VALUES_FOR_PROPERTY_IN_DATASET + localFilters[index]['property']].map(String)}
-                            defaultValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
-                            inputValue={localFilters[index]['value'] !== "" && localFilters[index]['value'] !== undefined ? localFilters[index].value : "" }
+                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']].map(String)}
+                            defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : null}
+                            inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
                             getOptionLabel={(option) => option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
@@ -475,11 +534,26 @@ function FilterMenu(props) {
                               handleValueChange(index, selectedValue)
                             }}
                             
-                            renderInput={(params) => <TextField name="vlauer" className={classes.textFieldClass} {...params} label="Value..." variant="outlined" />}
+                            renderInput={(params) => <TextField name="value" className={classes.textFieldClass} {...params} label="Value..." variant="outlined" />}
+
+                            renderOption={(option, { inputValue }) => {
+                              const matches = match(option, inputValue);
+                              const parts = parse(option, matches);
+                      
+                              return (
+                                <div>
+                                  {parts.map((part, index) => (
+                                    <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                      {part.text}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }}
                           />
 
-
                         </div>
+
                         <div className={classes.removeButtonContainer}>
                           <Button
                             size="small"
