@@ -224,12 +224,12 @@ export default function InspectedDatasetWindow(props) {
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="inspected-dataset-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '80vw'}}>
-          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>

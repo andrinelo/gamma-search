@@ -204,12 +204,12 @@ function PropertyTableWindow() {
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="property-table-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '73vw'}}>
-          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
 
         <div style={{ maxHeight: '97%', overflow: 'auto' }}>
@@ -260,10 +260,19 @@ function PropertyTableWindow() {
             </div>
           </div>
 
-          <div style={{width: '68vw', height: '380px', margin: 'auto', marginBottom: '0vw'}}>
-            <DataGrid rows={tableRows} columns={tableColumns} loading={tableIsLoading} pageSize={5} disableSelectionOnClick={true} rowsPerPageOptions={[]} page={currentTablePage} onPageChange={(params) => setCurrentTablePage(params.page)} onSortModelChange={() => setCurrentTablePage(1)} />
-          </div>
-          
+          {/* Some bug causes the site to crash if closing the modal window 
+          when the table contains more elements than its width can fit.
+          Quick fix is making the table dependant on the window being open.
+          Replaces the table with an empty div to prevent the height of the
+          dialog to suddenly change. */}
+          {open ? 
+            <div style={{width: '68vw', height: '380px', margin: 'auto', marginBottom: '0vw'}}>
+              <DataGrid rows={tableRows} columns={tableColumns} loading={tableIsLoading} pageSize={5} disableSelectionOnClick={true} rowsPerPageOptions={[]} page={currentTablePage} onPageChange={(params) => setCurrentTablePage(params.page)} onSortModelChange={() => setCurrentTablePage(1)} />
+            </div>
+
+            : <div style={{width: '68vw', height: '380px', margin: 'auto', marginBottom: '0vw'}} />
+          }
+
           {tableRows.length > 0 ?
             <div style={{maxWidth: '55vw', margin: 'auto'}}>
               <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'small'}}><b>Table generated from gremlin query</b><br/><i>{tableGremlinQuery}</i></p>

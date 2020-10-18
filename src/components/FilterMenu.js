@@ -330,14 +330,14 @@ function FilterMenu(props) {
         TransitionComponent={Transition}
         //keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="filter-menu-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
           <div className={classes.cardContainer}>
 
-          <DialogTitle id="alert-dialog-slide-title">
+          <DialogTitle id="filter-menu-dialog-slide-title">
             {"Filter this dataset"}
             <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
