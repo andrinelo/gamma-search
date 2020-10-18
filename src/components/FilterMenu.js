@@ -203,15 +203,126 @@ function FilterMenu(props) {
     let localGremlin = ""
     console.log(andOrs);
 
-    let gremlinAndOrs = []
+    let gremlinFilterList = []
 
-    if (andOrs.length !== 0){
-      //localGremlin = localGremlin.concat(andOrs[])
-      gremlinAndOrs.push()
+
+
+
+    for (let id in localFilters){
+      let tmpQuery = ""
+
+      let filterProperty = localFilters[id].property
+
+      if(filterProperty === "Label / Type"){
+        tmpQuery = tmpQuery.concat("hasLabel('")
+        tmpQuery = tmpQuery.concat(localFilters[id].value)
+        tmpQuery = tmpQuery.concat("')")
+      }
+
+      else if (filterProperty === "Node ID"){
+        tmpQuery = tmpQuery.concat("hasId('")
+        tmpQuery = tmpQuery.concat(localFilters[id].value)
+        tmpQuery = tmpQuery.concat("')")
+      }
+      
+      else{
+        tmpQuery = tmpQuery.concat("has('")
+        tmpQuery = tmpQuery.concat(filterProperty)
+        tmpQuery = tmpQuery.concat("', ")
+
+        switch(localFilters[id].operator){
+          
+          case "==":
+            tmpQuery = tmpQuery.concat("eq")
+            break;
+          case "<":
+            tmpQuery = tmpQuery.concat("lt")
+            break;
+          case ">":
+            tmpQuery = tmpQuery.concat("gt")
+            break
+          case ">=": 
+            tmpQuery = tmpQuery.concat("gte")
+            break
+          case "<=": 
+            tmpQuery = tmpQuery.concat("lte")
+            break
+          case "!=": 
+            tmpQuery = tmpQuery.concat("neq")
+            break;
+          default:
+            break;
+        }
+
+        // Value is a number (because all the property's values are numbers)
+        if(allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty] !== undefined && !allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty].some(isNaN)){
+          tmpQuery = tmpQuery.concat("(")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("))")
+        }
+
+        // Value is a string
+        else{
+          tmpQuery = tmpQuery.concat("('")
+          tmpQuery = tmpQuery.concat(localFilters[id].value)
+          tmpQuery = tmpQuery.concat("'))")
+        }
+        
+      }
+      gremlinFilterList.push(tmpQuery);
     }
 
+
+    //joins ands
+    let index = 0
+    for (let i = 0; i<andOrs.length; i++){
+      let tmpAndGremlin = ""
+      if (andOrs[i] === "AND"){
+        tmpAndGremlin = tmpAndGremlin.concat("and(")
+        tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index])
+        tmpAndGremlin = tmpAndGremlin.concat(",")
+        tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index+1])
+        tmpAndGremlin = tmpAndGremlin.concat(")")
+        gremlinFilterList.splice(index, 2, tmpAndGremlin)
+      }
+      else{
+        index += 1;
+      }
+    }
+
+    console.log(gremlinFilterList)
+    let andOrGremlinQuery = ""
+    //joins ors
+    if (andOrs.includes("OR")){
+      andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
+      for (let localIndex in gremlinFilterList){
+        console.log(gremlinFilterList[localIndex])
+        andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[localIndex])
+        console.log(localIndex)
+        console.log(gremlinFilterList.length -1)
+        console.log(localIndex != gremlinFilterList.length -1)
+        if (localIndex != gremlinFilterList.length -1){
+          andOrGremlinQuery = andOrGremlinQuery.concat(",")
+        }
+      }
+      andOrGremlinQuery = andOrGremlinQuery.concat(")")
+    }
+    else {
+      andOrGremlinQuery = andOrGremlinQuery.concat(".")
+      andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[0])
+    }
+    console.log(andOrGremlinQuery)
+
+    
+    //if (andOrs.length !== 0){
+      //localGremlin = localGremlin.concat(andOrs[])
+    //  gremlinAndOrs.push()
+    //}
+
     //TODO: lag om til liste med strenger for kvar has, putt inn in and ors
+    /*
     for (let id in localFilters){
+
       let filterProperty = localFilters[id].property
 
       if(filterProperty === "Label / Type"){
@@ -271,11 +382,12 @@ function FilterMenu(props) {
         
       }
     }
+    */
 
     // Updates the localfilters-state
     setLocalFilters([...localFilters]);
 
-    return(localGremlin)
+    return(andOrGremlinQuery)
   }
 
   // Runs when filters are saved
@@ -307,8 +419,11 @@ function FilterMenu(props) {
     setLocalFilters([...localFilters]);
     if (index >= 1){
       andOrs.splice(index-1, 1)
-      setAndOrs([...andOrs])
-    } 
+    }
+    else{
+      andOrs.splice(index, 1)
+    }
+    setAndOrs([...andOrs])
 
     console.log(andOrs);
   };
@@ -480,14 +595,18 @@ function FilterMenu(props) {
                       {/* if the index of this row of filters is not the last, make an and/or button after the row
                       This only adds and/or buttons in between rows and not at the end*/}
                       {index+1 !== localFilters.length ? 
-                      <div className={classes.andOrButtonContainer}>
-                        <FormControl style={{ width: "72px" }}>
+                      <div className={classes.container}>
+                        <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
+                        <span className={classes.content}>
+
+                        <FormControl >
                           <Select className={classes.withLine}
+                            style={{  height: "30px" }}
                             className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
                             variant="outlined"
                             value={andOrs[index]}
-                            IconComponent={() => <EmptyIcon />}
+                            //IconComponent={() => <EmptyIcon />}
                             >
                             <MenuItem value="AND">
                               {`AND`}
@@ -497,9 +616,17 @@ function FilterMenu(props) {
                             </MenuItem>
                           </Select>
                         </FormControl>
+                      </span>
+                      <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
                       </div>
                       : null}
-                      <hr></hr>
+                      {/* <div className={classes.container}>
+                          <div className={classes.border} />
+                          <span className={classes.content}>test</span>
+                          <div className={classes.border} />
+                        </div>*/}
+                        
+                      {/*<hr></hr>*/}
                     </div>
                   );
                 })}
@@ -541,7 +668,7 @@ function FilterMenu(props) {
 
 export default FilterMenu;
 
-const useStyles = makeStyles({
+const useStyles = makeStyles( theme  => ({
   root: {
     width: 500,
     background: "#eeeeee",
@@ -615,5 +742,30 @@ const useStyles = makeStyles({
     width: "90px",
     margin: "0px"
   
+  },
+  container: {
+    marginTop: "10px",
+    marginBottom: "5px",
+    display: "flex",
+    alignItems: "center",
+    marginRight: "11%"
+  },
+  borderAND: {
+    borderBottom: "2px solid gray",
+    width: "100%"
+  },
+  borderOR: {
+    borderBottom: "5px solid gray",
+    width: "100%"
+  },
+  content: {
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    fontWeight: 500,
+    fontSize: 22,
+    color: "lightgray"
   }
-});
+
+}));
