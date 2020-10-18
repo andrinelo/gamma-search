@@ -254,8 +254,10 @@ function FilterMenu(props) {
             break;
         }
 
-        // Value is a number (because all the property's values are numbers)
-        if(allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty] !== undefined && !allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty].some(isNaN)){
+        const exisistingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
+
+        // Value is a number (because the property's first value is a number)
+        if(exisistingPropertyValues !== undefined && exisistingPropertyValues.length > 0 && typeof exisistingPropertyValues[0] === 'number'){
           localGremlin = localGremlin.concat("(")
           localGremlin = localGremlin.concat(localFilters[id].value)
           localGremlin = localGremlin.concat("))")
@@ -475,10 +477,10 @@ function FilterMenu(props) {
                           <Autocomplete
                             freeSolo={localFilters[index].property !== "Label / Type"}
                             name="value"
-                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']].map(String)}
+                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']]}
                             defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : null}
                             inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
-                            getOptionLabel={(option) => option}
+                            getOptionLabel={(option) => "" + option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
                             onInputChange={(event, selectedValue) => {

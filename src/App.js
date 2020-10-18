@@ -80,7 +80,7 @@ function App() {
   // corresponding to all the properties in the selected dataset with the dataset's filters
   useEffect(() => {
     if(propertyTableWindowOpen && datasetAfterFiltersGremlinQuery !== "" && selectedDataset >= 0){
-      const gremlinQuery = datasetAfterFiltersGremlinQuery + ".limit(1000).dedup().properties().key().dedup()"
+      const gremlinQuery = datasetAfterFiltersGremlinQuery + ".dedup().properties().key().dedup()"
 
       dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, 0))
     }
