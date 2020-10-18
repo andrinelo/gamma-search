@@ -186,7 +186,6 @@ function FilterMenu(props) {
   };
 
   const updateFilter = (filters, cloudId, andOrs) => {
-    console.log(andOrs)
     dispatch(SetFilter({ filters }, {andOrs}, cloudId));
     //dispatch(SetFilter({ filters }, cloudId));
   };
@@ -200,13 +199,8 @@ function FilterMenu(props) {
   };
 
   const localFiltersToGreminParser = () => {
-    let localGremlin = ""
-    console.log(andOrs);
 
     let gremlinFilterList = []
-
-
-
 
     for (let id in localFilters){
       let tmpQuery = ""
@@ -290,17 +284,13 @@ function FilterMenu(props) {
       }
     }
 
-    console.log(gremlinFilterList)
     let andOrGremlinQuery = ""
+
     //joins ors
     if (andOrs.includes("OR")){
       andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
       for (let localIndex in gremlinFilterList){
-        console.log(gremlinFilterList[localIndex])
         andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[localIndex])
-        console.log(localIndex)
-        console.log(gremlinFilterList.length -1)
-        console.log(localIndex != gremlinFilterList.length -1)
         if (localIndex != gremlinFilterList.length -1){
           andOrGremlinQuery = andOrGremlinQuery.concat(",")
         }
@@ -311,78 +301,6 @@ function FilterMenu(props) {
       andOrGremlinQuery = andOrGremlinQuery.concat(".")
       andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[0])
     }
-    console.log(andOrGremlinQuery)
-
-    
-    //if (andOrs.length !== 0){
-      //localGremlin = localGremlin.concat(andOrs[])
-    //  gremlinAndOrs.push()
-    //}
-
-    //TODO: lag om til liste med strenger for kvar has, putt inn in and ors
-    /*
-    for (let id in localFilters){
-
-      let filterProperty = localFilters[id].property
-
-      if(filterProperty === "Label / Type"){
-        localGremlin = localGremlin.concat(".hasLabel('")
-        localGremlin = localGremlin.concat(localFilters[id].value)
-        localGremlin = localGremlin.concat("')")
-      }
-
-      else if (filterProperty === "Node ID"){
-        localGremlin = localGremlin.concat(".hasId('")
-        localGremlin = localGremlin.concat(localFilters[id].value)
-        localGremlin = localGremlin.concat("')")
-      }
-      
-      else{
-        localGremlin = localGremlin.concat(".has('")
-        localGremlin = localGremlin.concat(filterProperty)
-        localGremlin = localGremlin.concat("', ")
-
-        switch(localFilters[id].operator){
-          
-          case "==":
-            localGremlin = localGremlin.concat("eq")
-            break;
-          case "<":
-            localGremlin = localGremlin.concat("lt")
-            break;
-          case ">":
-            localGremlin = localGremlin.concat("gt")
-            break
-          case ">=": 
-            localGremlin = localGremlin.concat("gte")
-            break
-          case "<=": 
-            localGremlin = localGremlin.concat("lte")
-            break
-          case "!=": 
-            localGremlin = localGremlin.concat("neq")
-            break;
-          default:
-            break;
-        }
-
-        // Value is a number (because all the property's values are numbers)
-        if(allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty] !== undefined && !allResults[VALUES_FOR_PROPERTY_IN_DATASET + filterProperty].some(isNaN)){
-          localGremlin = localGremlin.concat("(")
-          localGremlin = localGremlin.concat(localFilters[id].value)
-          localGremlin = localGremlin.concat("))")
-        }
-
-        // Value is a string
-        else{
-          localGremlin = localGremlin.concat("('")
-          localGremlin = localGremlin.concat(localFilters[id].value)
-          localGremlin = localGremlin.concat("'))")
-        }
-        
-      }
-    }
-    */
 
     // Updates the localfilters-state
     setLocalFilters([...localFilters]);
@@ -407,9 +325,6 @@ function FilterMenu(props) {
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
     dispatch(appendToGremlinQuery(localGremlinQuery))
 
-
-
-
     setshouldSetFiltersFromStore(true)
   };
 
@@ -424,8 +339,6 @@ function FilterMenu(props) {
       andOrs.splice(index, 1)
     }
     setAndOrs([...andOrs])
-
-    console.log(andOrs);
   };
 
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
@@ -464,22 +377,6 @@ function FilterMenu(props) {
             {"Filter this dataset"}
             <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
-        
-
-          {/*}
-          <CardHeader
-          style={{ textAlign: "center", paddingBottom: "0px" }}
-          title={
-            <div class={classes.filtersHeader}>
-            <div></div>
-            <h3>Filter</h3>
-            <Button onClick={() => closeFilterMenu()}>
-            <CloseIcon></CloseIcon>
-            </Button>
-            </div>
-          }
-          ></CardHeader>
-        */}
 
             <div>
               <FormGroup>
@@ -620,13 +517,6 @@ function FilterMenu(props) {
                       <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
                       </div>
                       : null}
-                      {/* <div className={classes.container}>
-                          <div className={classes.border} />
-                          <span className={classes.content}>test</span>
-                          <div className={classes.border} />
-                        </div>*/}
-                        
-                      {/*<hr></hr>*/}
                     </div>
                   );
                 })}
@@ -738,7 +628,6 @@ const useStyles = makeStyles( theme  => ({
   },
 
   andOrButton: {
-    //marginRight: '400px'
     width: "90px",
     margin: "0px"
   
