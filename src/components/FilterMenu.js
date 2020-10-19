@@ -207,7 +207,7 @@ function FilterMenu(props) {
     setshouldSetFiltersFromStore(true)
   };
 
-  const localFiltersToGreminParser = () => {
+  const localFiltersToGremlinParser = () => {
 
     let gremlinFilterList = []
 
@@ -310,7 +310,7 @@ function FilterMenu(props) {
         }
         tmpAndGremlin = tmpAndGremlin.concat("and(")
         tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index])
-        tmpAndGremlin = tmpAndGremlin.concat(",")
+        tmpAndGremlin = tmpAndGremlin.concat(", ")
         for (let k = 0; k<counter; k++){
           tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index+k+1])
           if (k !== counter-1){
@@ -335,7 +335,7 @@ function FilterMenu(props) {
       for (let localIndex in gremlinFilterList){
         andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[localIndex])
         if (localIndex != gremlinFilterList.length -1){
-          andOrGremlinQuery = andOrGremlinQuery.concat(",")
+          andOrGremlinQuery = andOrGremlinQuery.concat(", ")
         }
       }
       andOrGremlinQuery = andOrGremlinQuery.concat(")")
@@ -361,7 +361,7 @@ function FilterMenu(props) {
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
 
-    let localGremlinQuery = localFiltersToGreminParser()
+    let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
 
     // This code removes all queries after this filter
