@@ -299,12 +299,28 @@ function FilterMenu(props) {
     for (let i = 0; i<andOrs.length; i++){
       let tmpAndGremlin = ""
       if (andOrs[i] === "AND"){
+        let counter = 0
+        for (let j = i; j<andOrs.length; j++){
+          if (andOrs[j] === "AND"){
+            counter += 1;
+          }
+          else{
+            break
+          }
+        }
         tmpAndGremlin = tmpAndGremlin.concat("and(")
         tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index])
         tmpAndGremlin = tmpAndGremlin.concat(",")
-        tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index+1])
+        for (let k = 0; k<counter; k++){
+          tmpAndGremlin = tmpAndGremlin.concat(gremlinFilterList[index+k+1])
+          if (k !== counter-1){
+            tmpAndGremlin = tmpAndGremlin.concat(", ")
+          }
+        }
         tmpAndGremlin = tmpAndGremlin.concat(")")
-        gremlinFilterList.splice(index, 2, tmpAndGremlin)
+        i += counter-1
+
+        gremlinFilterList.splice(index, counter+1, tmpAndGremlin)
       }
       else{
         index += 1;
