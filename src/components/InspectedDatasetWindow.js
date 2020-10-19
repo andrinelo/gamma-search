@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function InspectedDatasetWindow(props) {
+  let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
   const dispatch = useDispatch();
   const classes = useStyles();
   const open = useSelector(state => state.inspectDatasetWindowActive)
@@ -49,11 +50,44 @@ export default function InspectedDatasetWindow(props) {
   const [reviewItemID, setReviewItemID] = useState(null)
   const [reviewItemHTML, setReviewItemHTML] = useState( activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
   const [cyRef, setCyRef] = useState(null)
-
+  const [tabValues, setTabValues] = useState([])
+  
   // Gremlin query corresponding to the current inspected dataset
   const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
+  
+  // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
+  const handleSelectedNodesAndEdgesChangeRef = useRef()
+  
+  // Sets the HTML for the two different tabs
+  useEffect(() => {
+    const newTabValues = []
+    
+    newTabValues.push(
+      <div style={{maxHeight: '62vh'}}>
+        <div style={{ height: '60vh', overflow: 'auto' }}>
+          {reviewItemHTML}
+        </div>
+        <div className={classes.root}>
+          <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedNodes.length} page={nodePage} siblingCount={0} onChange={handleNodePageChange} />
+        </div>
+      </div>
+    )
+    
+    newTabValues.push(
+      <div style={{maxHeight: '62vh'}}>
+        <div style={{ height: '60vh', overflow: 'auto' }}>
+          {reviewItemHTML}
+        </div>
+        <div className={classes.root}>
+          <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedEdges.length} page={edgePage} siblingCount={0} onChange={handleEdgePageChange} />
+        </div>
+      </div>
+    )
 
+    setTabValues([...newTabValues])
+  }, [reviewItemHTML, selectedNodes])
 
+  
   const updateReviewedItemID = ({tabNum = activeTab, nodes = selectedNodes, edges = selectedEdges, nodePageNum = nodePage, edgePageNum = edgePage}) => {
     let id = null;
     
@@ -62,7 +96,7 @@ export default function InspectedDatasetWindow(props) {
 
       // The new node
       id = nodes[nodePageNum-1]['data']['id']
-
+      
       // Applies styling change to new node, if more than one node was selected
       if(id !== null && cyRef.current !== null && nodes.length > 1){
         cyRef.current.$("#" + id).classes("previewedNode")
@@ -80,12 +114,12 @@ export default function InspectedDatasetWindow(props) {
         cyRef.current.$("#" + id).classes("previewedEdge")
       }
     }
-
+    
     // Reverts styling-change done to previous node
     if(reviewItemID !== null && reviewItemID !== id && cyRef.current !== null){
       cyRef.current.$("#" + reviewItemID).classes("")
     }
-
+    
     setReviewItemID(id)
 
     // User has selected at least one node or edge
@@ -112,29 +146,27 @@ export default function InspectedDatasetWindow(props) {
     }
 
   }
-
+  
   const handleActiveTabChange = (tabNum) => {
     setActiveTab(tabNum)
     
     updateReviewedItemID({tabNum: tabNum})
   }
-
+  
   const handleSelectedNodesAndEdgesChange = (nodes, edges) => {
     setNodePage(1)
     setEdgePage(1)
     
     setSelectedNodes(nodes);
     setSelectedEdges(edges)
-
-
+    
+    
     updateReviewedItemID({nodes: nodes, edges: edges, nodePageNum: 1, edgePageNum: 1})
   };
-
-  // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
-  const handleSelectedNodesAndEdgesChangeRef = useRef()
+  
   handleSelectedNodesAndEdgesChangeRef.current = handleSelectedNodesAndEdgesChange
-
-
+  
+  
   const handleNodePageChange = (event, value) => {
     setNodePage(value);
 
@@ -175,7 +207,6 @@ export default function InspectedDatasetWindow(props) {
   };
   
 
-  let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
   const containerStyle = {
     display: 'flex',
@@ -185,29 +216,6 @@ export default function InspectedDatasetWindow(props) {
     height: '99%'
   }
 
-  const tabValues = []
-
-  tabValues.push(
-    <div style={{maxHeight: '62vh'}}>
-      <div style={{ height: '60vh', overflow: 'auto' }}>
-        {reviewItemHTML}
-      </div>
-      <div className={classes.root}>
-        <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedNodes.length} page={nodePage} siblingCount={0} onChange={handleNodePageChange} />
-      </div>
-    </div>
-  )
-
-  tabValues.push(
-    <div style={{maxHeight: '62vh'}}>
-      <div style={{ height: '60vh', overflow: 'auto' }}>
-        {reviewItemHTML}
-      </div>
-      <div className={classes.root}>
-        <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={selectedEdges.length} page={edgePage} siblingCount={0} onChange={handleEdgePageChange} />
-      </div>
-    </div>
-  )
 
   return (
     <div>
@@ -216,12 +224,12 @@ export default function InspectedDatasetWindow(props) {
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="inspected-dataset-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '80vw'}}>
-          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>

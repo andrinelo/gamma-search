@@ -275,8 +275,10 @@ function FilterMenu(props) {
             break;
         }
 
-        // Value is a number (because all the property's values are numbers)
-        if(allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty] !== undefined && !allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty].some(isNaN)){
+        const exisistingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
+
+        // Value is a number (because the property's first value is a number)
+        if(exisistingPropertyValues !== undefined && exisistingPropertyValues.length > 0 && typeof exisistingPropertyValues[0] === 'number'){
           tmpQuery = tmpQuery.concat("(")
           tmpQuery = tmpQuery.concat(localFilters[id].value)
           tmpQuery = tmpQuery.concat("))")
@@ -409,14 +411,14 @@ function FilterMenu(props) {
         TransitionComponent={Transition}
         //keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="filter-menu-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
           <div className={classes.cardContainer}>
 
-          <DialogTitle id="alert-dialog-slide-title">
+          <DialogTitle id="filter-menu-dialog-slide-title">
             {"Filter this dataset"}
             <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
           </DialogTitle>
@@ -540,10 +542,10 @@ function FilterMenu(props) {
                           <Autocomplete
                             freeSolo={localFilters[index].property !== "Label / Type"}
                             name="value"
-                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']].map(String)}
+                            options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']]}
                             defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : null}
                             inputValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : ""}
-                            getOptionLabel={(option) => option}
+                            getOptionLabel={(option) => "" + option}
                             groupBy={(option) => isNaN(option) ? option.charAt(0).toUpperCase() : "Numbers"}
                             style={{ width: '250px' }}
                             onInputChange={(event, selectedValue) => {

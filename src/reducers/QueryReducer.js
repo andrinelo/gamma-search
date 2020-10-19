@@ -60,6 +60,12 @@ const queryReducer = (state = initialState, action) => {
           if(!isNaN(a) && !isNaN(b)){
             return Number(a) - Number(b)
           }
+          else if(!isNaN(a) && isNaN(b)){
+            return 1
+          }
+          else if(isNaN(a) && !isNaN(b)){
+            return -1
+          }
           return (b.localeCompare("a")>=0)-(a.localeCompare("a")>=0) || a.localeCompare(b);
         });
 
@@ -76,13 +82,22 @@ const queryReducer = (state = initialState, action) => {
 
       newState[action.payload.queryKey].push(...action.payload.queryItems)
       
-      // Sorts the list alphabetically with special characters last, and with numbers sorted risingly
-      newState[action.payload.queryKey].sort(function(a, b) {
-        if(!isNaN(a) && !isNaN(b)){
-          return Number(a) - Number(b)
-        }
-        return (b.localeCompare("a")>=0)-(a.localeCompare("a")>=0) || a.localeCompare(b);
-      });
+      // If we're setting the available values of a property, we sort the list alphabetically, and with numbers sorted risingly
+      if(action.payload.queryKey.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS)){
+        newState[action.payload.queryKey].sort(function(a, b) {
+          if(!isNaN(a) && !isNaN(b)){
+            return Number(a) - Number(b)
+          }
+          else if(!isNaN(a) && isNaN(b)){
+            return 1
+          }
+          else if(isNaN(a) && !isNaN(b)){
+            return -1
+          }
+          return (b.localeCompare("a")>=0)-(a.localeCompare("a")>=0) || a.localeCompare(b);
+        });
+      }
+
       
       return newState;  
     

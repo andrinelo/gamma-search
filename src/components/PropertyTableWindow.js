@@ -43,15 +43,17 @@ function PropertyTableWindow() {
   const dispatch = useDispatch()
   const [selectedProperties, setSelectedProperties] = useState([])
   let [tableGremlinQuery, setTableGremlinQuery] = useState("")
-  
+  let [currentTablePage, setCurrentTablePage] = useState(1)
+  let [currentSortModel, setCurrentSortModel] = useState([])
+ 
   const tableIsLoading = useSelector(store => store.propertyTableIsFetching)
   const selectedDataset = useSelector(store => store.selectedDataset)
   const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
   const open = useSelector(state => state.propertyTableWindowActive)
   const possibleProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_AFTER_DATASET_FILTERS])
   const tableRowsRaw = useSelector(state => state.allQueryResults[PROPERTY_TABLE_VALUES])
-  const tableColumns = [];
-  const tableRows = []
+  const [tableColumns, setTableColums] = useState([]);
+  const [tableRows, setTableRows] = useState([]);
 
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -66,52 +68,65 @@ function PropertyTableWindow() {
   if(!possibleProperties.includes("Label / Type") && possibleProperties.length > 0){
     possibleProperties.unshift("Label / Type")
   }
+  
+  // Whenever the raw tablerows-data updates, we process it into something more usable by the table
+  useEffect(() => {
+    const newTableRows = []
 
-  // We process the raw tablerows-data into something more usable by the table
-  for(let i = 0; i < tableRowsRaw.length; i++) {
-    const row = tableRowsRaw[i]
-    const rowKeys = Object.keys(row)
-    const modifiedRow = {id: i}
-
-    for(let j = 0; j < rowKeys.length; j++){
-      
-      // Most fields are lists with only one value; we only want the value, not the list (lists are not sortable)
-      if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length > 0){
-        modifiedRow[rowKeys[j]] = row[rowKeys[j]][0]
+    for(let i = 0; i < tableRowsRaw.length; i++) {
+      const row = tableRowsRaw[i]
+      const rowKeys = Object.keys(row)
+      const modifiedRow = {id: i}
+  
+      for(let j = 0; j < rowKeys.length; j++){
+        
+        // Most fields are lists with only one value; we only want the value, not the list (lists are not sortable)
+        if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length > 0){
+          modifiedRow[rowKeys[j]] = row[rowKeys[j]][0]
+        }
+  
+        // Field is an empty list, and we therefore set the value to null instead
+        else if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length === 0){
+          modifiedRow[rowKeys[j]] = null
+        }
+  
+        // Field is already a non-list value (string or number)
+        else{
+          modifiedRow[rowKeys[j]] = row[rowKeys[j]]
+        }
       }
-
-      // Field is an empty list, and we therefore set the value to null instead
-      else if(typeof row[rowKeys[j]] === 'object' && row[rowKeys[j]].length === 0){
-        modifiedRow[rowKeys[j]] = null
-      }
-
-      // Field is already a non-list value (string or number)
-      else{
-        modifiedRow[rowKeys[j]] = row[rowKeys[j]]
-      }
+  
+      newTableRows.push(modifiedRow)
     }
 
-    tableRows.push(modifiedRow)
-  }
+    setTableRows([...newTableRows])
+  
+  }, [tableRowsRaw])
+
 
   // Whenever the values for the rows updates, we also update the columns
   useEffect(() => {
-    tableColumns.push({ field: 'id', hide: true })
+    const newTableColumns = []
+
+    newTableColumns.push({ field: 'id', hide: true })
 
     if(tableRowsRaw.length > 0){
       const columnNames = Object.keys(tableRowsRaw[0])
       
       for(let i = 0; i < columnNames.length; i++){
-        tableColumns.push({ field: columnNames[i], headerName: columnNames[i], width: 150 })
+        newTableColumns.push({ field: columnNames[i], headerName: columnNames[i], width: 150 })
       }
     }
 
-  }, [tableRowsRaw, tableColumns])
+    setTableColums([...newTableColumns])
+
+  }, [tableRowsRaw])
   
 
   // Handle modal window closes
   const handleClose = () => {
     setSelectedProperties([])
+    setCurrentTablePage(1)
     dispatch(setPropertyTableWindowActive(false));
     dispatch(resetSelectedDataset());
     dispatch(setPropertyTableFetchID(""))
@@ -121,7 +136,6 @@ function PropertyTableWindow() {
 
 
   const handlePropertiesSelectedChanged = (newSelectedProperties) => {
-    
     const latestFetchID = JSON.stringify(newSelectedProperties)
 
     setSelectedProperties(newSelectedProperties)
@@ -130,9 +144,6 @@ function PropertyTableWindow() {
     dispatch(setPropertyTableFetchID(latestFetchID))
 
     if(newSelectedProperties.length > 0){
-
-      // dispatch(fetchQueryItems("g.V().hasLabel('Person').project('Node ID', 'label', 'name').by(id).by(label).by(values('name').fold())", PROPERTY_TABLE_VALUES))
-
 
       // Builds the gremlin query 
 
@@ -172,10 +183,9 @@ function PropertyTableWindow() {
         }
       }
 
-
       // Sets the gremlin query in state, and fetches the new table values
       setTableGremlinQuery(gremlinQuery)
-      dispatch(fetchQueryItems(gremlinQuery, PROPERTY_TABLE_VALUES, -1, latestFetchID))
+      dispatch(fetchQueryItems(gremlinQuery, PROPERTY_TABLE_VALUES, 0, latestFetchID))
     }
 
     // If no property is selected we empty the table values
@@ -194,25 +204,25 @@ function PropertyTableWindow() {
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
+        aria-labelledby="property-table-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
-        <div style={{ width: '60vw'}}>
-          <DialogTitle id="alert-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+        <div style={{ width: '73vw'}}>
+          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
 
         <div style={{ maxHeight: '97%', overflow: 'auto' }}>
 
-          <div style={{width: '60vw', margin: 'auto', marginBottom: '2vh', marginTop: '1vh'}}>
+          <div style={{width: '73vw', margin: 'auto', marginBottom: '2vh', marginTop: '1vh'}}>
 
             <div className={classes.root}>
               <Autocomplete
                 multiple
-                id="checkboxes-tags-demo"
+                id="property-table-autocomplete"
                 fullWidth
                 value={selectedProperties}
-                limitTags={2}
+                limitTags={3}
                 options={possibleProperties}
                 //disableCloseOnSelect
                 getOptionLabel={(option) => option}
@@ -250,12 +260,21 @@ function PropertyTableWindow() {
             </div>
           </div>
 
-          <div style={{width: '55vw', height: '380px', margin: 'auto', marginBottom: '0vw'}}>
-            <DataGrid rows={tableRows} columns={tableColumns} loading={tableIsLoading} pageSize={5} disableSelectionOnClick={true} rowsPerPageOptions={[]} />
-          </div>
-          
+          {/* Some bug causes the site to crash if closing the modal window 
+          when the table contains more elements than its width can fit.
+          Quick fix is making the table dependant on the window being open.
+          Replaces the table with an empty div to prevent the height of the
+          dialog to suddenly change. */}
+          {open ? 
+            <div style={{width: '68vw', height: '380px', margin: 'auto', marginBottom: '0vw'}}>
+              <DataGrid rows={tableRows} columns={tableColumns} loading={tableIsLoading} pageSize={5} disableSelectionOnClick={true} rowsPerPageOptions={[]} page={currentTablePage} onPageChange={(params) => setCurrentTablePage(params.page)} onSortModelChange={() => setCurrentTablePage(1)} />
+            </div>
+
+            : <div style={{width: '68vw', height: '380px', margin: 'auto', marginBottom: '0vw'}} />
+          }
+
           {tableRows.length > 0 ?
-            <div style={{maxWidth: '45vw', margin: 'auto'}}>
+            <div style={{maxWidth: '55vw', margin: 'auto'}}>
               <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'small'}}><b>Table generated from gremlin query</b><br/><i>{tableGremlinQuery}</i></p>
             </div>
 

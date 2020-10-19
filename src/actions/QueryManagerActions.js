@@ -60,7 +60,7 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
   return async function(dispatch) {
     try {
       
-      // If we're trying to fetch table values for the property table, we only start fetching if
+      // PROPERTY TABLE: If we're trying to fetch table values for the property table, we only start fetching if
       // this fetch is the latest property table value fetch
       if(key === PROPERTY_TABLE_VALUES){
         if(store.getState().propertyTableLatestFetchID === fetchID){
@@ -73,7 +73,8 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
 
       // Adds the range to the gremlin query if start has been set to above or equal to 0
       let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
-      
+      console.log(correctData)
+
       const response = await fetch('/api/graph-search?org=tdt42902019', {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',                                               // no-cors, *cors, same-origin
@@ -91,15 +92,15 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
 
       const results = await response.json()
       
-      // If start is 0 or less we set items instead of appending
+      // WE SET RESULTLIST
       if(start <= 0){
         
-        // If we're fetching values for the property table, we only add them if this is the most up-to-date fetch
+        // PROPERTY TABLE: If we're fetching values for the property table, we only add them if this is the most up-to-date fetch
         if(key === PROPERTY_TABLE_VALUES){
           if(store.getState().propertyTableLatestFetchID === fetchID){
             dispatch(setQueryItems(results, key))
             
-            // Decrease the queue of waiting fetches
+            // Set loading to false
             dispatch(setPropertyTableIsFetching(false))
           }
           else{
@@ -107,18 +108,43 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
           }
         }
 
+        // EVERYTHING ELSE
         else{
           dispatch(setQueryItems(results, key))
         }
 
       }
+
+      // WE APPEND TO ITEMLIST
       else{
-        dispatch(appendQueryItems(results, key))
+
+        // PROPERTY TABLE: If we're fetching values for the property table, we only add them if this is the most up-to-date fetch
+        if(key === PROPERTY_TABLE_VALUES){
+          if(store.getState().propertyTableLatestFetchID === fetchID){
+            dispatch(appendQueryItems(results, key))
+          }
+          else{
+            return
+          }
+        }
+
+        // EVERYTHING ELSE
+        else{
+          dispatch(appendQueryItems(results, key))
+        }
+
       }
 
-      // We fetch the complete results in intervals of 1000 elements
+      // We recursively fetch the complete results in intervals of 1000 elements
       if(start >= 0 && results.result.length === 1000){
-        dispatch(fetchQueryItems(gremlinQuery, key, start + 1000))
+        dispatch(fetchQueryItems(gremlinQuery, key, start + 1000, fetchID))
+      }
+
+      else{
+        if(key === PROPERTY_TABLE_VALUES && store.getState().propertyTableLatestFetchID === fetchID){
+          // Set the loading to false
+          dispatch(setPropertyTableIsFetching(false))
+        }
       }
 
     }
