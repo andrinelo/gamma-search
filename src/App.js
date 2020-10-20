@@ -17,7 +17,7 @@ import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, PROPERTY_TABLE_VALUES } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT } from './actions/QueryKeys.js'
 
 import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
@@ -30,6 +30,9 @@ function App() {
   const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
   
   const dispatch = useDispatch()
+
+  // The amount of different datasets
+  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
 
   // The node the user chose to inspect
   const selectedDataset = useSelector(store => store.selectedDataset)
@@ -44,11 +47,17 @@ function App() {
   const datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
 
 
-  // Fetches the full results whenever the current gremlin query changes
+  // Fetches all nodes and the node count whenever the current gremlin query changes
   useEffect(() => {
     if(fullGremlinQuery !== ""){
-      const gremlinQuery = fullGremlinQuery + ".dedup()"
-      dispatch(fetchQueryItems(gremlinQuery, FULL_RESULT_ITEMS))
+      
+      // Fetches all nodes corresponding to current gremlin query
+      const gremlinQueryNodes = fullGremlinQuery + ".dedup()"
+      dispatch(fetchQueryItems(gremlinQueryNodes, FULL_RESULT_ITEMS))
+      
+      // Fetches the node count of the latest dataset
+      const gremlinQueryNodesCount = fullGremlinQuery + ".dedup().count()"
+      dispatch(fetchQueryItems(gremlinQueryNodesCount, DATASET_NODE_COUNT + numberOfDatasets))
     }
   }, [fullGremlinQuery])
 

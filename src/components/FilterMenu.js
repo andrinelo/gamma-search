@@ -64,7 +64,6 @@ function FilterMenu(props) {
       property: "",
       operator: "==",
       value: "",
-      isNumber: false
     },
   ], [selectedDataset]);
 
@@ -415,14 +414,13 @@ function FilterMenu(props) {
         //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
+        <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
+          {"Filter this dataset"}
+          <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
+        </DialogTitle>
+          
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
           <div className={classes.cardContainer}>
-
-          <DialogTitle id="filter-menu-dialog-slide-title">
-            {"Filter this dataset"}
-            <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
-          </DialogTitle>
-
             <div>
               <FormGroup>
                 {localFilters.map((element, index) => {
@@ -590,10 +588,10 @@ function FilterMenu(props) {
 
                         <FormControl >
                           <Select className={classes.withLine}
-                            style={{  height: "30px" }}
+                            style={{  height: "15px" }}
                             className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
-                            variant="outlined"
+                            //variant="outlined"
                             value={andOrs[index]}
                             //IconComponent={() => <EmptyIcon />}
                             >
@@ -663,6 +661,7 @@ const useStyles = makeStyles( theme  => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    marginTop: "-15px"
   },
 
   saveButtonClass: {
@@ -720,7 +719,7 @@ const useStyles = makeStyles( theme  => ({
   },
 
   andOrButton: {
-    width: "90px",
+    //width: "50px",
     margin: "0px"
   
   },
