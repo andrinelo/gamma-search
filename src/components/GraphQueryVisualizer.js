@@ -7,6 +7,7 @@ import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions
 import { setPropertyTableWindowActive } from './../actions/PropertyTableWindowActions.js';
 import { setSelectedDataset } from './../actions/SelectedDatasetActions';
 import { setActiveWindow } from './../actions/SetActiveWindow';
+import { DATASET_NODE_COUNT } from './../actions/QueryKeys';
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -15,19 +16,36 @@ export default function GraphQueryVisualizer() {
   const graphContainer = useRef(null)
   
   // The number of nodes in the graph is the same as the number of gremlin query parts
-  const numberOfNodes = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2) 
+  const numberOfNodes = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+
+  // All results; contains (among others) the values for node count of each dataset
+  const allResults = useSelector(state => state.allQueryResults)
+
 
   useEffect(() => {
 
     let elements = []
 
     for(var i = 0; i < numberOfNodes; i++){
- 
+      let nodeName = "Dataset " + (i+1)
+      
+      // Adds the node count
+      if(allResults[(DATASET_NODE_COUNT + (i + 1))] !== undefined){
+        nodeName += " [" + allResults[(DATASET_NODE_COUNT + (i + 1))][0]
+
+        if(allResults[(DATASET_NODE_COUNT + (i + 1))][0] !== 1){
+          nodeName += " nodes]"
+        }
+        else{
+          nodeName += " node]"
+        }
+      }
+      
       // Creates the nodes, the last / right-most node gets a different style
       elements.push(
         { data: {
           id: i, 
-          nodeName: "Dataset " + (i+1),
+          nodeName: nodeName,
           borderWidth: i === (numberOfNodes - 1) ? '3px' : '1px',
           borderStyle: i === (numberOfNodes - 1) ? 'dashed' : 'solid',
           borderColor: i === (numberOfNodes - 1) ? '#006400' : 'black',
@@ -127,7 +145,7 @@ export default function GraphQueryVisualizer() {
     
       layout: {
         name: 'grid',
-        rows: 1
+        rows: Math.floor(numberOfNodes / 8) + 1
       }
     });
 

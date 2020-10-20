@@ -64,7 +64,6 @@ function FilterMenu(props) {
       property: "",
       operator: "==",
       value: "",
-      isNumber: false
     },
   ], [selectedDataset]);
 
