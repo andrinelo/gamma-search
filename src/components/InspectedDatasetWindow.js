@@ -4,12 +4,19 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.js';
-import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
-import FullWidthTabs from "./GeneralizedTabView"
 import { makeStyles } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+import FullWidthTabs from "./GeneralizedTabView"
+import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.js';
+import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import {INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET} from '../actions/QueryKeys.js'
+
 
 import cytoscape from 'cytoscape';
 // import cxtmenu from 'cytoscape-cxtmenu';
@@ -17,9 +24,8 @@ import cytoscape from 'cytoscape';
 
 // Cytoscape layouts
 import cola from 'cytoscape-cola';
-import fcose from 'cytoscape-fcose';
+ 
 cytoscape.use(cola);
-cytoscape.use(fcose);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -30,6 +36,13 @@ const useStyles = makeStyles((theme) => ({
     '& > * + *': {
       marginTop: theme.spacing(2),
     },
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
   },
 }));
 
@@ -57,6 +70,16 @@ export default function InspectedDatasetWindow(props) {
   
   // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
   const handleSelectedNodesAndEdgesChangeRef = useRef()
+
+  // Sets a message for when the dataset is empty
+  useEffect(() => {
+    if(inspectedNodes.length === 0){
+      setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
+    }
+    else {
+      setReviewItemHTML(activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+    }
+  }, [inspectedNodes.length])
   
   // Sets the HTML for the two different tabs
   useEffect(() => {
@@ -253,6 +276,8 @@ function InspectedDatasetGraph(props){
   const graphInspectContainer = useRef(null)
   const inspectedNodesIDs = props.inspectedNodes.map(node => node['id'])
   const cyRef = useRef()
+  const classes = useStyles();
+  const [graphLayout, setGraphLayout] = useState('grid')
 
   useEffect(() => {
 
@@ -394,7 +419,7 @@ function InspectedDatasetGraph(props){
         ],
       
         layout: {
-          name: 'grid',
+          name: graphLayout
         } 
       })
 
@@ -423,9 +448,29 @@ function InspectedDatasetGraph(props){
 
     }
 
-  },)
+  }, [props, graphLayout])
 
-  return <div style={{ height: "99%", width: '65%' }} ref={graphInspectContainer}></div>
+  return (
+    <div style={{ height: "99%", width: '65%', display: 'flex', flexDirection: 'row', flexWrap: 'wrap',}}>
+      <div style={{ height: "9%", margin: '5px', marginTop: '-4%' }}>
+        <FormControl className={classes.formControl}>
+          <InputLabel id="demo-simple-select-label">Graph layout</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={graphLayout}
+            onChange={(event) => setGraphLayout(event.target.value)}
+          >
+            <MenuItem value={'grid'}>GRID</MenuItem>
+            <MenuItem value={'circle'}>CIRCLE</MenuItem>
+            <MenuItem value={'concentric'}>CONCENTRIC</MenuItem>
+            <MenuItem value={'cola'}>COLA</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div style={{ height: "93%", width: '99%' }} ref={graphInspectContainer}></div>
+    </div>
+  )
 }
 
 const MemoInspectedDatasetGraph = React.memo(InspectedDatasetGraph);

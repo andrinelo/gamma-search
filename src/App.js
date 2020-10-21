@@ -42,6 +42,8 @@ function App() {
 
   // Gremlin query corresponding to the current inspected dataset
   const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+
+  alert(datasetAfterFiltersGremlinQuery)
   
   // Gremlin query corresponding to the selected dataset, ignoring any filters on this particular dataset
   const datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
