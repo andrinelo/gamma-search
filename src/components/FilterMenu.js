@@ -364,6 +364,8 @@ function FilterMenu(props) {
     dispatch(resetSelectedDataset());
 
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
+    //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
+    //so that RelationMenu can call "removeFilterAfterIndex"
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
 

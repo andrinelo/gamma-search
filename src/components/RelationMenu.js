@@ -19,23 +19,44 @@ import { DeleteForever } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import { Autocomplete } from "@material-ui/lab";
+import Slide from '@material-ui/core/Slide';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import {setRelationWindowActive} from "../actions/RelationWindowActions";
+import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
+import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
+import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="down" ref={ref} {...props} />;
+});
 
 function RelationMenu(props) {
+  const allResults = useSelector(state => state.allQueryResults)
+  const open = useSelector(state => state.relationWindowActive)
   const stateRelations = useSelector((state) => state.relations);
-  console.log(stateRelations)
+  const selectedDataset = useSelector(state => state.selectedDataset)  
   
   React.useEffect(() => {
-    let id = props.edgeId;
+    let id = selectedDataset;
     //if there exists a object in the state for this menu(id), then load that state to this component
     if (stateRelations[id]) {
-      //console.log(stateRelations[id].relations);
       let tmpRelations = stateRelations[id].relations;
-      //console.log(tmpRelations);
       setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
       let tmpAllRelation = stateRelations[id].allRelations;
       setAllRelations(JSON.parse(JSON.stringify(tmpAllRelation)));
     }
+    else {
+      setLocalRelations([
+        {
+          checkedIn: false,
+          checkedOut: true, // Out is default value
+          text: "",
+        },
+      ])};
+      setAllRelations("");
   }, [props]);
 
   const dispatch = useDispatch();
@@ -96,38 +117,78 @@ function RelationMenu(props) {
     dispatch(SetRelation({ relations, allRelations }, edgeId));
   };
 
+  const localFiltersToGremlinParser = () => {
+    let localGremlin = ""
+    for (let id in localRelations){
+      let element = localRelations[id]
+      if (element.checkedIn === true && element.checkedOut === true){
+        localGremlin = localGremlin.concat(".both('")
+      }
+      else if (element.checkedIn === true && element.checkedOut === false){
+        localGremlin = localGremlin.concat(".in('")
+      }
+      else if (element.checkedIn === false && element.checkedOut === true){
+        localGremlin = localGremlin.concat(".out('")
+      }
+      localGremlin = localGremlin.concat(element.text.value)
+      localGremlin = localGremlin.concat("')")
+
+    }
+    return(localGremlin)
+  }
+
   const saveAndCloseRelationMenu = () => {
-    updateRelation(localRelations, allRelations, props.edgeId);
+    updateRelation(localRelations, allRelations, selectedDataset);
+    //dispatch(appendToGremlinQuery(""))
+
+    let localGremlinQuery = localFiltersToGremlinParser()
+    dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)+1))
+    dispatch(appendToGremlinQuery(localGremlinQuery))
     dispatch(appendToGremlinQuery(""))
-    closeRelationMenu();
+
+    handleClose()
   }
   
-  const closeRelationMenu = () => {
-    props.showMenu();
-  };
 
   // Removes relation from component local storage
   const removeRelation = (index) => {
     localRelations.splice(index, 1);
     setLocalRelations([...localRelations]);
   };
+  let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
+
+
+  const handleClose = () => {
+    deleteFetchedPropertyValues()
+    dispatch(setRelationWindowActive(false));
+    dispatch(resetSelectedDataset());
+  };
+
+    // Deletes (from Redux-store) the values that has been fetched for different properties
+    const deleteFetchedPropertyValues = () => {
+      let keys = Object.keys(allResults)
+      keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
+  
+      dispatch(deleteQueryItemsByKeys(keys))    
+    }
+  
 
   return (
     <div className={classes.cardContainer}>
-      <Card className={classes.root}>
-        <CardHeader
-          style={{ textAlign: "center", paddingBottom: "0px" }}
-          title={
-            <div class={classes.relationsHeader}>
-              <div></div>
-              <h3>Relations</h3>
-              <Button onClick={() => closeRelationMenu()}>
-                <CloseIcon></CloseIcon>
-              </Button>
-            </div>
-          }
-        ></CardHeader>
-        <CardContent>
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        //keepMounted
+        onClose={handleClose}
+        aria-labelledby="filter-menu-dialog-slide-title"
+        //aria-describedby="alert-dialog-slide-description"
+        maxWidth={false}
+      >
+        <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
+          {"Add relations"}
+          <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
+        </DialogTitle>
+        <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
           <EditWarning></EditWarning>
           {allRelations !== "" ? (
             <p>
@@ -244,8 +305,8 @@ function RelationMenu(props) {
               Save Changes
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
