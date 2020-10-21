@@ -38,7 +38,8 @@ function RelationMenu(props) {
   const open = useSelector(state => state.relationWindowActive)
   const stateRelations = useSelector((state) => state.relations);
   const selectedDataset = useSelector(state => state.selectedDataset)  
-  
+  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+
   React.useEffect(() => {
     let id = selectedDataset;
     //if there exists a object in the state for this menu(id), then load that state to this component
@@ -189,7 +190,6 @@ function RelationMenu(props) {
           <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
         </DialogTitle>
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
-          <EditWarning></EditWarning>
           {allRelations !== "" ? (
             <p>
               {allRelations} relations added{" "}
@@ -258,35 +258,36 @@ function RelationMenu(props) {
             </div>
           )}
           <br></br>
-
-          <div className={classes.flexRow}>
-            <div className={classes.flexColumn}>
-              <Button
-                onClick={() => handleAddAllButtons("Inn")}
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-              >
-                Add all ingoing
-              </Button>
-              <Button
-                onClick={() => handleAddAllButtons("Out")}
-                className={classes.buttonClass}
-                variant="contained"
-                color="primary"
-              >
-                Add all outgoing
-              </Button>
-            </div>
-            <div>
-              <Button
-                onClick={() => handleAddAllButtons("Both")}
-                className={classes.buttonClasslarge}
-                variant="contained"
-                color="primary"
-              >
-                Add all{" "}
-              </Button>
+          <div className={classes.saveButtonContainer}>
+            <div className={classes.flexRow}>
+              <div className={classes.flexColumn}>
+                <Button
+                  onClick={() => handleAddAllButtons("Inn")}
+                  className={classes.buttonClass}
+                  variant="contained"
+                  color="primary"
+                >
+                  Add all ingoing
+                </Button>
+                <Button
+                  onClick={() => handleAddAllButtons("Out")}
+                  className={classes.buttonClass}
+                  variant="contained"
+                  color="primary"
+                >
+                  Add all outgoing
+                </Button>
+              </div>
+              <div>
+                <Button
+                  onClick={() => handleAddAllButtons("Both")}
+                  className={classes.buttonClasslarge}
+                  variant="contained"
+                  color="primary"
+                >
+                  Add all{" "}
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -305,6 +306,14 @@ function RelationMenu(props) {
               Save Changes
             </Button>
           </div>
+            {/* Warning message when editing datasets that are not the head */}
+            <div style={{width: '100%'}}>
+              <div style={{maxWidth: "90%", margin: '0 auto'}}>
+                {selectedDataset < (numberOfDatasets-1) && open ? <EditWarning></EditWarning> : null}
+              </div>
+            </div>
+
+          
         </DialogContent>
       </Dialog>
     </div>
@@ -324,7 +333,7 @@ const checkBoxStyles = (theme) => ({
 
 const useStyles = makeStyles({
   root: {
-    width: 400,
+    width: 500,
     background: "#eeeeee",
   },
   flexColumn: {
@@ -364,8 +373,8 @@ const useStyles = makeStyles({
   },
 
   textFieldClass: {
-    marginTop: "15px",
-    width: "250px",
+    marginTop: "10px",
+    width: "500px",
   },
   relationsHeader: {
     display: "flex",
@@ -375,4 +384,4 @@ const useStyles = makeStyles({
 });
 
 
-const tempAutocompleteOptions = [{"value":"ParentOf"}, {"value":"ChickenOf"}, {"value":"HasParent"}, {"value":"HasChicken"}];
+const tempAutocompleteOptions = [{"value":"Is Expert In"}, {"value":"imports"}, {"value":"Realized By"}, {"value":"ardoq_parent"}];
