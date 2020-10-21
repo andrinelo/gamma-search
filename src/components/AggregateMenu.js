@@ -7,23 +7,32 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import { setActiveWindow } from '../actions/SetActiveWindow.js';
+import { fetchQueryItems } from '../actions/QueryManagerActions.js';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from "prop-types";
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
+
 
   export default function AggregateMenu(props) {
     
     const window = useSelector(state => state.activeWindow);
-    const stateAggregations = useSelector(state => state.aggregation);
     const classes = useStyles();  
     const dispatch = useDispatch();
     const [localAggregateFunction, setLocalAggregateFunction] = React.useState('');
     const [localProptype, setLocalProptype] = React.useState('');
+    const aggregateFunctions = ["count", "sum", "mean", "max", "min"]; // count should only work when you haven't selected a prop/value field :)
+    const aggregatedResult = useSelector(store => store.allQueryResults.aggregatedResult);
     
-    const aggregateFunctions = ["count", "sum", "mean", "max", "min"];
+    // which node we're on
+    const selectedDataset = useSelector(store => store.selectedDataset)
+    // current query
+    const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+    const [currentQuery, setCurrentQuery] = React.useState(datasetAfterFiltersGremlinQuery);
 
 
     const handleFunctionChange = e => {
@@ -34,6 +43,7 @@ import TextField from "@material-ui/core/TextField";
     const closeAggregateMenu = () => {
       setLocalAggregateFunction('');
       setLocalProptype('');
+      setCurrentQuery(datasetAfterFiltersGremlinQuery);
       dispatch(setActiveWindow(""));
     };
 
@@ -41,6 +51,13 @@ import TextField from "@material-ui/core/TextField";
     const handleProptypeChange = e => {
       setLocalProptype(e.target.value);
     };
+
+    // 
+    const applyAggregation = () => {
+      const aggregateGremlinQuery = datasetAfterFiltersGremlinQuery.concat(!localProptype ? `.${localAggregateFunction}()` : `.values('${localProptype}').${localAggregateFunction}()`);
+      setCurrentQuery(aggregateGremlinQuery)
+      dispatch(fetchQueryItems(aggregateGremlinQuery,  AGGREGATED_RESULT, 0))
+    }
 
     return (
       // shows aggregatemenu if it has been set as active by the cloud button
@@ -85,9 +102,26 @@ import TextField from "@material-ui/core/TextField";
             </Box>
             </Grid>
             <Grid item>
-              <p>{localAggregateFunction} of {localProptype}</p>
+              <div>
+                Result: {aggregatedResult ? aggregatedResult[0] : "None"}
+              </div>
+              <div>
+                Current Query: {currentQuery}
+              </div>
             </Grid>
           </Grid>
+          <div className={classes.saveButtonContainer}>
+              <Button
+                onClick={applyAggregation}
+                variant="contained"
+                color="primary"
+                size="large"
+                className={classes.saveButtonClass}
+                disabled={!localAggregateFunction}
+                >
+                Apply aggregation
+              </Button>
+            </div>
         </DialogContent>
 
       </Dialog>
@@ -100,8 +134,9 @@ import TextField from "@material-ui/core/TextField";
 
   const useStyles = makeStyles({
     root: {
-      width: 400,
+      width: '50%',
       background: "#eeeeee",
+      heigth: '50%'
     },
     flexColumn: {
         display: "flex",

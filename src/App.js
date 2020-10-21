@@ -28,6 +28,7 @@ function App() {
   const inspectWindowOpen = useSelector(store => store.inspectDatasetWindowActive)
   const filterWindowOpen = useSelector(store => store.filterDatasetWindowActive)
   const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
+  const activeWindow = useSelector(store => store.activeWindow)
   
   const dispatch = useDispatch()
 
@@ -106,6 +107,7 @@ function App() {
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
+        <AggregateMenu/>
         {/*<AggregateMenu cloudId={0}/>*/}
 
 
