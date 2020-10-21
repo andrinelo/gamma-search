@@ -419,12 +419,7 @@ function InspectedDatasetGraph(props){
         ],
       
         layout: {
-          // name: 'grid',
-          // name: 'circle',
-          // name: 'concentric',
-          // name: 'cola',
-          name: graphLayout,
-          nodeSep: 200,
+          name: graphLayout
         } 
       })
 
