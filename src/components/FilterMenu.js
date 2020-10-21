@@ -208,6 +208,11 @@ function FilterMenu(props) {
 
   const localFiltersToGremlinParser = () => {
 
+    // If no filters have been set
+    if(localFilters.length === 0){
+      return ""
+    }
+
     let gremlinFilterList = []
 
     for (let id in localFilters){

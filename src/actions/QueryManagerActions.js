@@ -73,7 +73,6 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
 
       // Adds the range to the gremlin query if start has been set to above or equal to 0
       let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
-      console.log(correctData)
 
       const response = await fetch('/api/graph-search?org=tdt42902019', {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
