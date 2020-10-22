@@ -145,7 +145,7 @@ export default function GraphQueryVisualizer() {
     
       layout: {
         name: 'grid',
-        rows: Math.floor(numberOfNodes / 8) + 1
+        rows: Math.floor(numberOfNodes / 6) + 1
       }
     });
 
@@ -260,7 +260,7 @@ export default function GraphQueryVisualizer() {
 
   return (
     <div style={{ display: 'flex',  justifyContent:'center', alignItems:'center' }}>
-      <div style={{ width: '80%', height: "200px", }} ref={graphContainer}>
+      <div style={{ width: '95%', margin: 'auto', height: "200px", }} ref={graphContainer}>
       </div>
     </div>
   );

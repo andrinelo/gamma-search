@@ -8,6 +8,7 @@ import AutocompleteTextField from './components/AutocompleteTextField'
 import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
 import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
+import InfoContainer from "./components/InfoContainer.js"
 import RelationButton from "./components/RelationButton"
 import AggregateMenu from "./components/AggregateMenu";
 import FilterMenu from "./components/FilterMenu"
@@ -98,7 +99,7 @@ function App() {
   
   
   return (
-    <div>
+    <div style={{width: '80vw', margin: 'auto', backgroundColor: 'white', marginBottom: '40px', padding: '10px'}}>
         <div style={{height: '40px'}}></div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <div style={{height: '60px'}}></div>
@@ -127,6 +128,7 @@ function App() {
 
         <GremlinQueryDisplayAccordion/>
         <OutputAccordion/>
+        <InfoContainer></InfoContainer>
         {/*<AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> */}{/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
         
