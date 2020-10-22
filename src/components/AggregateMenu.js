@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import { setActiveWindow } from '../actions/SetActiveWindow.js';
-import { fetchQueryItems } from '../actions/QueryManagerActions.js';
+import { fetchQueryItems, resetQueryItems} from '../actions/QueryManagerActions.js';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from "prop-types";
 import Select from '@material-ui/core/Select';
@@ -44,6 +44,7 @@ import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
       setLocalAggregateFunction('');
       setLocalProptype('');
       setCurrentQuery(datasetAfterFiltersGremlinQuery);
+      dispatch(resetQueryItems(AGGREGATED_RESULT));
       dispatch(setActiveWindow(""));
     };
 
