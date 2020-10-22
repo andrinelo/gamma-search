@@ -10,6 +10,7 @@ import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 import RelationButton from "./components/RelationButton"
 import AggregateMenu from "./components/AggregateMenu";
+import RelationMenu from "./components/RelationMenu"
 import FilterMenu from "./components/FilterMenu"
 import InspectedDatasetWindow from "./components/InspectedDatasetWindow"
 import PropertyTableWindow from "./components/PropertyTableWindow"
@@ -106,6 +107,7 @@ function App() {
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
+        <RelationMenu></RelationMenu>
         {/*<AggregateMenu cloudId={0}/>*/}
 
 
