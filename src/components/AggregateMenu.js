@@ -1,4 +1,5 @@
 import React from 'react';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import CloseIcon from '@material-ui/icons/Close';
@@ -9,32 +10,38 @@ import IconButton from '@material-ui/core/IconButton';
 import { setActiveWindow } from '../actions/SetActiveWindow.js';
 import { fetchQueryItems, resetQueryItems} from '../actions/QueryManagerActions.js';
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from "prop-types";
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import Box from '@material-ui/core/Box';
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
+import TextField from "@material-ui/core/TextField";
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
 
 
-  export default function AggregateMenu(props) {
+
+
+  export default function AggregateMenu() {
     
     const window = useSelector(state => state.activeWindow);
     const classes = useStyles();  
     const dispatch = useDispatch();
+
     const [localAggregateFunction, setLocalAggregateFunction] = React.useState('');
     const [localProptype, setLocalProptype] = React.useState('');
+
+    const properties = ["number_of_interfaces", "name"];
     const aggregateFunctions = ["count", "sum", "mean", "max", "min"]; // count should only work when you haven't selected a prop/value field :)
     const aggregatedResult = useSelector(store => store.allQueryResults.aggregatedResult);
-    
+
     // which node we're on
     const selectedDataset = useSelector(store => store.selectedDataset)
-    // current query
+    // query before aggregation
     const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+    // query after aggregation
     const [currentQuery, setCurrentQuery] = React.useState(datasetAfterFiltersGremlinQuery);
 
-
+    // set aggregate function
     const handleFunctionChange = e => {
       setLocalAggregateFunction(e.target.value)
     }
@@ -49,11 +56,12 @@ import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
     };
 
     // this updates local state when a user selects a property or aggregation type
-    const handleProptypeChange = e => {
-      setLocalProptype(e.target.value);
+    const handleProptypeChange = selectedProperty => {
+      setLocalProptype(selectedProperty);
+      console.log(selectedProperty);
     };
 
-    // 
+    // fetch query result to calculate aggregation
     const applyAggregation = () => {
       const aggregateGremlinQuery = datasetAfterFiltersGremlinQuery.concat(!localProptype ? `.${localAggregateFunction}()` : `.values('${localProptype}').${localAggregateFunction}()`);
       setCurrentQuery(aggregateGremlinQuery)
@@ -61,8 +69,11 @@ import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
     }
 
     return (
-      // shows aggregatemenu if it has been set as active by the cloud button
-      <Dialog open={window==="aggregate"}>
+      <Dialog 
+        open={window==="aggregate"} 
+        maxWidth={'sm'}
+        fullWidth={true}
+      >
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
           <div class={classes.relationsHeader}>
               <div></div>
@@ -74,84 +85,93 @@ import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
           }>
         </CardHeader>
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item> 
-            <Box>
-              <Box display="flex">
-                <Box>Property type:  </Box>
-                <Box>
-                  <TextField 
-                    variant="outlined" 
-                    size="small" 
-                    onChange={handleProptypeChange}
-                  />
-                </Box>
-              </Box>
-              <Box display="flex">
-                <Box>Aggregate function: </Box>
-                <Box>
-                  <Select
-                    labelId="select aggregate function"
-                    id="aggregateFunction"
-                    onChange={handleFunctionChange}
-                    value={localAggregateFunction}
-                  >
-                    {aggregateFunctions.map((value,key) => <MenuItem key={key} value={value}>{value}</MenuItem>)}
-                  </Select>
-                </Box>
-              </Box>
-            </Box>
+          <Grid 
+          container 
+          spacing={3} 
+          direction={"column"}
+        >
+            <Grid item container> 
+                <Grid item >
+                  <Autocomplete
+                    name="property"
+                    options={properties}
+                    value={localProptype !== "" && localProptype !== undefined ? localProptype : null }
+                    getOptionLabel={(option) => option}
+                    groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+                    style={{ width: '250px' }}
+                    onChange={(event, selectedProperty) => {
+                      handleProptypeChange(selectedProperty)
+                    }}
+                            
+                    renderInput={(params) => <TextField className={classes.textFieldClass} {...params} label="Select Property..." variant="outlined" />}
+
+                    renderOption={(option, { inputValue }) => {
+                      const matches = match(option, inputValue);
+                      const parts = parse(option, matches);
+                      
+                      return (
+                        <div>
+                          {parts.map((part, index) => (
+                            <span key={index} >
+                              {part.text}
+                            </span>
+                          ))}
+                        </div>
+                      ); 
+                    }}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.flexRow}>Aggregate function:  </div>
+                    <Select
+                      labelId="select aggregate function"
+                      id="aggregateFunction"
+                      onChange={handleFunctionChange}
+                      value={localAggregateFunction}
+                    >
+                      {aggregateFunctions.map((value,key) => <MenuItem key={key} value={value}>{value}</MenuItem>)}
+                    </Select>
+                </Grid>
             </Grid>
-            <Grid item>
-              <div>
-                Result: {aggregatedResult ? aggregatedResult[0] : "None"}
+            <Grid item xs={12}>
+              <div className={classes.saveButtonContainer}>
+                <Button
+                  onClick={applyAggregation}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  className={classes.saveButtonClass}
+                  disabled={!localAggregateFunction}
+                  >
+                  Apply aggregation
+                </Button>
               </div>
-              <div>
-                Current Query: {currentQuery}
-              </div>
+            </Grid>
+            <Grid item container>
+              {aggregatedResult.length > 0 && <Grid container spacing={1} direction={"column"}>
+                  <Grid item>
+                    Result: { aggregatedResult[0] }
+                  </Grid>
+                  <Grid item>
+                    Current Query: {currentQuery}
+                  </Grid>
+                </Grid>
+              }
             </Grid>
           </Grid>
-          <div className={classes.saveButtonContainer}>
-              <Button
-                onClick={applyAggregation}
-                variant="contained"
-                color="primary"
-                size="large"
-                className={classes.saveButtonClass}
-                disabled={!localAggregateFunction}
-                >
-                Apply aggregation
-              </Button>
-            </div>
         </DialogContent>
 
       </Dialog>
     );
   }
 
-  AggregateMenu.propTypes = {
-    cloudId: PropTypes.number.isRequired,
-  }
-
   const useStyles = makeStyles({
-    root: {
-      width: '50%',
-      background: "#eeeeee",
-      heigth: '50%'
-    },
-    flexColumn: {
-        display: "flex",
-        flexDirection: "column",
-    },
+   
     flexRow: {
         display: "flex",
         flexDirection: "row",
     },
-    buttonClass: {
-        margin: "5px",
-        background: "#770079"
-    },
-
+    
     saveButtonClass: {
         margin: "5px",
         background: "#6DBCB4",
@@ -164,21 +184,6 @@ import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
         display: "flex"
     },
 
-    buttonClasslarge: {
-        margin: "5px",
-        width: "12em",
-        height: "6em",
-        background: "#770079"
-    },
-
-    cardContainer :{
-      width: "50%",
-      margin: "5%"
-    },
-
-    textFieldClass: {
-        marginTop: "15px"
-    },
     relationsHeader: {
         display: "flex",
         justifyContent: "space-between",
