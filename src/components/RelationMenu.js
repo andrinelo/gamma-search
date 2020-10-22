@@ -7,6 +7,7 @@ import CardHeader from "@material-ui/core/CardHeader";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
 import Checkbox from "@material-ui/core/Checkbox";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
@@ -27,7 +28,8 @@ import {setRelationWindowActive} from "../actions/RelationWindowActions";
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -73,6 +75,8 @@ function RelationMenu(props) {
     },
   ]);
 
+  const [andOrs, setAndOrs] = React.useState([], [selectedDataset]);
+
   //this state can be "", "Inn", "Out" or "All". If this parameter is not "", that localReltions is not used, beacuse
   //than you only have check if the user wants all connections inn, out or both
   const [allRelations, setAllRelations] = React.useState("");
@@ -109,6 +113,11 @@ function RelationMenu(props) {
       text: null,
     });
     setLocalRelations([...localRelations]);
+
+    andOrs.push(
+      "AND"
+    )
+    setAndOrs([...andOrs]);
   };
 
 
@@ -119,6 +128,10 @@ function RelationMenu(props) {
   };
 
   const localFiltersToGremlinParser = () => {
+
+    
+
+
     let localGremlin = ""
     for (let id in localRelations){
       let element = localRelations[id]
@@ -133,7 +146,6 @@ function RelationMenu(props) {
       }
       localGremlin = localGremlin.concat(element.text.value)
       localGremlin = localGremlin.concat("')")
-
     }
     return(localGremlin)
   }
@@ -165,22 +177,19 @@ function RelationMenu(props) {
     dispatch(resetSelectedDataset());
   };
 
-    // Deletes (from Redux-store) the values that has been fetched for different properties
-    const deleteFetchedPropertyValues = () => {
-      let keys = Object.keys(allResults)
-      keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
-  
-      dispatch(deleteQueryItemsByKeys(keys))    
-    }
-  /*
-  const isDisabled = () => {
-    let disablet = false;
-    for (id in localRelations){
-      let element = localRelations[id]
+  // Deletes (from Redux-store) the values that has been fetched for different properties
+  const deleteFetchedPropertyValues = () => {
+    let keys = Object.keys(allResults)
+    keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
 
-    }
+    dispatch(deleteQueryItemsByKeys(keys))    
   }
-  */
+
+
+  const handleAndOrChange = (index, event) => {
+    andOrs[index] = event.target.value;
+    setAndOrs([...andOrs]);
+  }
   
 
   return (
@@ -255,7 +264,32 @@ function RelationMenu(props) {
                           <DeleteForever></DeleteForever>
                         </Button>
                       </div>
-                      <hr></hr>
+                      {index+1 !== localRelations.length ? 
+                      <div className={classes.container}>
+                        <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
+                        <span className={classes.content}>
+
+                        <FormControl >
+                          <Select className={classes.withLine}
+                            style={{  height: "15px" }}
+                            className={classes.andOrButton}
+                            onChange={(e) => handleAndOrChange(index, e)}
+                            //variant="outlined"
+                            value={andOrs[index]}
+                            //IconComponent={() => <EmptyIcon />}
+                            >
+                            <MenuItem value="AND">
+                              {`AND`}
+                            </MenuItem>
+                            <MenuItem value="OR">
+                              {`OR`}
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </span>
+                      <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
+                      </div>
+                      : null}
                     </div>
                   );
                 })}
@@ -341,7 +375,7 @@ const checkBoxStyles = (theme) => ({
   checked: {},
 });
 
-const useStyles = makeStyles({
+const useStyles = makeStyles( theme  => ({
   root: {
     width: 500,
     background: "#eeeeee",
@@ -391,7 +425,32 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     aligntItems: "center",
   },
-});
+
+  container: {
+    marginTop: "10px",
+    marginBottom: "5px",
+    display: "flex",
+    alignItems: "center",
+    marginRight: "11%"
+  },
+  borderAND: {
+    borderBottom: "2px solid gray",
+    width: "100%"
+  },
+  borderOR: {
+    borderBottom: "5px solid gray",
+    width: "100%"
+  },
+  content: {
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    fontWeight: 500,
+    fontSize: 22,
+    color: "lightgray"
+  }
+}));
 
 
 const tempAutocompleteOptions = [{"value":"Is Expert In"}, {"value":"imports"}, {"value":"Realized By"}, {"value":"ardoq_parent"}];
