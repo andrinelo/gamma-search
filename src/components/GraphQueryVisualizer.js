@@ -208,7 +208,7 @@ export default function GraphQueryVisualizer() {
 
           { // Relation command
             fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-            content: "Add relation", // html/text content to be displayed in the menu
+            content: "Explore dataset relations", // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element

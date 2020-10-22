@@ -54,7 +54,7 @@ function RelationMenu(props) {
         {
           checkedIn: false,
           checkedOut: true, // Out is default value
-          text: "",
+          text: null,
         },
       ])};
       setAllRelations("");
@@ -69,7 +69,7 @@ function RelationMenu(props) {
     {
       checkedIn: false,
       checkedOut: true, // Out is default value
-      text: "",
+      text: null,
     },
   ]);
 
@@ -106,7 +106,7 @@ function RelationMenu(props) {
     localRelations.push({
       checkedIn: false,
       checkedOut: true, // Out is default value
-      text: "",
+      text: null,
     });
     setLocalRelations([...localRelations]);
   };
@@ -172,6 +172,15 @@ function RelationMenu(props) {
   
       dispatch(deleteQueryItemsByKeys(keys))    
     }
+  /*
+  const isDisabled = () => {
+    let disablet = false;
+    for (id in localRelations){
+      let element = localRelations[id]
+
+    }
+  }
+  */
   
 
   return (
@@ -186,7 +195,7 @@ function RelationMenu(props) {
         maxWidth={false}
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
-          {"Add relations"}
+          {"Explore dataset relations"}
           <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
         </DialogTitle>
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
@@ -252,7 +261,7 @@ function RelationMenu(props) {
                 })}
               </FormGroup>
 
-              <IconButton disabled={localRelations.map((relation) => relation.text).includes("")} onClick={() => addRelation()}>
+              <IconButton disabled={localRelations.map((relation) => relation.text).includes(null)} onClick={() => addRelation()}>
                 <AddIcon />
               </IconButton>
             </div>
@@ -301,8 +310,9 @@ function RelationMenu(props) {
               size="large"
               className={classes.saveButtonClass}
               startIcon={<SaveIcon />}
-              disabled={localRelations.map((relation) => relation.text).includes("")}
+              disabled={localRelations.map((relation) => relation.text).includes(null)}
             >
+              {console.log(localRelations)}
               Save Changes
             </Button>
           </div>
