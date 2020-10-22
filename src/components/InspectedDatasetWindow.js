@@ -15,7 +15,8 @@ import Select from '@material-ui/core/Select';
 import FullWidthTabs from "./GeneralizedTabView"
 import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.js';
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
-import {INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET} from '../actions/QueryKeys.js'
+import { resetQueryItems } from '../actions/QueryManagerActions.js';
+import { INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET, DATASET_NODE_COUNT} from '../actions/QueryKeys.js'
 
 
 import cytoscape from 'cytoscape';
@@ -57,11 +58,12 @@ export default function InspectedDatasetWindow(props) {
   const [nodePage, setNodePage] = React.useState(1);
   const [edgePage, setEdgePage] = React.useState(1);
   const selectedDataset = useSelector(state => state.selectedDataset)
+  const numberOfNodesInDataset = useSelector(state => state.allQueryResults[DATASET_NODE_COUNT + selectedDataset])
   const [selectedNodes, setSelectedNodes] = useState([])
   const [selectedEdges, setSelectedEdges] = useState([])
   const [activeTab, setActiveTab] = useState(0)
   const [reviewItemID, setReviewItemID] = useState(null)
-  const [reviewItemHTML, setReviewItemHTML] = useState( activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
+  const [reviewItemHTML, setReviewItemHTML] = useState("Loading graph..." )
   const [cyRef, setCyRef] = useState(null)
   const [tabValues, setTabValues] = useState([])
   
@@ -71,7 +73,21 @@ export default function InspectedDatasetWindow(props) {
   // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
   const handleSelectedNodesAndEdgesChangeRef = useRef()
 
-  // Sets a message for when the dataset is empty
+  // Sets a loading message
+  useEffect(() => {
+    
+    if(open === true && numberOfNodesInDataset !== undefined && numberOfNodesInDataset[0] !== 0){
+      setReviewItemHTML("Loading graph...")
+    }
+    else if(open === true){
+      setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
+    }
+  }, [open])
+  
+  
+  // Whenever the contents of the dataset changes (for example when the async fetch is done),
+  // we set the review HTML to either an 'error' message for when the dataset is empty, or
+  // an informal message for when the dataset is not empty
   useEffect(() => {
     if(inspectedNodes.length === 0){
       setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
@@ -79,8 +95,10 @@ export default function InspectedDatasetWindow(props) {
     else {
       setReviewItemHTML(activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
     }
+
   }, [inspectedNodes.length])
-  
+
+
   // Sets the HTML for the two different tabs
   useEffect(() => {
     const newTabValues = []
@@ -173,6 +191,11 @@ export default function InspectedDatasetWindow(props) {
   const handleActiveTabChange = (tabNum) => {
     setActiveTab(tabNum)
     
+    if(inspectedNodes.length === 0){
+      setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
+      return
+    }
+    
     updateReviewedItemID({tabNum: tabNum})
   }
   
@@ -223,6 +246,8 @@ export default function InspectedDatasetWindow(props) {
     
     dispatch(setInspectWindowActive(false));
     dispatch(resetSelectedDataset());
+    dispatch(resetQueryItems(INSPECTED_NODES_IN_DATASET))
+    dispatch(resetQueryItems(INSPECTED_EDGES_IN_DATASET))
   };
 
   const handleClickOpen = () => {
@@ -419,7 +444,7 @@ function InspectedDatasetGraph(props){
         ],
       
         layout: {
-          name: graphLayout
+          name: graphLayout,       
         } 
       })
 

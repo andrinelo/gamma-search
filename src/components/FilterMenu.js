@@ -435,22 +435,7 @@ function FilterMenu(props) {
                     <div key={index}>
                       <div className={classes.flexRow}>
                         <div className={classes.flexColumn}>
-
-
-                          {/* <TextField
-                            className={classes.textFieldClass}
-                            value={element.property}
-                            name="property"
-                            variant="outlined"
-                            label="Select a property"
-                            onChange={(e) => handlePropertyChange(index, e)}
-                            >
-                            {localFilters[index].property !== ""
-                              ? localFilters[index].property
-                              : ""}
-                          </TextField> */}
-
-
+                 
                           <Autocomplete
                             name="property"
                             options={allProperties}

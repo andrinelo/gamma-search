@@ -22,7 +22,6 @@ export default function GraphQueryVisualizer() {
   // All results; contains (among others) the values for node count of each dataset
   const allResults = useSelector(state => state.allQueryResults)
 
-
   useEffect(() => {
 
     let elements = []
@@ -31,10 +30,10 @@ export default function GraphQueryVisualizer() {
       let nodeName = "Dataset " + (i+1)
       
       // Adds the node count
-      if(allResults[(DATASET_NODE_COUNT + (i + 1))] !== undefined){
-        nodeName += " [" + allResults[(DATASET_NODE_COUNT + (i + 1))][0]
+      if(allResults[(DATASET_NODE_COUNT + i)] !== undefined){
+        nodeName += " [" + allResults[(DATASET_NODE_COUNT + i)][0]
 
-        if(allResults[(DATASET_NODE_COUNT + (i + 1))][0] !== 1){
+        if(allResults[(DATASET_NODE_COUNT + i)][0] !== 1){
           nodeName += " nodes]"
         }
         else{
