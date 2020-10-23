@@ -1,0 +1,7 @@
+{
+  "proxies": {
+    "/ardoqapi/": {
+      "origin": "https://app.ardoq.com/"
+    }
+  }
+}
