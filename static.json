@@ -3,6 +3,7 @@
   "routes": {
     "/**": "index.html"
   },
+  "basic_auth": true,
   "proxies": {
     "/ardoq/": {
       "origin": "https://app.ardoq.com/"
