@@ -90,6 +90,7 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
       });
 
       const results = await response.json()
+      console.log(process.env.NODE_ENV)
       
       // WE SET RESULTLIST
       if(start <= 0){
