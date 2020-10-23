@@ -6,7 +6,12 @@
   "basic_auth": true,
   "proxies": {
     "/ardoq/": {
-      "origin": "https://app.ardoq.com/"
+      "origin": "https://app.ardoq.com/",
+      "headers": {
+        "Authorization": "Token token=5025706857394e28ab294f1bd8c482cb",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      }
     }
   }
 }
