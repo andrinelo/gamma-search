@@ -74,7 +74,9 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
       // Adds the range to the gremlin query if start has been set to above or equal to 0
       let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
 
-      const response = await fetch('/api/graph-search?org=tdt42902019', {
+      const API_URL = process.env.NODE_ENV === 'production' ? "https://app.ardoq.com/api/graph-search?org=tdt42902019" : "/api/graph-search?org=tdt42902019"
+
+      const response = await fetch(API_URL, {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',                                               // no-cors, *cors, same-origin
         cache: 'no-cache',                                          // *default, no-cache, reload, force-cache, only-if-cached
@@ -90,7 +92,6 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
       });
 
       const results = await response.json()
-      console.log(process.env.NODE_ENV)
       
       // WE SET RESULTLIST
       if(start <= 0){
