@@ -82,7 +82,7 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
         cache: 'no-cache',                                          // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin',                                 // include, *same-origin, omit
         headers: {
-          // 'Authorization': 'Token token=5025706857394e28ab294f1bd8c482cb',
+          'Authorization': 'Token token=5025706857394e28ab294f1bd8c482cb',
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
