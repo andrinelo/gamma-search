@@ -74,7 +74,7 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
       // Adds the range to the gremlin query if start has been set to above or equal to 0
       let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
 
-      const API_URL = process.env.NODE_ENV === 'production' ? "/ardoqapi/api/graph-search?org=tdt42902019" : "/api/graph-search?org=tdt42902019"
+      const API_URL = process.env.NODE_ENV === 'production' ? "/ardoq/api/graph-search?org=tdt42902019" : "/api/graph-search?org=tdt42902019"
 
       const response = await fetch(API_URL, {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.

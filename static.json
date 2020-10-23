@@ -4,7 +4,7 @@
     "/**": "index.html"
   },
   "proxies": {
-    "/ardoqapi/": {
+    "/ardoq/": {
       "origin": "https://app.ardoq.com/"
     }
   }
