@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -13,19 +15,21 @@ import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
-import { useSelector, useDispatch } from "react-redux";
-import SetRelation from "../actions/SetRelation.js";
 import { DeleteForever } from "@material-ui/icons";
-import EditWarning from './EditWarning.js'
-import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import { Autocomplete } from "@material-ui/lab";
 import Slide from '@material-ui/core/Slide';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
+
+import EditWarning from './EditWarning.js'
+import SetRelation from "../actions/SetRelation.js";
+import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import {setRelationWindowActive} from "../actions/RelationWindowActions";
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
-import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
+import { DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 
 
@@ -34,16 +38,53 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 function RelationMenu(props) {
-  const allResults = useSelector(state => state.allQueryResults)
   const open = useSelector(state => state.relationWindowActive)
   const stateRelations = useSelector((state) => state.relations);
   const selectedDataset = useSelector(state => state.selectedDataset)  
   const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+  const availableIngoingRelations = useSelector(state => state.allQueryResults[DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS])
+  const availableOutgoingRelations = useSelector(state => state.allQueryResults[DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS])
+  const [allAvailableRelations, setAllAvailableRelations] = useState([])
 
-  React.useEffect(() => {
+  // If the "All ingoing relations" item has not already been added to the list, we add it
+  if(!availableIngoingRelations.includes("All ingoing relations") && availableIngoingRelations.length > 0){
+    availableIngoingRelations.unshift("All ingoing relations")
+  }
+  
+  // If the "All outgoing relations" item has not already been added to the list, we add it
+  if(!availableOutgoingRelations.includes("All outgoing relations") && availableOutgoingRelations.length > 0){
+    availableOutgoingRelations.unshift("All outgoing relations")
+  }
+
+  // Updates the list of allAvailableRelations (and removes duplicated relations)
+  useEffect(() => {
+    const combinedRelations = [...availableIngoingRelations, ...availableOutgoingRelations]
+    const uniqueCombinedRelations = combinedRelations.filter((item, pos) => combinedRelations.indexOf(item) == pos)
+    uniqueCombinedRelations.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+
+    // Removes the 'All ingoing relations' from the combined relations list
+    if(uniqueCombinedRelations.indexOf("All ingoing relations") > -1) {
+      uniqueCombinedRelations.splice(uniqueCombinedRelations.indexOf("All ingoing relations"), 1);
+    }
+
+    // Removes the 'All outgoing relations' from the combined relations list
+    if(uniqueCombinedRelations.indexOf("All outgoing relations") > -1) {
+      uniqueCombinedRelations.splice(uniqueCombinedRelations.indexOf("All outgoing relations"), 1);
+    }
+
+    // If the "All relations" item has not already been added to the list, we add it
+    if(!uniqueCombinedRelations.includes("All ingoing and outgoing relations") && uniqueCombinedRelations.length > 0){
+      uniqueCombinedRelations.unshift("All ingoing and outgoing relations")
+    }
+
+    setAllAvailableRelations(uniqueCombinedRelations)
+  }, [availableIngoingRelations, availableOutgoingRelations])
+
+
+  useEffect(() => {
     let id = selectedDataset;
     //if there exists a object in the state for this menu(id), then load that state to this component
-    if (stateRelations[id]) {
+    if (stateRelations[id] && stateRelations[id].relations !== undefined && stateRelations[id].relations.length > 0) {
       let tmpRelations = stateRelations[id].relations;
       setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
       let tmpAllRelation = stateRelations[id].allRelations;
@@ -93,6 +134,7 @@ function RelationMenu(props) {
     }
     // Also update actual change
     localRelations[index][name] = event.target.checked;
+    localRelations[index]['text'] = null
     setLocalRelations([...localRelations]);
   };
 
@@ -118,23 +160,39 @@ function RelationMenu(props) {
     dispatch(SetRelation({ relations, allRelations }, edgeId));
   };
 
+  // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
     let localGremlin = ""
     for (let id in localRelations){
       let element = localRelations[id]
-      if (element.checkedIn === true && element.checkedOut === true){
-        localGremlin = localGremlin.concat(".both('")
-      }
-      else if (element.checkedIn === true && element.checkedOut === false){
-        localGremlin = localGremlin.concat(".in('")
-      }
-      else if (element.checkedIn === false && element.checkedOut === true){
-        localGremlin = localGremlin.concat(".out('")
-      }
-      localGremlin = localGremlin.concat(element.text.value)
-      localGremlin = localGremlin.concat("')")
 
+      if(element.text === "All ingoing and outgoing relations"){
+        // Add all relations
+        localGremlin = localGremlin.concat(".out()")
+      }
+      else if(element.text === "All ingoing relations"){
+        // Add all ingoing relations
+        localGremlin = localGremlin.concat(".in()")
+      }
+      else if(element.text === "All outgoing relations"){
+        // Add all outgoing relations
+        localGremlin = localGremlin.concat(".both()")
+      }
+      else{
+        if (element.checkedIn === true && element.checkedOut === true){
+          localGremlin = localGremlin.concat(".both('")
+        }
+        else if (element.checkedIn === true && element.checkedOut === false){
+          localGremlin = localGremlin.concat(".in('")
+        }
+        else if (element.checkedIn === false && element.checkedOut === true){
+          localGremlin = localGremlin.concat(".out('")
+        }
+        localGremlin = localGremlin.concat(element.text)
+        localGremlin = localGremlin.concat("')")
+      }
     }
+    
     return(localGremlin)
   }
 
@@ -160,18 +218,10 @@ function RelationMenu(props) {
 
 
   const handleClose = () => {
-    deleteFetchedPropertyValues()
     dispatch(setRelationWindowActive(false));
     dispatch(resetSelectedDataset());
   };
 
-    // Deletes (from Redux-store) the values that has been fetched for different properties
-    const deleteFetchedPropertyValues = () => {
-      let keys = Object.keys(allResults)
-      keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
-  
-      dispatch(deleteQueryItemsByKeys(keys))    
-    }
   /*
   const isDisabled = () => {
     let disablet = false;
@@ -242,14 +292,29 @@ function RelationMenu(props) {
                             className={classes.textFieldClass}
                             name="text"
                             onChange={(e, v, r) => handleTextChange(index, v)}
-                            options={tempAutocompleteOptions}
-                            getOptionLabel={(option) => option.value}
+                            options={element.checkedIn ? element.checkedOut ? allAvailableRelations : availableIngoingRelations : element.checkedOut ? availableOutgoingRelations : []}
+                            value={element.text !== undefined && element.text !== "" ? element.text : null }
+                            getOptionLabel={(option) => option}
+                            groupBy={(option) => option !== "All ingoing and outgoing relations" && option !== "All outgoing relations" && option !== "All ingoing relations" ? option.charAt(0).toUpperCase() : ""}
                             value = {element.text}
-                            renderInput={(params) => <TextField {...params} className={classes.textFieldClass} 
-                                value={element.text} label="Name of relation" variant="outlined" name="text"/>}
-                          >
-                            {" "}
-                          </Autocomplete>
+                            renderInput={(params) => <TextField {...params} className={classes.textFieldClass} value={element.text} label="Type of relation" variant="outlined" name="text"/>}
+                          
+                            renderOption={(option, { inputValue }) => {
+                              const matches = match(option, inputValue);
+                              const parts = parse(option, matches);
+                      
+                              return (
+                                <div>
+                                  {parts.map((part, index) => (
+                                    <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+                                      {part.text}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }}
+
+                          />
                         </div>
                         <Button onClick={() => removeRelation(index)}>
                           <DeleteForever></DeleteForever>
@@ -312,7 +377,6 @@ function RelationMenu(props) {
               startIcon={<SaveIcon />}
               disabled={localRelations.map((relation) => relation.text).includes(null)}
             >
-              {console.log(localRelations)}
               Save Changes
             </Button>
           </div>
@@ -393,5 +457,3 @@ const useStyles = makeStyles({
   },
 });
 
-
-const tempAutocompleteOptions = [{"value":"Is Expert In"}, {"value":"imports"}, {"value":"Realized By"}, {"value":"ardoq_parent"}];
