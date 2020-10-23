@@ -1,4 +1,8 @@
 {
+  "root": "build/",
+  "routes": {
+    "/**": "index.html"
+  },
   "proxies": {
     "/ardoqapi/": {
       "origin": "https://app.ardoq.com/"
