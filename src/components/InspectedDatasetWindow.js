@@ -318,7 +318,10 @@ function InspectedDatasetGraph(props){
 
           // Tries to fetch an image URL, if the node does not have an image we use the placeholder image
           if('image' in node['properties']){
-            imageURL = 'url(' + node['properties']['image'][0]['value'] +")"
+
+            // If in production we use our proxy set on the nginx server
+            imageURL = process.env.NODE_ENV === 'production' ? "/ardoq" : ""
+            imageURL += node['properties']['image'][0]['value']
           }
           else{
             imageURL = "url(/PlaceholderNodeImage.png)"

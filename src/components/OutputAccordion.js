@@ -95,17 +95,21 @@ function OutputJSONParser(inputJSON) {
     return toReturn;
   }
 
-  function GetUrl(inputJSON) {
-      if ("properties" in inputJSON && "image" in inputJSON["properties"]) {
-        if (0 in inputJSON["properties"]["image"]) { // List containing a tuple
-            return inputJSON["properties"]["image"][0]["value"];
-        }
-        else if ("value" in inputJSON["properties"]["image"]) { // and if property value array contains field "value"
-            return inputJSON["properties"]["image"]["value"];
-        }
-        else {
-            return inputJSON["properties"]["image"]
-        }
-      }
-      return null   
+function GetUrl(inputJSON) {
+    
+  // If in production we use our proxy set on the nginx server
+  const imageURLPrefix = process.env.NODE_ENV === 'production' ? "/ardoq" : ""
+
+  if ("properties" in inputJSON && "image" in inputJSON["properties"]) {
+    if (0 in inputJSON["properties"]["image"]) { // List containing a tuple
+        return imageURLPrefix + inputJSON["properties"]["image"][0]["value"];
+    }
+    else if ("value" in inputJSON["properties"]["image"]) { // and if property value array contains field "value"
+        return imageURLPrefix + inputJSON["properties"]["image"]["value"];
+    }
+    else {
+        return imageURLPrefix + inputJSON["properties"]["image"]
+    }
   }
+  return null   
+}
