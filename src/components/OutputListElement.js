@@ -35,7 +35,7 @@ export default function OutputListElement(props) {
 
     // Tries to fetch an image URL, if the node does not have an image we use the placeholder image
     if(imageHyperlink != null){
-        imageURL = "https://app.ardoq.com" + imageHyperlink
+        imageURL = imageHyperlink
     }
     else{
         imageURL = "/PlaceholderNodeImage.png"

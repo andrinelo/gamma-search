@@ -100,6 +100,7 @@ function GetUrl(inputJSON) {
   // If in production we use our proxy set on the nginx server
   const imageURLPrefix = process.env.NODE_ENV === 'production' ? "/ardoq" : ""
 
+  console.log(inputJSON)
   if ("properties" in inputJSON && "image" in inputJSON["properties"]) {
     if (0 in inputJSON["properties"]["image"]) { // List containing a tuple
         return imageURLPrefix + inputJSON["properties"]["image"][0]["value"];
