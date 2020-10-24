@@ -364,6 +364,8 @@ function FilterMenu(props) {
     dispatch(resetSelectedDataset());
 
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
+    //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
+    //so that RelationMenu can call "removeFilterAfterIndex"
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
 
@@ -433,22 +435,7 @@ function FilterMenu(props) {
                     <div key={index}>
                       <div className={classes.flexRow}>
                         <div className={classes.flexColumn}>
-
-
-                          {/* <TextField
-                            className={classes.textFieldClass}
-                            value={element.property}
-                            name="property"
-                            variant="outlined"
-                            label="Select a property"
-                            onChange={(e) => handlePropertyChange(index, e)}
-                            >
-                            {localFilters[index].property !== ""
-                              ? localFilters[index].property
-                              : ""}
-                          </TextField> */}
-
-
+                 
                           <Autocomplete
                             name="property"
                             options={allProperties}

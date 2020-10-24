@@ -8,6 +8,7 @@ import { setPropertyTableWindowActive } from './../actions/PropertyTableWindowAc
 import { setSelectedDataset } from './../actions/SelectedDatasetActions';
 import { setActiveWindow } from './../actions/SetActiveWindow';
 import { DATASET_NODE_COUNT } from './../actions/QueryKeys';
+import {setRelationWindowActive} from "./../actions/RelationWindowActions.js";
 
 cytoscape.use( cxtmenu ); // register extension
 
@@ -21,7 +22,6 @@ export default function GraphQueryVisualizer() {
   // All results; contains (among others) the values for node count of each dataset
   const allResults = useSelector(state => state.allQueryResults)
 
-
   useEffect(() => {
 
     let elements = []
@@ -30,10 +30,10 @@ export default function GraphQueryVisualizer() {
       let nodeName = "Dataset " + (i+1)
       
       // Adds the node count
-      if(allResults[(DATASET_NODE_COUNT + (i + 1))] !== undefined){
-        nodeName += " [" + allResults[(DATASET_NODE_COUNT + (i + 1))][0]
+      if(allResults[(DATASET_NODE_COUNT + i)] !== undefined){
+        nodeName += " [" + allResults[(DATASET_NODE_COUNT + i)][0]
 
-        if(allResults[(DATASET_NODE_COUNT + (i + 1))][0] !== 1){
+        if(allResults[(DATASET_NODE_COUNT + i)][0] !== 1){
           nodeName += " nodes]"
         }
         else{
@@ -208,10 +208,12 @@ export default function GraphQueryVisualizer() {
 
           { // Relation command
             fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-            content: "Explore dataset's relations", // html/text content to be displayed in the menu
+            content: "Explore dataset relations", // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+              dispatch(setSelectedDataset(ele.data()['id']))
+              dispatch(setRelationWindowActive(true))
             },
             enabled: true // whether the command is selectable
           },

@@ -10,6 +10,7 @@ import StartNodeInputField from './components/StartNodeInputField.js'
 import GraphView from "./components/GraphView.js"
 import RelationButton from "./components/RelationButton"
 import AggregateMenu from "./components/AggregateMenu";
+import RelationMenu from "./components/RelationMenu"
 import FilterMenu from "./components/FilterMenu"
 import InspectedDatasetWindow from "./components/InspectedDatasetWindow"
 import PropertyTableWindow from "./components/PropertyTableWindow"
@@ -17,7 +18,7 @@ import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT } from './actions/QueryKeys.js'
+import { FULL_RESULT_ITEMS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './actions/QueryKeys.js'
 
 import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
 
@@ -29,6 +30,7 @@ function App() {
   const filterWindowOpen = useSelector(store => store.filterDatasetWindowActive)
   const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
   const activeWindow = useSelector(store => store.activeWindow)
+  const relationWindowOpen = useSelector(store => store.relationWindowActive)
   
   const dispatch = useDispatch()
 
@@ -58,7 +60,7 @@ function App() {
       
       // Fetches the node count of the latest dataset
       const gremlinQueryNodesCount = fullGremlinQuery + ".dedup().count()"
-      dispatch(fetchQueryItems(gremlinQueryNodesCount, DATASET_NODE_COUNT + numberOfDatasets))
+      dispatch(fetchQueryItems(gremlinQueryNodesCount, DATASET_NODE_COUNT + (numberOfDatasets-1)))
     }
   }, [fullGremlinQuery])
 
@@ -96,6 +98,19 @@ function App() {
     }
     
   }, [propertyTableWindowOpen])
+
+
+  // Whenever the relationWindowOpen changes (to true), we fetch the gremlin query results 
+  // corresponding to all the ingoing and outgoing relations in the selected dataset (with the dataset's filters)
+  useEffect(() => {
+    if(relationWindowOpen && datasetAfterFiltersGremlinQuery !== "" && selectedDataset >= 0){
+      const gremlinQueryIngoingRelations = datasetAfterFiltersGremlinQuery + ".inE().label().dedup()"
+      const gremlinQueryOutgoingRelations = datasetAfterFiltersGremlinQuery + ".outE().label().dedup()"
+      
+      dispatch(fetchQueryItems(gremlinQueryIngoingRelations, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, 0))
+      dispatch(fetchQueryItems(gremlinQueryOutgoingRelations, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS, 0))
+    }
+  }, [relationWindowOpen])
   
   
   return (
@@ -108,8 +123,7 @@ function App() {
         <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
         <AggregateMenu/>
-        {/*<AggregateMenu cloudId={0}/>*/}
-
+        <RelationMenu></RelationMenu>
 
         {/* Test-button to test node-adding */}
         <button onClick={() => 
