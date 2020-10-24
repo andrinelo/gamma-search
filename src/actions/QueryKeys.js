@@ -1,4 +1,4 @@
-export const FULL_RESULT_ITEMS = "fullResultItems";
+export const PAGED_RESULT_ITEMS = "pagedResultItems";
 export const ALL_AVAILABLE_LABELS = "allAvailableLabels";
 export const INSPECTED_EDGES_IN_DATASET = "inspectedEdgesInDataset";
 export const INSPECTED_NODES_IN_DATASET = "inspectedNodesInDataset";
@@ -9,4 +9,5 @@ export const DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS = "datasetIngoingRe
 export const DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS = "datasetOutgoingRelationsAfterDatasetFilters";
 export const PROPERTY_TABLE_VALUES = "propertyTableValues";
 export const DATASET_NODE_COUNT = "amountOfNodesInDataset";
-export const AGGREGATED_RESULT = "aggregatedResult";
+export const RESULT_FROM_AGGREGATION = "resultFromAggregation";
+export const AGGREGATE_PROPERTY_EXAMPLE_VALUE = "aggregatePropertyExampleValue";

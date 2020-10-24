@@ -84,7 +84,7 @@ function FilterMenu(props) {
 
   useEffect(() => {
     
-    // If the filter window is open and we have set the set filters from store flag, we set the filters from store
+    // If the filter window is open and we have set the 'set filters from store' flag, we set the filters from store
     if(shouldSetFiltersFromStore && open){
       let id = selectedDataset;
       if (stateFilters[id] && stateFilters[id].filters !== undefined && stateFilters[id].filters.length > 0) {
