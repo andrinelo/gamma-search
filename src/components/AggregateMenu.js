@@ -215,7 +215,7 @@ export default function AggregateMenu() {
                 handleProptypeChange(selectedProperty)
               }}
                       
-              renderInput={(params) => <TextField {...params} label="Select property..." variant="outlined" />}
+              renderInput={(params) => <TextField {...params} label="Select property" variant="outlined" />}
 
               renderOption={(option, { inputValue }) => {
                 const matches = match(option, inputValue);
@@ -237,12 +237,12 @@ export default function AggregateMenu() {
             <div style={{width: "1vw"}}/>
             
             <FormControl style={{width: "42%"}} variant="outlined">
-              <InputLabel id="aggregate-function-select-label">Select aggregation...</InputLabel>
+              <InputLabel id="aggregate-function-select-label">Select aggregation</InputLabel>
               <Select
                 labelId="aggregate-function-select-label"
                 id="aggregateFunction"
                 onChange={handleFunctionChange}
-                label="Select aggregation..."
+                label="Select aggregation"
                 value={localAggregateFunction}
                 disabled={localProptype === null || localProptype === '' || localProptype === undefined}
               >
