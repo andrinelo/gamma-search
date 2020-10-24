@@ -1,98 +1,79 @@
 import React from 'react';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
-import Button from '@material-ui/core/Button';
-import SelectPropertyView from './SelectPropertyView';
-import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import SaveIcon from '@material-ui/icons/Save';
-import { setActiveWindow } from '../actions/SetActiveWindow.js';
-import { setAggregation } from '../actions/SetAggregation.js';
-import AddIcon from '@material-ui/icons/Add';
-import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from "prop-types";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { DialogActions } from '@material-ui/core';
-import EditWarning from './EditWarning.js'
+import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
+import { setActiveWindow } from '../actions/SetActiveWindow.js';
+import { fetchQueryItems, resetQueryItems} from '../actions/QueryManagerActions.js';
+import { useDispatch, useSelector } from 'react-redux';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from "@material-ui/core/Button";
+import {AGGREGATED_RESULT } from './../actions/QueryKeys.js'
+import TextField from "@material-ui/core/TextField";
+import parse from 'autosuggest-highlight/parse';
+import match from 'autosuggest-highlight/match';
 
-  export default function AggregateMenu(props) {
+
+
+
+  export default function AggregateMenu() {
+    
     const window = useSelector(state => state.activeWindow);
-    const stateAggregations = useSelector(state => state.aggregation);
     const classes = useStyles();  
     const dispatch = useDispatch();
-    const [localAggregations, setLocalAggregation] = React.useState([{proptype: '', aggregateFunction: ''}]);
 
-    const selectedDataset = useSelector(state => state.selectedDataset)  
-    const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
-  
+    const [localAggregateFunction, setLocalAggregateFunction] = React.useState('');
+    const [localProptype, setLocalProptype] = React.useState('');
 
-    // Adds another line with aggregate choices
-    const addAggregateChoices = () => { 
-      localAggregations.push({
-        proptype: '',
-        aggregateFunction: ''
-      });
-      setLocalAggregation([...localAggregations]);
+    const properties = ["number_of_interfaces", "name"];
+    const aggregateFunctions = ["count", "sum", "mean", "max", "min"]; // count should only work when you haven't selected a prop/value field :)
+    const aggregatedResult = useSelector(store => store.allQueryResults.aggregatedResult);
+
+    // which node we're on
+    const selectedDataset = useSelector(store => store.selectedDataset)
+    // query before aggregation
+    const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+    // query after aggregation
+    const [currentQuery, setCurrentQuery] = React.useState(datasetAfterFiltersGremlinQuery);
+
+    // set aggregate function
+    const handleFunctionChange = e => {
+      setLocalAggregateFunction(e.target.value)
     }
 
     // closes the aggregate menu when pressing x, remove unsaved local change
     const closeAggregateMenu = () => {
-      if(stateAggregations[props.cloudId]){
-        setLocalAggregation(stateAggregations[props.cloudId]);
-      }
-      else {
-        setLocalAggregation([{proptype: '', aggregateFunction: ''}]);
-      }
+      setLocalAggregateFunction('');
+      setLocalProptype('');
+      setCurrentQuery(datasetAfterFiltersGremlinQuery);
+      dispatch(resetQueryItems(AGGREGATED_RESULT));
       dispatch(setActiveWindow(""));
-    }
-
-    // close the aggregate menu, save state 
-    const save = () => {
-      dispatch(setAggregation(JSON.parse(JSON.stringify(localAggregations)), props.cloudId)); //JALLAFIX actually needs to be fixed in redux I think
-      dispatch(setActiveWindow(""));
-      // TODO add to redux
-    }
-
-    // this updates local state when a user selects a property or aggregation type
-    const handleChange = (e, id, index) => {
-      localAggregations[index][id] = e.target.value;
-      setLocalAggregation([...localAggregations]);
     };
 
-    // deletes an aggregation if the user presses the trash icon
-    // if there is only one left, make fields empty
-    const handleDeleteAggregation = (index) => {
-      localAggregations.splice(index, 1);
-      setLocalAggregation([...localAggregations]);
-      if (localAggregations.length === 0){
-        addAggregateChoices();
-      }
-    }
+    // this updates local state when a user selects a property or aggregation type
+    const handleProptypeChange = selectedProperty => {
+      setLocalProptype(selectedProperty);
+      console.log(selectedProperty);
+    };
 
-    // validitycheck
-    const aggregatefieldsAreNotFilled = () => {
-      const notFilled = (aggregateObj) => (aggregateObj.proptype === '' || aggregateObj.aggregateFunction === '');
-      return localAggregations.some(notFilled);
-    }
-
-    const disableSaveAggregations = () => {
-      if(aggregatefieldsAreNotFilled()){
-        if(localAggregations.length === 1){
-          return false;
-        }
-        return true;
-      }
-      return false;
+    // fetch query result to calculate aggregation
+    const applyAggregation = () => {
+      const aggregateGremlinQuery = datasetAfterFiltersGremlinQuery.concat(!localProptype ? `.${localAggregateFunction}()` : `.values('${localProptype}').${localAggregateFunction}()`);
+      setCurrentQuery(aggregateGremlinQuery)
+      dispatch(fetchQueryItems(aggregateGremlinQuery,  AGGREGATED_RESULT, 0))
     }
 
     return (
-      // shows aggregatemenu if it has been set as active by the cloud button
-      <Dialog open={window==="aggregate"}>
+      <Dialog 
+        open={window==="aggregate"} 
+        maxWidth={'sm'}
+        fullWidth={true}
+      >
         <CardHeader style={{ textAlign: 'center', paddingBottom: "0px" }} title={
           <div class={classes.relationsHeader}>
               <div></div>
@@ -103,63 +84,94 @@ import EditWarning from './EditWarning.js'
             </div>
           }>
         </CardHeader>
-        {selectedDataset < (numberOfDatasets-1) ? <EditWarning></EditWarning> : null}
         <DialogContent>
-          <div>
-            {localAggregations.map((element, index) => {
-              return (
-                <div key={index}>
-                  <SelectPropertyView onChange={(e, id)=>handleChange(e, id, index)} onDelete={()=>handleDeleteAggregation(index)} proptype={element.proptype} aggregateFunction={element.aggregateFunction}/> 
-                </div>
-              )
-            })}
-            <IconButton 
-              onClick={()=> addAggregateChoices()} 
-              disabled={aggregatefieldsAreNotFilled()}
-            >  
-              <AddIcon/>
-            </IconButton>
-          </div>
+          <Grid 
+          container 
+          spacing={3} 
+          direction={"column"}
+        >
+            <Grid item container> 
+                <Grid item >
+                  <Autocomplete
+                    name="property"
+                    options={properties}
+                    value={localProptype !== "" && localProptype !== undefined ? localProptype : null }
+                    getOptionLabel={(option) => option}
+                    groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+                    style={{ width: '250px' }}
+                    onChange={(event, selectedProperty) => {
+                      handleProptypeChange(selectedProperty)
+                    }}
+                            
+                    renderInput={(params) => <TextField className={classes.textFieldClass} {...params} label="Select Property..." variant="outlined" />}
+
+                    renderOption={(option, { inputValue }) => {
+                      const matches = match(option, inputValue);
+                      const parts = parse(option, matches);
+                      
+                      return (
+                        <div>
+                          {parts.map((part, index) => (
+                            <span key={index} >
+                              {part.text}
+                            </span>
+                          ))}
+                        </div>
+                      ); 
+                    }}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <div className={classes.flexRow}>Aggregate function:  </div>
+                    <Select
+                      labelId="select aggregate function"
+                      id="aggregateFunction"
+                      onChange={handleFunctionChange}
+                      value={localAggregateFunction}
+                    >
+                      {aggregateFunctions.map((value,key) => <MenuItem key={key} value={value}>{value}</MenuItem>)}
+                    </Select>
+                </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <div className={classes.saveButtonContainer}>
+                <Button
+                  onClick={applyAggregation}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  className={classes.saveButtonClass}
+                  disabled={!localAggregateFunction}
+                  >
+                  Apply aggregation
+                </Button>
+              </div>
+            </Grid>
+            <Grid item container>
+              {aggregatedResult.length > 0 && <Grid container spacing={1} direction={"column"}>
+                  <Grid item>
+                    Result: { aggregatedResult[0] }
+                  </Grid>
+                  <Grid item>
+                    Current Query: {currentQuery}
+                  </Grid>
+                </Grid>
+              }
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button 
-            onClick={()=> save()} 
-            size="large" 
-            startIcon={<SaveIcon />} 
-            variant="contained" 
-            color="primary" 
-            className={classes.saveButtonClass}
-            disabled={disableSaveAggregations()}
-          >
-            Save
-          </Button>
-        </DialogActions>
+
       </Dialog>
     );
   }
 
-  AggregateMenu.propTypes = {
-    cloudId: PropTypes.number.isRequired,
-  }
-
   const useStyles = makeStyles({
-    root: {
-      width: 400,
-      background: "#eeeeee",
-    },
-    flexColumn: {
-        display: "flex",
-        flexDirection: "column",
-    },
+   
     flexRow: {
         display: "flex",
         flexDirection: "row",
     },
-    buttonClass: {
-        margin: "5px",
-        background: "#770079"
-    },
-
+    
     saveButtonClass: {
         margin: "5px",
         background: "#6DBCB4",
@@ -172,21 +184,6 @@ import EditWarning from './EditWarning.js'
         display: "flex"
     },
 
-    buttonClasslarge: {
-        margin: "5px",
-        width: "12em",
-        height: "6em",
-        background: "#770079"
-    },
-
-    cardContainer :{
-      width: "50%",
-      margin: "5%"
-    },
-
-    textFieldClass: {
-        marginTop: "15px"
-    },
     relationsHeader: {
         display: "flex",
         justifyContent: "space-between",

@@ -29,6 +29,7 @@ function App() {
   const inspectWindowOpen = useSelector(store => store.inspectDatasetWindowActive)
   const filterWindowOpen = useSelector(store => store.filterDatasetWindowActive)
   const propertyTableWindowOpen = useSelector(store => store.propertyTableWindowActive)
+  const activeWindow = useSelector(store => store.activeWindow)
   const relationWindowOpen = useSelector(store => store.relationWindowActive)
   
   const dispatch = useDispatch()
@@ -121,9 +122,8 @@ function App() {
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
+        <AggregateMenu/>
         <RelationMenu></RelationMenu>
-        {/*<AggregateMenu cloudId={0}/>*/}
-
 
         {/* Test-button to test node-adding */}
         <button onClick={() => 

@@ -9,3 +9,4 @@ export const DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS = "datasetIngoingRe
 export const DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS = "datasetOutgoingRelationsAfterDatasetFilters";
 export const PROPERTY_TABLE_VALUES = "propertyTableValues";
 export const DATASET_NODE_COUNT = "amountOfNodesInDataset";
+export const AGGREGATED_RESULT = "aggregatedResult";
