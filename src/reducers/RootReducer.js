@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import windowReducer from "./WindowReducer.js";
 import OutputPaginationReducer from "./OutputPaginationReducer.js";
 import AutocompleteSuggestionReducer from "./AutocompleteSuggestionReducer.js";
 import RelationReducer from "./RelationReducer.js";
@@ -11,17 +10,15 @@ import FilterDatasetWindowReducer from "./FilterDatasetWindowReducer"
 import SelectedDatasetReducer from "./SelectedDatasetReducer.js"
 import InspectedDatasetWindowReducer from "./InspectedDatasetWindowReducer.js"
 import RelationWindowReducer from "./RelationWindowReducer.js"
+import AggregateDatasetWindowReducer from "./AggregateDatasetWindowReducer.js";
 import { PropertyTableWindowReducer, PropertyTableLoadingReducer, PropertyTableLatestFetchReducer } from "./PropertyTableWindowReducer"
-import aggregationReducer from "./AggregationReducer.js";
 
 
 // Combines all reducers and export them
 export default combineReducers({
-  aggregation: aggregationReducer,
   allQueryResults: queryReducer,
   gremlinQueryParts: gremlinQueryReducer,
   initialSearchParameter: InitialSearchParameterReducer,
-  activeWindow: windowReducer,
   currentOutputPage: OutputPaginationReducer,
   autoComplete: AutocompleteSuggestionReducer,
   relations: RelationReducer,
@@ -30,6 +27,7 @@ export default combineReducers({
   inspectDatasetWindowActive: InspectedDatasetWindowReducer,
   filterDatasetWindowActive: FilterDatasetWindowReducer,
   relationWindowActive: RelationWindowReducer,
+  aggregateDatasetWindowActive: AggregateDatasetWindowReducer,
   propertyTableWindowActive: PropertyTableWindowReducer,
   propertyTableIsFetching: PropertyTableLoadingReducer,
   propertyTableLatestFetchID: PropertyTableLatestFetchReducer,
