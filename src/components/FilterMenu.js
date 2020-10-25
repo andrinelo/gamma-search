@@ -49,7 +49,10 @@ function FilterMenu(props) {
   const stateFilters = useSelector((state) => state.filters);
   const dispatch = useDispatch()
   const classes = useStyles();
-
+  
+  // The following two values are only used to force a component re-render when the autocomplete-values for the selected property are retrieved
+  const [latestSelectedProperty, setLatestSelectedProperty] = useState("")
+  const latestPropertyValues = useSelector(state => latestSelectedProperty !== "" ? state.allQueryResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + latestSelectedProperty] : [])
   
   // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
   let datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
@@ -57,6 +60,7 @@ function FilterMenu(props) {
 
   // Fetches all possible labels, to be used as auto-suggestions
   const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
+  
   
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
@@ -66,8 +70,9 @@ function FilterMenu(props) {
       value: "",
     },
   ], [selectedDataset]);
-
+  
   const [andOrs, setAndOrs] = useState([], [selectedDataset]);
+
 
   let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
 
@@ -84,7 +89,7 @@ function FilterMenu(props) {
 
   useEffect(() => {
     
-    // If the filter window is open and we have set the set filters from store flag, we set the filters from store
+    // If the filter window is open and we have set the 'set filters from store' flag, we set the filters from store
     if(shouldSetFiltersFromStore && open){
       let id = selectedDataset;
       if (stateFilters[id] && stateFilters[id].filters !== undefined && stateFilters[id].filters.length > 0) {
@@ -156,6 +161,7 @@ function FilterMenu(props) {
         localFilters[index]['operator'] = "=="
     }
 
+    setLatestSelectedProperty(selectedProperty)
     setLocalFilters([...localFilters]);
   };
 
