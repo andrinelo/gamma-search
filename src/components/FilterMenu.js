@@ -365,8 +365,6 @@ function FilterMenu(props) {
 
   // Runs when filters are saved
   const closeFilterMenu = () => {
-    dispatch(setFilterWindowActive(false));
-    dispatch(resetSelectedDataset());
     
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
     //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
@@ -382,7 +380,10 @@ function FilterMenu(props) {
     dispatch(appendToGremlinQuery(localGremlinQuery))
     
     setshouldSetFiltersFromStore(true)
-
+    
+    dispatch(setFilterWindowActive(false));
+    dispatch(resetSelectedDataset());
+    
     // Deletes the autocomplete values for the selected properties
     deleteFetchedPropertyValues()
   };
