@@ -16,7 +16,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
 import SetRelation from "../actions/SetRelation.js";
-import { DeleteForever } from "@material-ui/icons";
+import { DeleteForever, Flag } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import { Autocomplete } from "@material-ui/lab";
@@ -129,7 +129,152 @@ function RelationMenu(props) {
 
   const localFiltersToGremlinParser = () => {
 
+    console.log(andOrs)
+
+    let shortGremlin = ""
+
+    let both = true
+    let inn = true
+    let out = true
+    let bothOne = false
+
+    for (let id in localRelations){
+      let element = localRelations[id]
+      if (!(element.checkedIn === true && element.checkedOut === true)){
+        both = false
+      }
+      if (!element.checkedIn === true){
+        inn = false
+      }
+      if (!element.checkedOut === true){
+        out = false
+      }
+      if (element.checkedIn === true && element.checkedOut === true){
+        bothOne = true
+      }
+    }
+
+    if (bothOne){
+      out = false
+      inn = false
+    }
+
+    console.log(both)
+
+    if(!andOrs.includes("AND") && (both || inn || out) ){
+      if (both){
+        shortGremlin = shortGremlin.concat(".both(")
+      }
+      else if(inn){
+        shortGremlin = shortGremlin.concat(".in(")
+      }
+      else if(out){
+        shortGremlin = shortGremlin.concat(".out(")
+      }
+      if (both || inn || out){
+        for (let i = 0; i < localRelations.length; i++){
+          let element = localRelations[i]
+          shortGremlin = shortGremlin.concat("'")
+          shortGremlin = shortGremlin.concat(element.text.value)
+          shortGremlin = shortGremlin.concat("'")
+          if (i !== localRelations.length -1){
+            shortGremlin = shortGremlin.concat(",")
+          }
+        }
+        shortGremlin = shortGremlin.concat(")")
+      }
+    }
+
     
+    else{
+      
+      shortGremlin = shortGremlin.concat(".both(")
+      for (let i = 0; i < localRelations.length; i++){
+        let element = localRelations[i]
+        shortGremlin = shortGremlin.concat("'")
+        shortGremlin = shortGremlin.concat(element.text.value)
+        shortGremlin = shortGremlin.concat("'")
+        if (i !== localRelations.length -1){
+          shortGremlin = shortGremlin.concat(",")
+        }
+      }
+      shortGremlin = shortGremlin.concat(")")
+
+      //lag liste med alle relasjonen, bere omvendt
+      let gremlinList = []
+      for (let i = 0; i < localRelations.length; i++){
+        let tmpQuery = ""
+        let element = localRelations[i]
+        if (element.checkedIn && element.checkedOut){
+          tmpQuery = tmpQuery.concat("both(")
+        }
+        else if (element.checkedIn){
+          tmpQuery = tmpQuery.concat("out(")
+        }
+        else if (element.checkedOut){
+          tmpQuery = tmpQuery.concat("__.in(")
+        }
+        tmpQuery = tmpQuery.concat("'")
+        tmpQuery = tmpQuery.concat(element.text.value)
+        tmpQuery = tmpQuery.concat("'")
+        tmpQuery = tmpQuery.concat(")")
+        gremlinList.push(tmpQuery)
+      }
+      console.log(gremlinList)
+      //join ands
+      let index = 0
+      for (let i = 0; i < andOrs.length; i++){
+        let tmpAndGremlin = ""
+        if (andOrs[i] === "AND"){
+          let counter = 0
+          for (let j = i; j<andOrs.length; j++){
+            if(andOrs[j] === "AND"){
+              counter+=1
+            }
+            else{
+              break
+            }
+          }
+          tmpAndGremlin = tmpAndGremlin.concat("and(")
+          tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index])
+          tmpAndGremlin = tmpAndGremlin.concat(", ")
+          for (let k = 0; k<counter; k++){
+            tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index+k+1])
+            if (k !== counter-1){
+              tmpAndGremlin = tmpAndGremlin.concat(", ")
+            }
+          }
+          tmpAndGremlin = tmpAndGremlin.concat(")")
+          i += counter-1
+          gremlinList.splice(index, counter+1, tmpAndGremlin)
+        }
+        else{
+          index += 1
+        }
+      }
+      console.log(gremlinList)
+      let andOrGremlinQuery = ""
+
+      //joins ors
+      if (andOrs.includes("OR")){
+        andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
+        for (let localIndex in gremlinList){
+          andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[localIndex])
+          if (localIndex != gremlinList.length -1){
+            andOrGremlinQuery = andOrGremlinQuery.concat(", ")
+          }
+        }
+        andOrGremlinQuery = andOrGremlinQuery.concat(")")
+      }
+      else {
+        andOrGremlinQuery = andOrGremlinQuery.concat(".")
+        andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[0])
+      }
+      shortGremlin = shortGremlin.concat(andOrGremlinQuery)
+    }
+
+    console.log(shortGremlin)
+    return(shortGremlin)
 
 
     let localGremlin = ""
@@ -167,6 +312,13 @@ function RelationMenu(props) {
   const removeRelation = (index) => {
     localRelations.splice(index, 1);
     setLocalRelations([...localRelations]);
+    if (index >= 1){
+      andOrs.splice(index-1, 1)
+    }
+    else{
+      andOrs.splice(index, 1)
+    }
+    setAndOrs([...andOrs])
   };
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
@@ -346,7 +498,6 @@ function RelationMenu(props) {
               startIcon={<SaveIcon />}
               disabled={localRelations.map((relation) => relation.text).includes(null)}
             >
-              {console.log(localRelations)}
               Save Changes
             </Button>
           </div>
