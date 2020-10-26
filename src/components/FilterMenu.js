@@ -285,10 +285,10 @@ function FilterMenu(props) {
             break;
         }
 
-        const exisistingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
+        const existingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
 
         // Value is a number (because the property's first value is a number)
-        if(exisistingPropertyValues !== undefined && exisistingPropertyValues.length > 0 && typeof exisistingPropertyValues[0] === 'number'){
+        if(existingPropertyValues !== undefined && existingPropertyValues.length > 0 && typeof existingPropertyValues[0] === 'number'){
           tmpQuery = tmpQuery.concat("(")
           tmpQuery = tmpQuery.concat(localFilters[id].value)
           tmpQuery = tmpQuery.concat("))")
@@ -365,24 +365,26 @@ function FilterMenu(props) {
 
   // Runs when filters are saved
   const closeFilterMenu = () => {
-    deleteFetchedPropertyValues()
     dispatch(setFilterWindowActive(false));
     dispatch(resetSelectedDataset());
-
+    
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
     //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
     //so that RelationMenu can call "removeFilterAfterIndex"
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
-
+    
     let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
-
+    
     // This code removes all queries after this filter
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
     dispatch(appendToGremlinQuery(localGremlinQuery))
-
+    
     setshouldSetFiltersFromStore(true)
+
+    // Deletes the autocomplete values for the selected properties
+    deleteFetchedPropertyValues()
   };
 
   // Removes filter from component local storage
