@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
-import SetFilter from "../actions/SetFilter.js";
+import {setFilter, removeLaterFilters} from "../actions/SetFilter.js";
 import { ContactSupportOutlined, DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
 import EmptyIcon from "./EmptyIcon.js";
@@ -26,7 +26,7 @@ import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIn
 import EditWarning from './EditWarning.js'
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-
+import {removeLaterRelaions} from "../actions/SetRelation.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -49,7 +49,10 @@ function FilterMenu(props) {
   const stateFilters = useSelector((state) => state.filters);
   const dispatch = useDispatch()
   const classes = useStyles();
-
+  
+  // The following two values are only used to force a component re-render when the autocomplete-values for the selected property are retrieved
+  const [latestSelectedProperty, setLatestSelectedProperty] = useState("")
+  const latestPropertyValues = useSelector(state => latestSelectedProperty !== "" ? state.allQueryResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + latestSelectedProperty] : [])
   
   // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
   let datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
@@ -57,6 +60,7 @@ function FilterMenu(props) {
 
   // Fetches all possible labels, to be used as auto-suggestions
   const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
+  
   
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
@@ -66,8 +70,9 @@ function FilterMenu(props) {
       value: "",
     },
   ], [selectedDataset]);
-
+  
   const [andOrs, setAndOrs] = useState([], [selectedDataset]);
+
 
   let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
 
@@ -84,7 +89,7 @@ function FilterMenu(props) {
 
   useEffect(() => {
     
-    // If the filter window is open and we have set the set filters from store flag, we set the filters from store
+    // If the filter window is open and we have set the 'set filters from store' flag, we set the filters from store
     if(shouldSetFiltersFromStore && open){
       let id = selectedDataset;
       if (stateFilters[id] && stateFilters[id].filters !== undefined && stateFilters[id].filters.length > 0) {
@@ -156,6 +161,7 @@ function FilterMenu(props) {
         localFilters[index]['operator'] = "=="
     }
 
+    setLatestSelectedProperty(selectedProperty)
     setLocalFilters([...localFilters]);
   };
 
@@ -194,7 +200,9 @@ function FilterMenu(props) {
   };
 
   const updateFilter = (filters, cloudId, andOrs) => {
-    dispatch(SetFilter({ filters }, {andOrs}, cloudId));
+    dispatch(setFilter({ filters }, {andOrs}, cloudId));
+    dispatch(removeLaterFilters(cloudId))
+    dispatch(removeLaterRelaions(cloudId-1))
     //dispatch(SetFilter({ filters }, cloudId));
   };
 
@@ -279,10 +287,10 @@ function FilterMenu(props) {
             break;
         }
 
-        const exisistingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
+        const existingPropertyValues = allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + filterProperty]
 
         // Value is a number (because the property's first value is a number)
-        if(exisistingPropertyValues !== undefined && exisistingPropertyValues.length > 0 && typeof exisistingPropertyValues[0] === 'number'){
+        if(existingPropertyValues !== undefined && existingPropertyValues.length > 0 && typeof existingPropertyValues[0] === 'number'){
           tmpQuery = tmpQuery.concat("(")
           tmpQuery = tmpQuery.concat(localFilters[id].value)
           tmpQuery = tmpQuery.concat("))")
@@ -359,22 +367,27 @@ function FilterMenu(props) {
 
   // Runs when filters are saved
   const closeFilterMenu = () => {
-    deleteFetchedPropertyValues()
-    dispatch(setFilterWindowActive(false));
-    dispatch(resetSelectedDataset());
-
+    
     //updates and removes the 'filters' in Redux that is 'after' the index of this filter
+    //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
+    //so that RelationMenu can call "removeFilterAfterIndex"
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
-
+    
     let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(setGremlinQueryStep(localGremlinQuery, localIndex))
-
+    
     // This code removes all queries after this filter
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)))
     dispatch(appendToGremlinQuery(localGremlinQuery))
-
+    
     setshouldSetFiltersFromStore(true)
+    
+    dispatch(setFilterWindowActive(false));
+    dispatch(resetSelectedDataset());
+    
+    // Deletes the autocomplete values for the selected properties
+    deleteFetchedPropertyValues()
   };
 
   // Removes filter from component local storage
@@ -433,22 +446,7 @@ function FilterMenu(props) {
                     <div key={index}>
                       <div className={classes.flexRow}>
                         <div className={classes.flexColumn}>
-
-
-                          {/* <TextField
-                            className={classes.textFieldClass}
-                            value={element.property}
-                            name="property"
-                            variant="outlined"
-                            label="Select a property"
-                            onChange={(e) => handlePropertyChange(index, e)}
-                            >
-                            {localFilters[index].property !== ""
-                              ? localFilters[index].property
-                              : ""}
-                          </TextField> */}
-
-
+                 
                           <Autocomplete
                             name="property"
                             options={allProperties}
