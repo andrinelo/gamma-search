@@ -1,4 +1,4 @@
-import { SET_RELATION } from "./../actions/types.js";
+import { SET_RELATION, DELETE_LATER_RELATIONS } from "./../actions/types.js";
 
 // If the action is SET_RELATION, we return the state, but with the new or modified relation menu updated. 
 const relationReducer = (state = {}, action) => {
@@ -10,6 +10,18 @@ const relationReducer = (state = {}, action) => {
         //const relation = JSON.parse(JSON.stringify(state));
         //relation[action.edgeId] = action.value;
         return relation;
+
+      case DELETE_LATER_RELATIONS:
+        //Makes a new state that only contains the relations up unitl this id
+        let newState = {} 
+        for (let i = 0; i<action.edgeId+1; i++){
+          if (state[i]){
+            newState[i]= state[i]
+          }
+        }
+        return newState
+  
+
     default:
         return JSON.parse(JSON.stringify(state));
   }

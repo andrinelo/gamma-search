@@ -16,7 +16,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
-import SetRelation from "../actions/SetRelation.js";
+import {setRelation, removeLaterRelaions} from "../actions/SetRelation.js";
 import { ContactSupportOutlined, DeleteForever, Flag } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { Autocomplete } from "@material-ui/lab";
@@ -33,6 +33,7 @@ import { DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELAT
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
+import {removeLaterFilters} from "../actions/SetFilter.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -171,13 +172,13 @@ function RelationMenu(props) {
   //it's connected to, so that the diffrent menues can be saved in redux at the same time.
   const updateRelation = (relations, allRelations, edgeId) => {
     //dispatch(SetRelation({ relations, allRelations }, edgeId));
-    dispatch(SetRelation({ relations, allRelations }, {andOrs}, edgeId));
+    dispatch(setRelation({ relations, allRelations }, {andOrs}, edgeId));
+    dispatch(removeLaterFilters(edgeId))
+    dispatch(removeLaterRelaions(edgeId))
   };
 
   // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
-
-    console.log(andOrs)
 
     let localGremlin = ""
 
@@ -207,10 +208,18 @@ function RelationMenu(props) {
       inn = false
     }
 
-    console.log(both)
+    let notAll = true
+    for (let id in localRelations){
+      let element = localRelations[id]
+      if ((element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
+        notAll = false
+        break
+      }
+    }
 
-    //if(!andOrs.includes("AND") && (both || inn || out) ){
-    if (false){
+
+    if(!andOrs.includes("AND") && (both || inn || out)  && notAll){
+    //if (false){
       if (both){
         localGremlin = localGremlin.concat(".both(")
       }
@@ -224,23 +233,18 @@ function RelationMenu(props) {
         for (let i = 0; i < localRelations.length; i++){
           let element = localRelations[i]
           
-          if (!(element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
-            localGremlin = localGremlin.concat("'")
-            localGremlin = localGremlin.concat(element.text)
-            localGremlin = localGremlin.concat("'")
+          localGremlin = localGremlin.concat("'")
+          localGremlin = localGremlin.concat(element.text)
+          localGremlin = localGremlin.concat("'")
 
-            if (i !== localRelations.length -1){
-              localGremlin = localGremlin.concat(",")
-            }
+          if (i !== localRelations.length -1){
+            localGremlin = localGremlin.concat(",")
           }
-          
-          
         }
         localGremlin = localGremlin.concat(")")
       }
     }
 
-    
     else{
 
       //lag liste med alle relasjonen, bere omvendt
@@ -266,7 +270,6 @@ function RelationMenu(props) {
         tmpQuery = tmpQuery.concat(")")
         gremlinList.push(tmpQuery)
       }
-      console.log(gremlinList)
 
       //join ands
       let index = 0
@@ -303,7 +306,6 @@ function RelationMenu(props) {
           index += 1
         }
       }
-      console.log(gremlinList)
       let andOrGremlinQuery = ""
 
       //joins ors
@@ -327,11 +329,7 @@ function RelationMenu(props) {
       localGremlin = localGremlin.concat(andOrGremlinQuery)
     }
 
-    console.log(localGremlin)
     return(localGremlin)
-
-
-    
   }
 
   const saveAndCloseRelationMenu = () => {
@@ -508,38 +506,7 @@ function RelationMenu(props) {
             </div>
           )}
           <br></br>
-          <div className={classes.saveButtonContainer}>
-            <div className={classes.flexRow}>
-              <div className={classes.flexColumn}>
-                <Button
-                  onClick={() => handleAddAllButtons("Inn")}
-                  className={classes.buttonClass}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all ingoing
-                </Button>
-                <Button
-                  onClick={() => handleAddAllButtons("Out")}
-                  className={classes.buttonClass}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all outgoing
-                </Button>
-              </div>
-              <div>
-                <Button
-                  onClick={() => handleAddAllButtons("Both")}
-                  className={classes.buttonClasslarge}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all{" "}
-                </Button>
-              </div>
-            </div>
-          </div>
+
 
           <br></br>
 
