@@ -50,6 +50,9 @@ function RelationMenu(props) {
       setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
       let tmpAllRelation = stateRelations[id].allRelations;
       setAllRelations(JSON.parse(JSON.stringify(tmpAllRelation)));
+
+      //let tmpAndOrs = stateRelations[id].andOrs
+      //setAndOrs([...tmpAndOrs]);
     }
     else {
       setLocalRelations([
@@ -58,8 +61,10 @@ function RelationMenu(props) {
           checkedOut: true, // Out is default value
           text: null,
         },
-      ])};
-      setAllRelations("");
+      ])
+      setAndOrs([]);
+    };
+    //setAllRelations("");
   }, [props]);
 
   const dispatch = useDispatch();
@@ -187,18 +192,6 @@ function RelationMenu(props) {
 
     
     else{
-      
-      shortGremlin = shortGremlin.concat(".both(")
-      for (let i = 0; i < localRelations.length; i++){
-        let element = localRelations[i]
-        shortGremlin = shortGremlin.concat("'")
-        shortGremlin = shortGremlin.concat(element.text.value)
-        shortGremlin = shortGremlin.concat("'")
-        if (i !== localRelations.length -1){
-          shortGremlin = shortGremlin.concat(",")
-        }
-      }
-      shortGremlin = shortGremlin.concat(")")
 
       //lag liste med alle relasjonen, bere omvendt
       let gremlinList = []
@@ -209,10 +202,10 @@ function RelationMenu(props) {
           tmpQuery = tmpQuery.concat("both(")
         }
         else if (element.checkedIn){
-          tmpQuery = tmpQuery.concat("out(")
+          tmpQuery = tmpQuery.concat("in(")
         }
         else if (element.checkedOut){
-          tmpQuery = tmpQuery.concat("__.in(")
+          tmpQuery = tmpQuery.concat("out(")
         }
         tmpQuery = tmpQuery.concat("'")
         tmpQuery = tmpQuery.concat(element.text.value)
@@ -221,6 +214,7 @@ function RelationMenu(props) {
         gremlinList.push(tmpQuery)
       }
       console.log(gremlinList)
+
       //join ands
       let index = 0
       for (let i = 0; i < andOrs.length; i++){
@@ -235,16 +229,20 @@ function RelationMenu(props) {
               break
             }
           }
-          tmpAndGremlin = tmpAndGremlin.concat("and(")
+          tmpAndGremlin = tmpAndGremlin.concat("match(__.as('a').")
           tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index])
+          tmpAndGremlin = tmpAndGremlin.concat(".as('b')")
           tmpAndGremlin = tmpAndGremlin.concat(", ")
           for (let k = 0; k<counter; k++){
+            tmpAndGremlin = tmpAndGremlin.concat("__.as('a').")
             tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index+k+1])
+            tmpAndGremlin = tmpAndGremlin.concat(".as('b')")
             if (k !== counter-1){
               tmpAndGremlin = tmpAndGremlin.concat(", ")
             }
           }
           tmpAndGremlin = tmpAndGremlin.concat(")")
+          tmpAndGremlin = tmpAndGremlin.concat(".select('b')")
           i += counter-1
           gremlinList.splice(index, counter+1, tmpAndGremlin)
         }
@@ -257,8 +255,11 @@ function RelationMenu(props) {
 
       //joins ors
       if (andOrs.includes("OR")){
-        andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
+        andOrGremlinQuery = andOrGremlinQuery.concat(".union(")
         for (let localIndex in gremlinList){
+          if (gremlinList[localIndex].startsWith("in(")){
+            andOrGremlinQuery = andOrGremlinQuery.concat("__.")
+          }
           andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[localIndex])
           if (localIndex != gremlinList.length -1){
             andOrGremlinQuery = andOrGremlinQuery.concat(", ")
@@ -293,6 +294,7 @@ function RelationMenu(props) {
       localGremlin = localGremlin.concat("')")
     }
     return(localGremlin)
+    
   }
 
   const saveAndCloseRelationMenu = () => {
