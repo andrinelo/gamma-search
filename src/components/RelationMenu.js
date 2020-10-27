@@ -17,7 +17,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
 import SetRelation from "../actions/SetRelation.js";
-import { DeleteForever, Flag } from "@material-ui/icons";
+import { ContactSupportOutlined, DeleteForever, Flag } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { Autocomplete } from "@material-ui/lab";
 import Slide from '@material-ui/core/Slide';
@@ -209,7 +209,8 @@ function RelationMenu(props) {
 
     console.log(both)
 
-    if(!andOrs.includes("AND") && (both || inn || out) ){
+    //if(!andOrs.includes("AND") && (both || inn || out) ){
+    if (false){
       if (both){
         localGremlin = localGremlin.concat(".both(")
       }
@@ -222,12 +223,18 @@ function RelationMenu(props) {
       if (both || inn || out){
         for (let i = 0; i < localRelations.length; i++){
           let element = localRelations[i]
-          localGremlin = localGremlin.concat("'")
-          localGremlin = localGremlin.concat(element.text)
-          localGremlin = localGremlin.concat("'")
-          if (i !== localRelations.length -1){
-            localGremlin = localGremlin.concat(",")
+          
+          if (!(element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
+            localGremlin = localGremlin.concat("'")
+            localGremlin = localGremlin.concat(element.text)
+            localGremlin = localGremlin.concat("'")
+
+            if (i !== localRelations.length -1){
+              localGremlin = localGremlin.concat(",")
+            }
           }
+          
+          
         }
         localGremlin = localGremlin.concat(")")
       }
@@ -250,9 +257,12 @@ function RelationMenu(props) {
         else if (element.checkedOut){
           tmpQuery = tmpQuery.concat("out(")
         }
-        tmpQuery = tmpQuery.concat("'")
-        tmpQuery = tmpQuery.concat(element.text)
-        tmpQuery = tmpQuery.concat("'")
+        if (!(element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
+          tmpQuery = tmpQuery.concat("'")
+          tmpQuery = tmpQuery.concat(element.text)
+          tmpQuery = tmpQuery.concat("'")
+        }
+
         tmpQuery = tmpQuery.concat(")")
         gremlinList.push(tmpQuery)
       }
