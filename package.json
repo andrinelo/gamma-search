@@ -25,6 +25,7 @@
     "react-redux": "^7.2.1",
     "react-scripts": "^3.4.4",
     "react-swipeable-views": "^0.13.9",
+    "react-visibility-sensor": "^5.1.1",
     "redux-devtools-extension": "^2.13.8"
   },
   "proxy": "https://app.ardoq.com",
