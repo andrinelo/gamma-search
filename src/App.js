@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import GremlinQueryDisplayAccordion from './components/GremlinQueryDisplayAccordion';
+import GremlinQueryDisplay from './components/GremlinQueryDisplay';
 import OutputAccordion from './components/OutputAccordion'
 import AutocompleteTextField from './components/AutocompleteTextField'
 import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
@@ -128,9 +128,11 @@ function App() {
         <FilterMenu></FilterMenu>
         <AggregateMenu/>
         <RelationMenu></RelationMenu>
+        <GremlinQueryDisplay/>
+        <OutputAccordion/>
 
         {/* Test-button to test node-adding */}
-        <button onClick={() => 
+        {/* <button onClick={() => 
           {
             // dispatch(fetchQueryItems("g.V().properties('name').value().dedup()", "test", 0))
 
@@ -143,10 +145,9 @@ function App() {
               dispatch(appendToGremlinQuery(""))
             }
           }
-        }>ADD DATASET (TEST-BUTTON)</button>
+        }>ADD DATASET (TEST-BUTTON)</button> */}
 
-        <GremlinQueryDisplayAccordion/>
-        <OutputAccordion/>
+        <hr style={{width: "50vw", marginTop: "40px"}}/>
         <InfoContainer></InfoContainer>
         {/*<AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> */}{/*It is
          possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}

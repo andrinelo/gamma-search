@@ -44,17 +44,15 @@ function InfoContainer() {
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', width: '77%', margin: 'auto', marginBottom: "40px"}}>
-      <InfoRow imageURL={imageURLRow1} title={titleRow1} textContent={textContentRow1} imageLeftAligned={true}/>
+      <InfoRow imageURL={imageURLRow1} title={titleRow1} textContent={textContentRow1} imageLeftAligned={true} alwaysVisible={true}/>
       <InfoRow imageURL={imageURLRow2} title={titleRow2} textContent={textContentRow2} imageLeftAligned={false}/>
       <InfoRow imageURL={imageURLRow3} title={titleRow3} textContent={textContentRow3} imageLeftAligned={true}/>
       <InfoRow imageURL={imageURLRow4} title={titleRow4} textContent={textContentRow4} imageLeftAligned={false}/>
       <InfoRow imageURL={imageURLRow5} title={titleRow5} textContent={textContentRow5} imageLeftAligned={true}/>
       <InfoRow imageURL={imageURLRow6} title={titleRow6} textContent={textContentRow6} imageLeftAligned={false}/>
       <InfoRow imageURL={imageURLRow7} title={titleRow7} textContent={textContentRow7} imageLeftAligned={true}/>
-
     </div>
   )
-  
 }
 
 
@@ -74,7 +72,7 @@ function InfoRow(props){
           }}
         >
           <Fade 
-            in={checked} timeout={1000}
+            in={checked || props.alwaysVisible} timeout={1000}
           >
             <div style={{ width: '50%', display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column" }}>
               <img style={{width: '100%'}} src={props.imageURL} alt={props.imageURL}></img>
@@ -91,7 +89,7 @@ function InfoRow(props){
         }}
       >
         <Fade 
-          in={checked} timeout={1000}
+          in={checked || props.alwaysVisible} timeout={1000}
         >
           <div style={{width: '50%', textAlign: "center", display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column"}}>
             <Typography variant="h5" style={{marginBottom: '5px', marginTop: '15px'}}>
@@ -114,7 +112,7 @@ function InfoRow(props){
           }}
         >
           <Fade 
-            in={checked} timeout={1000}
+            in={checked || props.alwaysVisible} timeout={1000}
           >
             <div style={{ width: '50%', display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column" }}>
               <img style={{width: '100%'}} src={props.imageURL} alt={props.imageURL}></img>
