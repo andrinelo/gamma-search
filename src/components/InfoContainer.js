@@ -36,6 +36,11 @@ function InfoContainer() {
   const textContentRow6 = "If you want to present your data in a structured way, the 'property table' is for you. Here you can select any of the properties in the dataset, and get the nodes' values for the selected properties displayed in an elegant and easy-to-read table. You can even sort the results by clicking on your preferred property in the column header!"
   const imageURLRow6 = '/PropertyTableMenuExample.png'
 
+  // Content for the seventh information row
+  const titleRow7 = "Exploring relations"
+  const textContentRow7 = "One of the most powerful aspects of a graph database are the relations between nodes, often called 'edges'. By using the 'explore dataset's relations'-feature, you can traverse both the interconnected relations in your dataset and the relations between the nodes in your dataset and other nodes in the database. This feature will let you define both the directions and the types of relation to traverse. You can traverse multiple relations at once, and you can even logically 'and' and 'or' your traversal parameters. When the traversal is done, a brand new dataset with the resulting nodes is created and ready to be traversed again!"
+  const imageURLRow7 = '/RelationMenuExample.png'
+
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', width: '77%', margin: 'auto', marginBottom: "40px"}}>
@@ -45,6 +50,7 @@ function InfoContainer() {
       <InfoRow imageURL={imageURLRow4} title={titleRow4} textContent={textContentRow4} imageLeftAligned={false}/>
       <InfoRow imageURL={imageURLRow5} title={titleRow5} textContent={textContentRow5} imageLeftAligned={true}/>
       <InfoRow imageURL={imageURLRow6} title={titleRow6} textContent={textContentRow6} imageLeftAligned={false}/>
+      <InfoRow imageURL={imageURLRow7} title={titleRow7} textContent={textContentRow7} imageLeftAligned={true}/>
 
     </div>
   )
