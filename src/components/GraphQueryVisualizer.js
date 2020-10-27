@@ -6,7 +6,7 @@ import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
 import { setPropertyTableWindowActive } from './../actions/PropertyTableWindowActions.js';
 import { setSelectedDataset } from './../actions/SelectedDatasetActions';
-import { setActiveWindow } from './../actions/SetActiveWindow';
+import { setAggregateWindowActive } from '../actions/AggregateWindowActions.js';
 import { DATASET_NODE_COUNT } from './../actions/QueryKeys';
 import {setRelationWindowActive} from "./../actions/RelationWindowActions.js";
 
@@ -16,25 +16,27 @@ export default function GraphQueryVisualizer() {
   const dispatch = useDispatch();
   const graphContainer = useRef(null)
   
-  // The number of nodes in the graph is the same as the number of gremlin query parts
-  const numberOfNodes = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+  // The number of datasets in the graph is the same as the number of gremlin query parts divided by two (and floored)
+  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
 
   // All results; contains (among others) the values for node count of each dataset
   const allResults = useSelector(state => state.allQueryResults)
 
-
+  // Retrieve the size of the newest dataset; to be used to determine when to update the graph
+  const newestDatasetSize = useSelector(state => state.allQueryResults[DATASET_NODE_COUNT + (numberOfDatasets-1)])
+  
   useEffect(() => {
 
     let elements = []
 
-    for(var i = 0; i < numberOfNodes; i++){
+    for(var i = 0; i < numberOfDatasets; i++){
       let nodeName = "Dataset " + (i+1)
       
       // Adds the node count
-      if(allResults[(DATASET_NODE_COUNT + (i + 1))] !== undefined){
-        nodeName += " [" + allResults[(DATASET_NODE_COUNT + (i + 1))][0]
+      if(allResults[(DATASET_NODE_COUNT + i)] !== undefined){
+        nodeName += " [" + allResults[(DATASET_NODE_COUNT + i)][0]
 
-        if(allResults[(DATASET_NODE_COUNT + (i + 1))][0] !== 1){
+        if(allResults[(DATASET_NODE_COUNT + i)][0] !== 1){
           nodeName += " nodes]"
         }
         else{
@@ -47,9 +49,9 @@ export default function GraphQueryVisualizer() {
         { data: {
           id: i, 
           nodeName: nodeName,
-          borderWidth: i === (numberOfNodes - 1) ? '3px' : '1px',
-          borderStyle: i === (numberOfNodes - 1) ? 'dashed' : 'solid',
-          borderColor: i === (numberOfNodes - 1) ? '#006400' : 'black',
+          borderWidth: i === (numberOfDatasets - 1) ? '3px' : '1px',
+          borderStyle: i === (numberOfDatasets - 1) ? 'dashed' : 'solid',
+          borderColor: i === (numberOfDatasets - 1) ? '#006400' : 'black',
           }
         },
       )
@@ -146,7 +148,7 @@ export default function GraphQueryVisualizer() {
     
       layout: {
         name: 'grid',
-        rows: Math.floor(numberOfNodes / 8) + 1
+        rows: Math.floor(numberOfDatasets / 8) + 1
       }
     });
 
@@ -175,7 +177,8 @@ export default function GraphQueryVisualizer() {
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
               console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
-              dispatch(setActiveWindow('aggregate'));
+              dispatch(setSelectedDataset(ele.data()['id']))
+              dispatch(setAggregateWindowActive(true));
             },
             enabled: true // whether the command is selectable
           },
@@ -259,7 +262,7 @@ export default function GraphQueryVisualizer() {
         graphContainer.current.style.cursor = 'default'
     });
     
-    })
+  }, [numberOfDatasets, newestDatasetSize])
 
   return (
     <div style={{ display: 'flex',  justifyContent:'center', alignItems:'center' }}>
