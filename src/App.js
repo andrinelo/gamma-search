@@ -99,7 +99,7 @@ function App() {
   
   
   return (
-    <div style={{width: '80vw', margin: 'auto', backgroundColor: 'white', marginBottom: '40px', padding: '10px'}}>
+    <div style={{width: '70vw', margin: 'auto', backgroundColor: 'white', marginBottom: '50px', marginTop: '20px', padding: '10px'}}>
         <div style={{height: '40px'}}></div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <div style={{height: '60px'}}></div>
