@@ -72,16 +72,16 @@ export default function OutputAccordion(props) {
   }
 
   return (
-      <Accordion class={classes}>
+      <Accordion style={{width: "50vw", margin: "auto", backgroundColor: "#F8F8F8"}}>
           <AccordionSummary
               expandIcon={<ExpandMore/>}
           >
-              <Typography>Output</Typography>
+              <Typography>View current results</Typography>
           </AccordionSummary>
           <AccordionDetails>
               <Container>
                   {dataImageList.map((values) => // Map images too
-                    <Container class={classes.OutputListElementContainer}>
+                    <Container className={classes.OutputListElementContainer}>
                         <OutputListElement values={values} ></OutputListElement>
                     </Container>)}
                     <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={pageCount} page={currentPage} siblingCount={1} onChange={handlePageChange} />
