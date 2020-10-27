@@ -148,7 +148,7 @@ export default function GraphQueryVisualizer() {
     
       layout: {
         name: 'grid',
-        rows: Math.floor(numberOfNodes / 6) + 1
+        rows: Math.floor(numberOfDatasets / 6) + 1
       }
     });
 
