@@ -9,13 +9,16 @@ import CardHeader from "@material-ui/core/CardHeader";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
 import Checkbox from "@material-ui/core/Checkbox";
 import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
-import { DeleteForever } from "@material-ui/icons";
+import {setRelation, removeLaterRelaions} from "../actions/SetRelation.js";
+import { ContactSupportOutlined, DeleteForever, Flag } from "@material-ui/icons";
+import EditWarning from './EditWarning.js'
 import { Autocomplete } from "@material-ui/lab";
 import Slide from '@material-ui/core/Slide';
 import Dialog from '@material-ui/core/Dialog';
@@ -23,15 +26,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-
-import EditWarning from './EditWarning.js'
-import SetRelation from "../actions/SetRelation.js";
 import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import {setRelationWindowActive} from "../actions/RelationWindowActions";
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import {removeLaterFilters} from "../actions/SetFilter.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -89,6 +91,9 @@ function RelationMenu(props) {
       setLocalRelations(JSON.parse(JSON.stringify(tmpRelations)));
       let tmpAllRelation = stateRelations[id].allRelations;
       setAllRelations(JSON.parse(JSON.stringify(tmpAllRelation)));
+
+      let tmpAndOrs = stateRelations[id].andOrs
+      setAndOrs([...tmpAndOrs]);
     }
     else {
       setLocalRelations([
@@ -97,8 +102,10 @@ function RelationMenu(props) {
           checkedOut: true, // Out is default value
           text: null,
         },
-      ])};
-      setAllRelations("");
+      ])
+      setAndOrs([]);
+    };
+    setAllRelations("");
   }, [props]);
 
   const dispatch = useDispatch();
@@ -113,6 +120,8 @@ function RelationMenu(props) {
       text: null,
     },
   ]);
+
+  const [andOrs, setAndOrs] = React.useState([], [selectedDataset]);
 
   //this state can be "", "Inn", "Out" or "All". If this parameter is not "", that localReltions is not used, beacuse
   //than you only have check if the user wants all connections inn, out or both
@@ -151,48 +160,175 @@ function RelationMenu(props) {
       text: null,
     });
     setLocalRelations([...localRelations]);
+
+    andOrs.push(
+      "OR"
+    )
+    setAndOrs([...andOrs]);
   };
 
 
   //when the sasve button is pressed, this function saves the local state to redux. It also sends inn the id of the edge
   //it's connected to, so that the diffrent menues can be saved in redux at the same time.
   const updateRelation = (relations, allRelations, edgeId) => {
-    dispatch(SetRelation({ relations, allRelations }, edgeId));
+    //dispatch(SetRelation({ relations, allRelations }, edgeId));
+    dispatch(setRelation({ relations, allRelations }, {andOrs}, edgeId));
+    dispatch(removeLaterFilters(edgeId))
+    dispatch(removeLaterRelaions(edgeId))
   };
 
   // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
+
     let localGremlin = ""
+
+    let both = true
+    let inn = true
+    let out = true
+    let bothOne = false
+
     for (let id in localRelations){
       let element = localRelations[id]
-
-      if(element.text === "All ingoing and outgoing relations"){
-        // Add all relations
-        localGremlin = localGremlin.concat(".out()")
+      if (!(element.checkedIn === true && element.checkedOut === true)){
+        both = false
       }
-      else if(element.text === "All ingoing relations"){
-        // Add all ingoing relations
-        localGremlin = localGremlin.concat(".in()")
+      if (!element.checkedIn === true){
+        inn = false
       }
-      else if(element.text === "All outgoing relations"){
-        // Add all outgoing relations
-        localGremlin = localGremlin.concat(".both()")
+      if (!element.checkedOut === true){
+        out = false
       }
-      else{
-        if (element.checkedIn === true && element.checkedOut === true){
-          localGremlin = localGremlin.concat(".both('")
-        }
-        else if (element.checkedIn === true && element.checkedOut === false){
-          localGremlin = localGremlin.concat(".in('")
-        }
-        else if (element.checkedIn === false && element.checkedOut === true){
-          localGremlin = localGremlin.concat(".out('")
-        }
-        localGremlin = localGremlin.concat(element.text)
-        localGremlin = localGremlin.concat("')")
+      if (element.checkedIn === true && element.checkedOut === true){
+        bothOne = true
       }
     }
-    
+
+    if (bothOne){
+      out = false
+      inn = false
+    }
+
+    let notAll = true
+    for (let id in localRelations){
+      let element = localRelations[id]
+      if ((element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
+        notAll = false
+        break
+      }
+    }
+
+
+    if(!andOrs.includes("AND") && (both || inn || out)  && notAll){
+    //if (false){
+      if (both){
+        localGremlin = localGremlin.concat(".both(")
+      }
+      else if(inn){
+        localGremlin = localGremlin.concat(".in(")
+      }
+      else if(out){
+        localGremlin = localGremlin.concat(".out(")
+      }
+      if (both || inn || out){
+        for (let i = 0; i < localRelations.length; i++){
+          let element = localRelations[i]
+          
+          localGremlin = localGremlin.concat("'")
+          localGremlin = localGremlin.concat(element.text)
+          localGremlin = localGremlin.concat("'")
+
+          if (i !== localRelations.length -1){
+            localGremlin = localGremlin.concat(",")
+          }
+        }
+        localGremlin = localGremlin.concat(")")
+      }
+    }
+
+    else{
+
+      //lag liste med alle relasjonen, bere omvendt
+      let gremlinList = []
+      for (let i = 0; i < localRelations.length; i++){
+        let tmpQuery = ""
+        let element = localRelations[i]
+        if (element.checkedIn && element.checkedOut){
+          tmpQuery = tmpQuery.concat("both(")
+        }
+        else if (element.checkedIn){
+          tmpQuery = tmpQuery.concat("in(")
+        }
+        else if (element.checkedOut){
+          tmpQuery = tmpQuery.concat("out(")
+        }
+        if (!(element.text === "All outgoing relations" || element.text === "All ingoing relations" || element.text === "All ingoing and outgoing relations")){
+          tmpQuery = tmpQuery.concat("'")
+          tmpQuery = tmpQuery.concat(element.text)
+          tmpQuery = tmpQuery.concat("'")
+        }
+
+        tmpQuery = tmpQuery.concat(")")
+        gremlinList.push(tmpQuery)
+      }
+
+      //join ands
+      let index = 0
+      for (let i = 0; i < andOrs.length; i++){
+        let tmpAndGremlin = ""
+        if (andOrs[i] === "AND"){
+          let counter = 0
+          for (let j = i; j<andOrs.length; j++){
+            if(andOrs[j] === "AND"){
+              counter+=1
+            }
+            else{
+              break
+            }
+          }
+          tmpAndGremlin = tmpAndGremlin.concat("match(__.as('a').")
+          tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index])
+          tmpAndGremlin = tmpAndGremlin.concat(".as('b')")
+          tmpAndGremlin = tmpAndGremlin.concat(", ")
+          for (let k = 0; k<counter; k++){
+            tmpAndGremlin = tmpAndGremlin.concat("__.as('a').")
+            tmpAndGremlin = tmpAndGremlin.concat(gremlinList[index+k+1])
+            tmpAndGremlin = tmpAndGremlin.concat(".as('b')")
+            if (k !== counter-1){
+              tmpAndGremlin = tmpAndGremlin.concat(", ")
+            }
+          }
+          tmpAndGremlin = tmpAndGremlin.concat(")")
+          tmpAndGremlin = tmpAndGremlin.concat(".select('b')")
+          i += counter-1
+          gremlinList.splice(index, counter+1, tmpAndGremlin)
+        }
+        else{
+          index += 1
+        }
+      }
+      let andOrGremlinQuery = ""
+
+      //joins ors
+      if (andOrs.includes("OR")){
+        andOrGremlinQuery = andOrGremlinQuery.concat(".union(")
+        for (let localIndex in gremlinList){
+          if (gremlinList[localIndex].startsWith("in(")){
+            andOrGremlinQuery = andOrGremlinQuery.concat("__.")
+          }
+          andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[localIndex])
+          if (localIndex != gremlinList.length -1){
+            andOrGremlinQuery = andOrGremlinQuery.concat(", ")
+          }
+        }
+        andOrGremlinQuery = andOrGremlinQuery.concat(")")
+      }
+      else {
+        andOrGremlinQuery = andOrGremlinQuery.concat(".")
+        andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[0])
+      }
+      localGremlin = localGremlin.concat(andOrGremlinQuery)
+    }
+
     return(localGremlin)
   }
 
@@ -213,6 +349,13 @@ function RelationMenu(props) {
   const removeRelation = (index) => {
     localRelations.splice(index, 1);
     setLocalRelations([...localRelations]);
+    if (index >= 1){
+      andOrs.splice(index-1, 1)
+    }
+    else{
+      andOrs.splice(index, 1)
+    }
+    setAndOrs([...andOrs])
   };
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
@@ -222,15 +365,21 @@ function RelationMenu(props) {
     dispatch(resetSelectedDataset());
   };
 
+  // Deletes (from Redux-store) the values that has been fetched for different properties
   /*
-  const isDisabled = () => {
-    let disablet = false;
-    for (id in localRelations){
-      let element = localRelations[id]
+  const deleteFetchedPropertyValues = () => {
+    let keys = Object.keys(allResults)
+    keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
 
-    }
+    dispatch(deleteQueryItemsByKeys(keys))    
   }
   */
+
+
+  const handleAndOrChange = (index, event) => {
+    andOrs[index] = event.target.value;
+    setAndOrs([...andOrs]);
+  }
   
 
   return (
@@ -320,7 +469,32 @@ function RelationMenu(props) {
                           <DeleteForever></DeleteForever>
                         </Button>
                       </div>
-                      <hr></hr>
+                      {index+1 !== localRelations.length ? 
+                      <div className={classes.container}>
+                        <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
+                        <span className={classes.content}>
+
+                        <FormControl >
+                          <Select className={classes.withLine}
+                            style={{  height: "15px" }}
+                            className={classes.andOrButton}
+                            onChange={(e) => handleAndOrChange(index, e)}
+                            //variant="outlined"
+                            value={andOrs[index]}
+                            //IconComponent={() => <EmptyIcon />}
+                            >
+                            <MenuItem value="AND">
+                              {`AND`}
+                            </MenuItem>
+                            <MenuItem value="OR">
+                              {`OR`}
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </span>
+                      <div className={andOrs[index] === "AND" ? classes.borderAND: classes.borderOR} />
+                      </div>
+                      : null}
                     </div>
                   );
                 })}
@@ -332,38 +506,7 @@ function RelationMenu(props) {
             </div>
           )}
           <br></br>
-          <div className={classes.saveButtonContainer}>
-            <div className={classes.flexRow}>
-              <div className={classes.flexColumn}>
-                <Button
-                  onClick={() => handleAddAllButtons("Inn")}
-                  className={classes.buttonClass}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all ingoing
-                </Button>
-                <Button
-                  onClick={() => handleAddAllButtons("Out")}
-                  className={classes.buttonClass}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all outgoing
-                </Button>
-              </div>
-              <div>
-                <Button
-                  onClick={() => handleAddAllButtons("Both")}
-                  className={classes.buttonClasslarge}
-                  variant="contained"
-                  color="primary"
-                >
-                  Add all{" "}
-                </Button>
-              </div>
-            </div>
-          </div>
+
 
           <br></br>
 
@@ -405,7 +548,7 @@ const checkBoxStyles = (theme) => ({
   checked: {},
 });
 
-const useStyles = makeStyles({
+const useStyles = makeStyles( theme  => ({
   root: {
     width: 500,
     background: "#eeeeee",
@@ -455,5 +598,30 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     aligntItems: "center",
   },
-});
+
+  container: {
+    marginTop: "10px",
+    marginBottom: "5px",
+    display: "flex",
+    alignItems: "center",
+    marginRight: "11%"
+  },
+  borderAND: {
+    borderBottom: "2px solid gray",
+    width: "100%"
+  },
+  borderOR: {
+    borderBottom: "5px solid gray",
+    width: "100%"
+  },
+  content: {
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    fontWeight: 500,
+    fontSize: 22,
+    color: "lightgray"
+  }
+}));
 

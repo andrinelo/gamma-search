@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
-import SetFilter from "../actions/SetFilter.js";
+import {setFilter, removeLaterFilters} from "../actions/SetFilter.js";
 import { ContactSupportOutlined, DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
 import EmptyIcon from "./EmptyIcon.js";
@@ -26,7 +26,7 @@ import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIn
 import EditWarning from './EditWarning.js'
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-
+import {removeLaterRelaions} from "../actions/SetRelation.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -200,7 +200,9 @@ function FilterMenu(props) {
   };
 
   const updateFilter = (filters, cloudId, andOrs) => {
-    dispatch(SetFilter({ filters }, {andOrs}, cloudId));
+    dispatch(setFilter({ filters }, {andOrs}, cloudId));
+    dispatch(removeLaterFilters(cloudId))
+    dispatch(removeLaterRelaions(cloudId-1))
     //dispatch(SetFilter({ filters }, cloudId));
   };
 
