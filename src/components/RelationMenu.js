@@ -51,8 +51,8 @@ function RelationMenu(props) {
       let tmpAllRelation = stateRelations[id].allRelations;
       setAllRelations(JSON.parse(JSON.stringify(tmpAllRelation)));
 
-      //let tmpAndOrs = stateRelations[id].andOrs
-      //setAndOrs([...tmpAndOrs]);
+      let tmpAndOrs = stateRelations[id].andOrs
+      setAndOrs([...tmpAndOrs]);
     }
     else {
       setLocalRelations([
@@ -64,7 +64,7 @@ function RelationMenu(props) {
       ])
       setAndOrs([]);
     };
-    //setAllRelations("");
+    setAllRelations("");
   }, [props]);
 
   const dispatch = useDispatch();
@@ -120,7 +120,7 @@ function RelationMenu(props) {
     setLocalRelations([...localRelations]);
 
     andOrs.push(
-      "AND"
+      "OR"
     )
     setAndOrs([...andOrs]);
   };
@@ -129,7 +129,8 @@ function RelationMenu(props) {
   //when the sasve button is pressed, this function saves the local state to redux. It also sends inn the id of the edge
   //it's connected to, so that the diffrent menues can be saved in redux at the same time.
   const updateRelation = (relations, allRelations, edgeId) => {
-    dispatch(SetRelation({ relations, allRelations }, edgeId));
+    //dispatch(SetRelation({ relations, allRelations }, edgeId));
+    dispatch(SetRelation({ relations, allRelations }, {andOrs}, edgeId));
   };
 
   const localFiltersToGremlinParser = () => {
