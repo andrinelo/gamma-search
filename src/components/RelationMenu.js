@@ -341,7 +341,7 @@ function RelationMenu(props) {
 
     let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)+1))
-    //assures that new datasets are not adde to the graph when appling 0 filters
+    //assures that new datasets are not adde to the graph when applying 0 relations
     if (localRelations.length >0){
       dispatch(appendToGremlinQuery(localGremlinQuery))
       dispatch(appendToGremlinQuery(""))
@@ -495,7 +495,7 @@ function RelationMenu(props) {
                 disabled={localRelations.map((relation) => relation.text).includes(null)}
                 onClick={() => addRelation()}
                 >
-                Add filter
+                Add relation
               </Button>
             </div>
           )}
