@@ -3,7 +3,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, Collapse, ListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
-import {typography} from '@material-ui/system';
 
 const shortTextCutoffIndex = 80;
 
@@ -46,13 +45,13 @@ export default function OutputListElement(props) {
             <ListItem button onClick={handleClick}>
                 <ListItemText primary={shortText} />
                 <ListItemIcon>
-                    <img src={imageURL} height="100"></img>
+                    <img src={imageURL} height="100" alt=""></img>
                 </ListItemIcon> 
                 {open ? <ExpandLess/> : <ExpandMore />}
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
-                {values.map((element) => 
-                    <Typography>
+                {values.map((element, index) => 
+                    <Typography key={index}>
                         <b>{element.property}</b>: {element.value}
                     </Typography>
                 )}

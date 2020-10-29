@@ -24,7 +24,8 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component={'span'}>{children}</Typography> {/* component span, changes it from a p tag to a span tag. This removes some workings like having div's inside p
+                                                                  This can be removed if it causes any truble */}
         </Box>
       )}
     </div>
@@ -72,11 +73,11 @@ function FullWidthTabs(props) {
   const tabValues = []
 
   for (var i = 0; i < props.tabNames.length; i++) {
-    tabNames.push(<Tab label={props.tabNames[i]} {...a11yProps(i)} />)
+    tabNames.push(<Tab key={i} label={props.tabNames[i]} {...a11yProps(i)} />)
   }
 
   for (var j = 0; j < props.tabValues.length; j++) {
-    tabValues.push( <TabPanel value={value} index={j} dir={theme.direction}>
+    tabValues.push( <TabPanel key={j} value={value} index={j} dir={theme.direction}>
                       {props.tabValues[j]}
                     </TabPanel>)
   }

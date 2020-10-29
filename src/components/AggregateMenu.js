@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -54,6 +53,7 @@ export default function AggregateMenu() {
   // Updates the result HTML whenever the result changes
   useEffect(() => {
     setResultHTML(createResultString())
+  //eslint-disable-next-line
   }, [aggregateResult])
 
 
@@ -83,6 +83,7 @@ export default function AggregateMenu() {
           dispatch(resetQueryItems(RESULT_FROM_AGGREGATION));
         }
       }
+  //eslint-disable-next-line
   }, [propertyValueExample])
 
   

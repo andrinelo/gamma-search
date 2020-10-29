@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { DataGrid } from '@material-ui/data-grid';
@@ -44,7 +43,7 @@ function PropertyTableWindow() {
   const [selectedProperties, setSelectedProperties] = useState([])
   let [tableGremlinQuery, setTableGremlinQuery] = useState("")
   let [currentTablePage, setCurrentTablePage] = useState(1)
-  let [currentSortModel, setCurrentSortModel] = useState([])
+  //let [currentSortModel, setCurrentSortModel] = useState([])
  
   const tableIsLoading = useSelector(store => store.propertyTableIsFetching)
   const selectedDataset = useSelector(store => store.selectedDataset)

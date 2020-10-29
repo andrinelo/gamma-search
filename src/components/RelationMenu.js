@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import { makeStyles } from "@material-ui/core/styles";
-import CardHeader from "@material-ui/core/CardHeader";
 import TextField from "@material-ui/core/TextField";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -17,7 +14,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
 import {setRelation, removeLaterRelaions} from "../actions/SetRelation.js";
-import { ContactSupportOutlined, DeleteForever, Flag } from "@material-ui/icons";
+import { DeleteForever } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { Autocomplete } from "@material-ui/lab";
 import Slide from '@material-ui/core/Slide';
@@ -26,11 +23,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import { resetGremlinQuery, appendToGremlinQuery, setGremlinQueryStep, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
+import { appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
 import {setRelationWindowActive} from "../actions/RelationWindowActions";
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './../actions/QueryKeys.js'
-import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import {removeLaterFilters} from "../actions/SetFilter.js";
@@ -61,7 +57,7 @@ function RelationMenu(props) {
   // Updates the list of allAvailableRelations (and removes duplicated relations)
   useEffect(() => {
     const combinedRelations = [...availableIngoingRelations, ...availableOutgoingRelations]
-    const uniqueCombinedRelations = combinedRelations.filter((item, pos) => combinedRelations.indexOf(item) == pos)
+    const uniqueCombinedRelations = combinedRelations.filter((item, pos) => combinedRelations.indexOf(item) === pos)
     uniqueCombinedRelations.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 
     // Removes the 'All ingoing relations' from the combined relations list
@@ -106,7 +102,7 @@ function RelationMenu(props) {
       setAndOrs([]);
     };
     setAllRelations("");
-  }, [props]);
+  }, [props, selectedDataset, stateRelations]);
 
   const dispatch = useDispatch();
   const ArdoqThemedCheckbox = withStyles(checkBoxStyles)(Checkbox);
@@ -134,11 +130,11 @@ function RelationMenu(props) {
   const handleCheckboxChange = (index, event) => {
     let name = event.target.name;
     // If checkedOut is only checked checkbox and it is unchecked automatically check in checkbox
-    if (name == "checkedOut" && localRelations[index]["checkedIn"] == false && localRelations[index][name] == true) {
+    if (name === "checkedOut" && localRelations[index]["checkedIn"] === false && localRelations[index][name] === true) {
       localRelations[index]["checkedIn"] = true;
     }
     // Vice versa for in
-    if (name == "checkedIn" && localRelations[index]["checkedOut"] == false && localRelations[index][name] == true) {
+    if (name === "checkedIn" && localRelations[index]["checkedOut"] === false && localRelations[index][name] === true) {
       localRelations[index]["checkedOut"] = true;
     }
     // Also update actual change
@@ -180,6 +176,10 @@ function RelationMenu(props) {
   // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
 
+    if (localRelations.length === 0){
+      return("")
+    }
+
     let localGremlin = ""
 
     let both = true
@@ -216,6 +216,7 @@ function RelationMenu(props) {
         break
       }
     }
+
 
 
     if(!andOrs.includes("AND") && (both || inn || out)  && notAll){
@@ -316,7 +317,7 @@ function RelationMenu(props) {
             andOrGremlinQuery = andOrGremlinQuery.concat("__.")
           }
           andOrGremlinQuery = andOrGremlinQuery.concat(gremlinList[localIndex])
-          if (localIndex != gremlinList.length -1){
+          if (localIndex !== gremlinList.length -1){
             andOrGremlinQuery = andOrGremlinQuery.concat(", ")
           }
         }
@@ -338,9 +339,10 @@ function RelationMenu(props) {
 
     let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)+1))
-    dispatch(appendToGremlinQuery(localGremlinQuery))
-    dispatch(appendToGremlinQuery(""))
-
+    if (localRelations.length >0){
+      dispatch(appendToGremlinQuery(localGremlinQuery))
+      dispatch(appendToGremlinQuery(""))
+    }
     handleClose()
   }
   
@@ -445,7 +447,7 @@ function RelationMenu(props) {
                             value={element.text !== undefined && element.text !== "" ? element.text : null }
                             getOptionLabel={(option) => option}
                             groupBy={(option) => option !== "All ingoing and outgoing relations" && option !== "All outgoing relations" && option !== "All ingoing relations" ? option.charAt(0).toUpperCase() : ""}
-                            value = {element.text}
+                            //value = {element.text}
                             renderInput={(params) => <TextField {...params} className={classes.textFieldClass} value={element.text} label="Type of relation" variant="outlined" name="text"/>}
                           
                             renderOption={(option, { inputValue }) => {
@@ -477,7 +479,7 @@ function RelationMenu(props) {
                         <FormControl >
                           <Select className={classes.withLine}
                             style={{  height: "15px" }}
-                            className={classes.andOrButton}
+                            //className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
                             //variant="outlined"
                             value={andOrs[index]}

@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import GremlinQueryDisplay from './components/GremlinQueryDisplay';
 import OutputAccordion from './components/OutputAccordion'
-import AutocompleteTextField from './components/AutocompleteTextField'
-import { autocompleteDebug } from './actions/AutocompleteTextfieldActions'
-import GraphView from "./components/GraphView.js"
 import InfoContainer from "./components/InfoContainer.js"
-import RelationButton from "./components/RelationButton"
 import AggregateMenu from "./components/AggregateMenu";
 import RelationMenu from "./components/RelationMenu"
 import FilterMenu from "./components/FilterMenu"
@@ -16,9 +12,7 @@ import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
-import { PAGED_RESULT_ITEMS, FULL_RESULT_ITEMS_COUNT, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './actions/QueryKeys.js'
-
-import {appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from './actions/GremlinQueryActions.js'
+import {  INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './actions/QueryKeys.js'
 
 
 function App() {
@@ -56,6 +50,7 @@ function App() {
       const gremlinQueryNodesCount = fullGremlinQuery + ".dedup().count()"
       dispatch(fetchQueryItems(gremlinQueryNodesCount, DATASET_NODE_COUNT + (numberOfDatasets-1)))
     }
+  //eslint-disable-next-line
   }, [fullGremlinQuery])
 
 
@@ -68,6 +63,7 @@ function App() {
       dispatch(fetchQueryItems(gremlinQuery, INSPECTED_NODES_IN_DATASET))
       dispatch(fetchQueryItems(gremlinQuery + ".union(outE(), inE()).groupCount().unfold().where(select(values).is(gt(1))).select(keys)", INSPECTED_EDGES_IN_DATASET))
     }
+  //eslint-disable-next-line
   }, [inspectWindowOpen])
 
 
@@ -79,6 +75,7 @@ function App() {
 
       dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, 0))
     }
+  //eslint-disable-next-line
   }, [filterWindowOpen])
 
 
@@ -90,6 +87,7 @@ function App() {
 
       dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, 0))
     }
+  //eslint-disable-next-line
   }, [propertyTableWindowOpen])
 
 
@@ -103,6 +101,7 @@ function App() {
       dispatch(fetchQueryItems(gremlinQueryIngoingRelations, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, 0))
       dispatch(fetchQueryItems(gremlinQueryOutgoingRelations, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS, 0))
     }
+  //eslint-disable-next-line
   }, [relationWindowOpen])
 
 
@@ -114,6 +113,7 @@ function App() {
 
       dispatch(fetchQueryItems(gremlinQuery, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, 0))
     }
+  //eslint-disable-next-line
   }, [aggregateWindowOpen])
   
   
@@ -122,7 +122,6 @@ function App() {
         <div style={{height: '40px'}}></div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
         <div style={{height: '60px'}}></div>
-        {/*<StartNodeInputField></StartNodeInputField>*/}
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <PropertyTableWindow></PropertyTableWindow>
         <FilterMenu></FilterMenu>
@@ -131,27 +130,8 @@ function App() {
         <GremlinQueryDisplay/>
         <OutputAccordion/>
 
-        {/* Test-button to test node-adding */}
-        {/* <button onClick={() => 
-          {
-            // dispatch(fetchQueryItems("g.V().properties('name').value().dedup()", "test", 0))
-
-            if(fullGremlinQuery === ""){
-              dispatch(appendToGremlinQuery("g.V()"))
-              dispatch(appendToGremlinQuery(""))
-            }
-            else{
-              dispatch(appendToGremlinQuery(".out()"))
-              dispatch(appendToGremlinQuery(""))
-            }
-          }
-        }>ADD DATASET (TEST-BUTTON)</button> */}
-
         <hr style={{width: "50vw", marginTop: "40px"}}/>
         <InfoContainer></InfoContainer>
-        {/*<AutocompleteTextField id="testData1" displayText="HEY HEY CLICK ME" onChange={(debugText) => autocompleteDebug(debugText)} /> */}{/*It is
-         possible to pass a function to autocomplete text field which is dispatched with the value of the text field on change. */}
-        
     </div>
   );
 }

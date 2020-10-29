@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { makeStyles } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
@@ -20,8 +18,6 @@ import { INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET, DATASET_NODE_CO
 
 
 import cytoscape from 'cytoscape';
-// import cxtmenu from 'cytoscape-cxtmenu';
-// cytoscape.use( cxtmenu ); // register extension
 
 // Cytoscape layouts
 import cola from 'cytoscape-cola';
@@ -82,6 +78,7 @@ export default function InspectedDatasetWindow(props) {
     else if(open === true){
       setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
     }
+  //eslint-disable-next-line
   }, [open])
   
   
@@ -95,7 +92,7 @@ export default function InspectedDatasetWindow(props) {
     else {
       setReviewItemHTML(activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
     }
-
+  //eslint-disable-next-line
   }, [inspectedNodes.length])
 
 
@@ -126,6 +123,7 @@ export default function InspectedDatasetWindow(props) {
     )
 
     setTabValues([...newTabValues])
+  //eslint-disable-next-line
   }, [reviewItemHTML, selectedNodes])
 
   
@@ -249,12 +247,6 @@ export default function InspectedDatasetWindow(props) {
     dispatch(resetQueryItems(INSPECTED_NODES_IN_DATASET))
     dispatch(resetQueryItems(INSPECTED_EDGES_IN_DATASET))
   };
-
-  const handleClickOpen = () => {
-    dispatch(setInspectWindowActive(true));
-  };
-  
-
 
   const containerStyle = {
     display: 'flex',
@@ -475,7 +467,7 @@ function InspectedDatasetGraph(props){
       props.setCyRef(cyRef)
 
     }
-
+  //eslint-disable-next-line
   }, [props, graphLayout])
 
   return (
