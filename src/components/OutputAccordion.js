@@ -76,7 +76,7 @@ export default function OutputAccordion(props) {
           <AccordionSummary
               expandIcon={<ExpandMore/>}
           >
-              <Typography>View current results</Typography>
+              <Typography>View nodes in dataset {numberOfDatasets}</Typography>
           </AccordionSummary>
           <AccordionDetails>
               <Container>

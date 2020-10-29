@@ -57,7 +57,6 @@ function FilterMenu(props) {
   // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
   let datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
 
-
   // Fetches all possible labels, to be used as auto-suggestions
   const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
   
@@ -65,7 +64,7 @@ function FilterMenu(props) {
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
     {
-      property: "",
+      property: "Label / Type",
       operator: "==",
       value: "",
     },
@@ -101,19 +100,26 @@ function FilterMenu(props) {
       
         // Fetches possible values for the properties that was stored in redux
         for(let i = 0; i < tmpFilters.length; i++){
-          fetchValuesForProperty(i, tmpFilters[i].property)
+          fetchValuesForProperty(tmpFilters[i].property)
         }
       }
+
       else{
+        // Label is the default value of the first filter line
         setLocalFilters([
           {
-            property: "",
+            property: "Label / Type",
             operator: "==",
             value: "",
           },
         ]);
         setAndOrs([]);
+
+        // Fetches autocomplete values for the labels
+        fetchValuesForProperty("Label / Type")
+        setLatestSelectedProperty("Label / Type")
       }
+
       setshouldSetFiltersFromStore(false)
     }
   }, [stateFilters, props, selectedDataset, allResults]);
@@ -127,7 +133,7 @@ function FilterMenu(props) {
     dispatch(deleteQueryItemsByKeys(keys))    
   }
 
-  const fetchValuesForProperty = (index, selectedProperty) => {
+  const fetchValuesForProperty = (selectedProperty) => {
     if(selectedProperty !== "Node ID" && selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
       let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
 
@@ -148,7 +154,7 @@ function FilterMenu(props) {
       selectedProperty = ""
     }
 
-    fetchValuesForProperty(index, selectedProperty)
+    fetchValuesForProperty(selectedProperty)
     
     localFilters[index]['property'] = selectedProperty;
     localFilters[index]['value'] = "";
@@ -186,17 +192,36 @@ function FilterMenu(props) {
 
   // Adds filter to component local storage
   const addFilter = () => {
-    localFilters.push({
-      property: "",
-      operator: "==",
-      value: "",
-    });
+
+    // If this is not the first filter line we have no default property, and we have default AND between the lines
+    if(localFilters.length > 0){
+      localFilters.push({
+        property: "",
+        operator: "==",
+        value: "",
+      });
+      
+      andOrs.push(
+        "AND"
+      )
+      setAndOrs([...andOrs]);
+    }
+
+    // If this is the first filter line we set label / type by default
+    else {
+      localFilters.push({
+        property: "Label / Type",
+        operator: "==",
+        value: "",
+      });
+
+      // Fetches autocomplete values for the labels
+      fetchValuesForProperty("Label / Type")
+      setLatestSelectedProperty("Label / Type")
+    }
+
     setLocalFilters([...localFilters]);
 
-    andOrs.push(
-      "AND"
-    )
-    setAndOrs([...andOrs]);
   };
 
   const updateFilter = (filters, cloudId, andOrs) => {
@@ -291,6 +316,10 @@ function FilterMenu(props) {
 
         // Value is a number (because the property's first value is a number)
         if(existingPropertyValues !== undefined && existingPropertyValues.length > 0 && typeof existingPropertyValues[0] === 'number'){
+          
+          // Removes all whitespace from the string
+          localFilters[id].value = localFilters[id].value.replace(/\s/g,'').replace(",", ".")
+
           tmpQuery = tmpQuery.concat("(")
           tmpQuery = tmpQuery.concat(localFilters[id].value)
           tmpQuery = tmpQuery.concat("))")

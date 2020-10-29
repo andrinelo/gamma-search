@@ -38,7 +38,7 @@ export default function AggregateMenu() {
   const [localProptype, setLocalProptype] = React.useState(null);
   const [resultHTML, setResultHTML] = React.useState(null);
   
-  const aggregateFunctions = ["count", "sum", "mean", "max", "min"]
+  const aggregateFunctions = ["count", "sum", "average", "max", "min"]
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
   // Which dataset we're aggregating
@@ -116,12 +116,19 @@ export default function AggregateMenu() {
   const fetchAggregateResult = (property=localProptype, aggregateFunction=localAggregateFunction.toLowerCase()) => {
     let aggregateGremlinQuery = datasetAfterFiltersGremlinQuery + ".dedup()"
     
+    // Average is just a more common way to describe 'mean'
+    if (aggregateFunction === "average"){
+      aggregateFunction = "mean"
+    }
+
+    // Labels and IDs aggregates a bit differently
     if(property === "Label / Type"){
       aggregateGremlinQuery += ".label()." + aggregateFunction + "()"
     }
     else if(property === "Node ID"){
       aggregateGremlinQuery += ".id()." + aggregateFunction + "()"
     }
+    
     else{
       aggregateGremlinQuery += property !== null && property !== '' && property !== undefined ? ".values('" + property + "')." + aggregateFunction + "()" : ""
     }

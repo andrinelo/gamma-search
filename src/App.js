@@ -119,9 +119,9 @@ function App() {
   
   return (
     <div style={{width: '70vw', margin: 'auto', backgroundColor: 'white', marginBottom: '50px', marginTop: '20px', padding: '10px'}}>
-        <div style={{height: '40px'}}></div>
+        <div style={{height: '80px'}}></div>
         <GraphQueryVisualizer></GraphQueryVisualizer>
-        <div style={{height: '60px'}}></div>
+        <div style={{height: '120px'}}></div>
         {/*<StartNodeInputField></StartNodeInputField>*/}
         <InspectedDatasetWindow></InspectedDatasetWindow>
         <PropertyTableWindow></PropertyTableWindow>

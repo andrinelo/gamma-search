@@ -44,7 +44,13 @@ function InfoContainer() {
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', width: '77%', margin: 'auto', marginBottom: "40px"}}>
-      <InfoRow imageURL={imageURLRow1} title={titleRow1} textContent={textContentRow1} imageLeftAligned={true} alwaysVisible={true}/>
+      <div style={{margin: "auto", opacity: "0.5"}}>
+        <p><i>About this query builder</i></p>
+      </div>
+      <div style={{width: "3vw", margin: "auto", opacity: "0.3"}}>
+        <img src={"/DownArrow.png"} style={{width: "100%"}} />
+      </div>
+      <InfoRow imageURL={imageURLRow1} title={titleRow1} textContent={textContentRow1} imageLeftAligned={true}/>
       <InfoRow imageURL={imageURLRow2} title={titleRow2} textContent={textContentRow2} imageLeftAligned={false}/>
       <InfoRow imageURL={imageURLRow3} title={titleRow3} textContent={textContentRow3} imageLeftAligned={true}/>
       <InfoRow imageURL={imageURLRow4} title={titleRow4} textContent={textContentRow4} imageLeftAligned={false}/>
@@ -58,7 +64,7 @@ function InfoContainer() {
 
 function InfoRow(props){
 
-  const [checked, setChecked] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   return (
 
@@ -68,11 +74,11 @@ function InfoRow(props){
         <VizSensor
           partialVisibility={'bottom'}
           onChange={(isVisible) => {
-              setChecked(isVisible);
+              setVisible(isVisible);
           }}
         >
           <Fade 
-            in={checked || props.alwaysVisible} timeout={1000}
+            in={visible || props.alwaysVisible} timeout={1000}
           >
             <div style={{ width: '50%', display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column" }}>
               <img style={{width: '100%'}} src={props.imageURL} alt={props.imageURL}></img>
@@ -85,11 +91,11 @@ function InfoRow(props){
       <VizSensor
         partialVisibility={'bottom'}
         onChange={(isVisible) => {
-            setChecked(isVisible);
+            setVisible(isVisible);
         }}
       >
         <Fade 
-          in={checked || props.alwaysVisible} timeout={1000}
+          in={visible || props.alwaysVisible} timeout={1000}
         >
           <div style={{width: '50%', textAlign: "center", display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column"}}>
             <Typography variant="h5" style={{marginBottom: '5px', marginTop: '15px'}}>
@@ -108,11 +114,11 @@ function InfoRow(props){
         <VizSensor
           partialVisibility={'bottom'}
           onChange={(isVisible) => {
-              setChecked(isVisible);
+              setVisible(isVisible);
           }}
         >
           <Fade 
-            in={checked || props.alwaysVisible} timeout={1000}
+            in={visible || props.alwaysVisible} timeout={1000}
           >
             <div style={{ width: '50%', display: "flex", justifyContent: "center", alignContent: "center", flexDirection: "column" }}>
               <img style={{width: '100%'}} src={props.imageURL} alt={props.imageURL}></img>
