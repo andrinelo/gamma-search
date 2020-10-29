@@ -92,7 +92,6 @@ export default function GraphQueryVisualizer() {
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
             'background-color': '#666',
-            //'background-opacity': '0',
             'background-clip': 'none',
             'label': 'data(nodeName)',
             'width': '40%',
@@ -100,9 +99,6 @@ export default function GraphQueryVisualizer() {
             'border-width': 'data(borderWidth)',
             'border-style': 'data(borderStyle)',
             'border-color': 'data(borderColor)',
-            /* 'overlay-color': 'red',
-            'overlay-opacity': '0.35',
-            'overlay-padding': '5', */
           }
           
         },
@@ -127,7 +123,6 @@ export default function GraphQueryVisualizer() {
           selector: 'edge',
           style: {
             'width': '3px',
-            // 'label': 'data(label)',
             "color": "#fff",
             "text-outline-color": "#7d7878",
             "text-outline-width": 2,

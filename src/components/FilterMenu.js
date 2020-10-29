@@ -7,7 +7,6 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControl from "@material-ui/core/FormControl";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
-import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
 import {setFilter, removeLaterFilters} from "../actions/SetFilter.js";
 import { DeleteForever } from "@material-ui/icons";
@@ -419,10 +418,8 @@ function FilterMenu(props) {
       <Dialog
         open={open}
         TransitionComponent={Transition}
-        //keepMounted
         onClose={handleClose}
         aria-labelledby="filter-menu-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
@@ -520,18 +517,6 @@ function FilterMenu(props) {
                         </div>
                         <div className={classes.flexColumn}>
 
-
-                          {/* <TextField
-                            className={classes.textFieldClass}
-                            value={element.value}
-                            name="value"
-                            variant="outlined"
-                            label="Value"
-                            onChange={(e) => handleValueChange(index, e)}
-                            >
-                            {" "}
-                          </TextField> */}
-
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
                             freeSolo={localFilters[index].property !== "Label / Type"}
@@ -585,11 +570,8 @@ function FilterMenu(props) {
                         <FormControl >
                           <Select className={classes.withLine}
                             style={{  height: "15px" }}
-                            //className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
-                            //variant="outlined"
                             value={andOrs[index]}
-                            //IconComponent={() => <EmptyIcon />}
                             >
                             <MenuItem value="AND">
                               {`AND`}
@@ -607,10 +589,16 @@ function FilterMenu(props) {
                   );
                 })}
               </FormGroup>
-
-              <IconButton onClick={() => addFilter()} disabled={filterlineIsNotFilled()}>
-                <AddIcon />
-              </IconButton>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.addButtonClass}
+                endIcon={<AddIcon />}
+                disabled={filterlineIsNotFilled()}
+                onClick={() => addFilter()}
+                >
+                Add filter
+              </Button>
             </div>
             <br></br>
 
@@ -660,6 +648,10 @@ const useStyles = makeStyles( theme  => ({
     marginTop: "-15px"
   },
 
+  addButtonClass: {
+    background: "#770079",
+  },
+  
   saveButtonClass: {
     margin: "5px",
     background: "#6DBCB4",
@@ -715,10 +707,9 @@ const useStyles = makeStyles( theme  => ({
   },
 
   andOrButton: {
-    //width: "50px",
     margin: "0px"
-  
   },
+  
   container: {
     marginTop: "10px",
     marginBottom: "5px",

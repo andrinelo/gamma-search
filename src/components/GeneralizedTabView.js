@@ -10,7 +10,6 @@ import Box from '@material-ui/core/Box';
 
 // Use component FullWidthTabs with props tabNames and tabValues, which is respectively the name of each tab and its contents
 
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 

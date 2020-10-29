@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -176,6 +175,7 @@ function RelationMenu(props) {
   // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
 
+    //returns empty string if the user has removed all relations
     if (localRelations.length === 0){
       return("")
     }
@@ -187,6 +187,7 @@ function RelationMenu(props) {
     let out = true
     let bothOne = false
 
+    //checks of only one direction of edges is choosen
     for (let id in localRelations){
       let element = localRelations[id]
       if (!(element.checkedIn === true && element.checkedOut === true)){
@@ -208,6 +209,7 @@ function RelationMenu(props) {
       inn = false
     }
 
+    //checks if the user has not selected an "all" relations
     let notAll = true
     for (let id in localRelations){
       let element = localRelations[id]
@@ -218,9 +220,9 @@ function RelationMenu(props) {
     }
 
 
-
+    //if the user has only selected one direction for graphs, only selected ORS and have not selected "all" relations
+    //the gremlin query can be written in the simple form of e.g out("A", "B", "C")
     if(!andOrs.includes("AND") && (both || inn || out)  && notAll){
-    //if (false){
       if (both){
         localGremlin = localGremlin.concat(".both(")
       }
@@ -246,9 +248,10 @@ function RelationMenu(props) {
       }
     }
 
+    //else the query must be parsed in a more complex way
     else{
-
-      //lag liste med alle relasjonen, bere omvendt
+      //makes a list of all the relations parsed indivudialy to gremlin
+      //this is later used to AND and OR together the elements of the list
       let gremlinList = []
       for (let i = 0; i < localRelations.length; i++){
         let tmpQuery = ""
@@ -335,10 +338,10 @@ function RelationMenu(props) {
 
   const saveAndCloseRelationMenu = () => {
     updateRelation(localRelations, allRelations, selectedDataset);
-    //dispatch(appendToGremlinQuery(""))
 
     let localGremlinQuery = localFiltersToGremlinParser()
     dispatch(removeGremlinQueryStepsAfterIndex((selectedDataset*2)+1))
+    //assures that new datasets are not adde to the graph when appling 0 filters
     if (localRelations.length >0){
       dispatch(appendToGremlinQuery(localGremlinQuery))
       dispatch(appendToGremlinQuery(""))
@@ -361,22 +364,10 @@ function RelationMenu(props) {
   };
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
-
   const handleClose = () => {
     dispatch(setRelationWindowActive(false));
     dispatch(resetSelectedDataset());
   };
-
-  // Deletes (from Redux-store) the values that has been fetched for different properties
-  /*
-  const deleteFetchedPropertyValues = () => {
-    let keys = Object.keys(allResults)
-    keys = keys.filter(key => key.includes(DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS))
-
-    dispatch(deleteQueryItemsByKeys(keys))    
-  }
-  */
-
 
   const handleAndOrChange = (index, event) => {
     andOrs[index] = event.target.value;
@@ -389,10 +380,8 @@ function RelationMenu(props) {
       <Dialog
         open={open}
         TransitionComponent={Transition}
-        //keepMounted
         onClose={handleClose}
         aria-labelledby="filter-menu-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
@@ -447,7 +436,6 @@ function RelationMenu(props) {
                             value={element.text !== undefined && element.text !== "" ? element.text : null }
                             getOptionLabel={(option) => option}
                             groupBy={(option) => option !== "All ingoing and outgoing relations" && option !== "All outgoing relations" && option !== "All ingoing relations" ? option.charAt(0).toUpperCase() : ""}
-                            //value = {element.text}
                             renderInput={(params) => <TextField {...params} className={classes.textFieldClass} value={element.text} label="Type of relation" variant="outlined" name="text"/>}
                           
                             renderOption={(option, { inputValue }) => {
@@ -479,11 +467,8 @@ function RelationMenu(props) {
                         <FormControl >
                           <Select className={classes.withLine}
                             style={{  height: "15px" }}
-                            //className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
-                            //variant="outlined"
                             value={andOrs[index]}
-                            //IconComponent={() => <EmptyIcon />}
                             >
                             <MenuItem value="AND">
                               {`AND`}
@@ -502,9 +487,16 @@ function RelationMenu(props) {
                 })}
               </FormGroup>
 
-              <IconButton disabled={localRelations.map((relation) => relation.text).includes(null)} onClick={() => addRelation()}>
-                <AddIcon />
-              </IconButton>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.addButtonClass}
+                endIcon={<AddIcon />}
+                disabled={localRelations.map((relation) => relation.text).includes(null)}
+                onClick={() => addRelation()}
+                >
+                Add filter
+              </Button>
             </div>
           )}
           <br></br>
@@ -568,6 +560,12 @@ const useStyles = makeStyles( theme  => ({
     background: "#770079",
   },
 
+
+  addButtonClass: {
+    background: "#770079",
+  },
+  
+  
   saveButtonClass: {
     margin: "5px",
     background: "#6DBCB4",
