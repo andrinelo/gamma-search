@@ -7,10 +7,9 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControl from "@material-ui/core/FormControl";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
-import IconButton from "@material-ui/core/IconButton";
 import { useSelector, useDispatch } from "react-redux";
 import {setFilter, removeLaterFilters} from "../actions/SetFilter.js";
-import { ContactSupportOutlined, DeleteForever } from "@material-ui/icons";
+import { DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
 import EmptyIcon from "./EmptyIcon.js";
 import Select from "@material-ui/core/Select";
@@ -22,7 +21,7 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
-import { resetGremlinQuery, appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
+import { appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 import EditWarning from './EditWarning.js'
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
@@ -31,15 +30,6 @@ import {removeLaterRelaions} from "../actions/SetRelation.js";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
-
-const operators = {
-  "==": "=",
-  "!=": "≠",
-  ">=": "≥",
-  ">": ">",
-  "<": "<",
-  "=<": "≤",
-};
 
 function FilterMenu(props) {
   const allResults = useSelector(state => state.allQueryResults)
@@ -52,6 +42,7 @@ function FilterMenu(props) {
   
   // The following two values are only used to force a component re-render when the autocomplete-values for the selected property are retrieved
   const [latestSelectedProperty, setLatestSelectedProperty] = useState("")
+  //eslint-disable-next-line
   const latestPropertyValues = useSelector(state => latestSelectedProperty !== "" ? state.allQueryResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + latestSelectedProperty] : [])
   
   // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
@@ -116,6 +107,7 @@ function FilterMenu(props) {
       }
       setshouldSetFiltersFromStore(false)
     }
+  //eslint-disable-next-line
   }, [stateFilters, props, selectedDataset, allResults]);
 
 
@@ -348,7 +340,7 @@ function FilterMenu(props) {
       andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
       for (let localIndex in gremlinFilterList){
         andOrGremlinQuery = andOrGremlinQuery.concat(gremlinFilterList[localIndex])
-        if (localIndex != gremlinFilterList.length -1){
+        if (localIndex !== gremlinFilterList.length -1){
           andOrGremlinQuery = andOrGremlinQuery.concat(", ")
         }
       }
@@ -426,10 +418,8 @@ function FilterMenu(props) {
       <Dialog
         open={open}
         TransitionComponent={Transition}
-        //keepMounted
         onClose={handleClose}
         aria-labelledby="filter-menu-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
@@ -527,18 +517,6 @@ function FilterMenu(props) {
                         </div>
                         <div className={classes.flexColumn}>
 
-
-                          {/* <TextField
-                            className={classes.textFieldClass}
-                            value={element.value}
-                            name="value"
-                            variant="outlined"
-                            label="Value"
-                            onChange={(e) => handleValueChange(index, e)}
-                            >
-                            {" "}
-                          </TextField> */}
-
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
                             freeSolo={localFilters[index].property !== "Label / Type"}
@@ -592,11 +570,8 @@ function FilterMenu(props) {
                         <FormControl >
                           <Select className={classes.withLine}
                             style={{  height: "15px" }}
-                            className={classes.andOrButton}
                             onChange={(e) => handleAndOrChange(index, e)}
-                            //variant="outlined"
                             value={andOrs[index]}
-                            //IconComponent={() => <EmptyIcon />}
                             >
                             <MenuItem value="AND">
                               {`AND`}
@@ -614,10 +589,16 @@ function FilterMenu(props) {
                   );
                 })}
               </FormGroup>
-
-              <IconButton onClick={() => addFilter()} disabled={filterlineIsNotFilled()}>
-                <AddIcon />
-              </IconButton>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.addButtonClass}
+                endIcon={<AddIcon />}
+                disabled={filterlineIsNotFilled()}
+                onClick={() => addFilter()}
+                >
+                Add filter
+              </Button>
             </div>
             <br></br>
 
@@ -667,6 +648,10 @@ const useStyles = makeStyles( theme  => ({
     marginTop: "-15px"
   },
 
+  addButtonClass: {
+    background: "#770079",
+  },
+  
   saveButtonClass: {
     margin: "5px",
     background: "#6DBCB4",
@@ -722,10 +707,9 @@ const useStyles = makeStyles( theme  => ({
   },
 
   andOrButton: {
-    //width: "50px",
     margin: "0px"
-  
   },
+  
   container: {
     marginTop: "10px",
     marginBottom: "5px",

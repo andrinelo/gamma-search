@@ -1,4 +1,3 @@
-import { act } from "react-dom/test-utils";
 import { SET_FILTER, DELETE_LATER_FILTERS } from "./../actions/types.js";
 
 const filterReducer = (state = {}, action) => {

@@ -92,7 +92,6 @@ export default function GraphQueryVisualizer() {
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
             'background-color': '#666',
-            //'background-opacity': '0',
             'background-clip': 'none',
             'label': 'data(nodeName)',
             'width': '40%',
@@ -100,9 +99,6 @@ export default function GraphQueryVisualizer() {
             'border-width': 'data(borderWidth)',
             'border-style': 'data(borderStyle)',
             'border-color': 'data(borderColor)',
-            /* 'overlay-color': 'red',
-            'overlay-opacity': '0.35',
-            'overlay-padding': '5', */
           }
           
         },
@@ -127,7 +123,6 @@ export default function GraphQueryVisualizer() {
           selector: 'edge',
           style: {
             'width': '3px',
-            // 'label': 'data(label)',
             "color": "#fff",
             "text-outline-color": "#7d7878",
             "text-outline-width": 2,
@@ -164,7 +159,6 @@ export default function GraphQueryVisualizer() {
             content: 'Filter this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setFilterWindowActive(true))
             },
@@ -176,7 +170,6 @@ export default function GraphQueryVisualizer() {
             content: 'Aggregate this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setAggregateWindowActive(true));
             },
@@ -188,7 +181,6 @@ export default function GraphQueryVisualizer() {
             content: 'Inspect this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setInspectWindowActive(true))
             },
@@ -201,7 +193,7 @@ export default function GraphQueryVisualizer() {
             content: 'Create property table', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
+
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setPropertyTableWindowActive(true))
             },
@@ -214,7 +206,6 @@ export default function GraphQueryVisualizer() {
             content: "Explore dataset relations", // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setRelationWindowActive(true))
             },
@@ -238,7 +229,7 @@ export default function GraphQueryVisualizer() {
       atMouse: false // draw menu at mouse position
       };
 
-      let menu = cy.cxtmenu( defaults );
+      cy.cxtmenu( defaults );
 
       cy.panningEnabled(false)
       cy.autoungrabify(true)
@@ -261,7 +252,7 @@ export default function GraphQueryVisualizer() {
         // Sets the cursor to default
         graphContainer.current.style.cursor = 'default'
     });
-    
+  //eslint-disable-next-line  
   }, [numberOfDatasets, newestDatasetSize])
 
   return (
