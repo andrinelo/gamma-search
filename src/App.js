@@ -118,20 +118,34 @@ function App() {
   
   
   return (
-    <div style={{width: '70vw', margin: 'auto', backgroundColor: 'white', marginBottom: '50px', marginTop: '20px', padding: '10px'}}>
-        <div style={{height: '40px'}}></div>
-        <GraphQueryVisualizer></GraphQueryVisualizer>
-        <div style={{height: '60px'}}></div>
-        <InspectedDatasetWindow></InspectedDatasetWindow>
-        <PropertyTableWindow></PropertyTableWindow>
-        <FilterMenu></FilterMenu>
-        <AggregateMenu/>
-        <RelationMenu></RelationMenu>
-        <GremlinQueryDisplay/>
-        <OutputAccordion/>
+    <div>
+      <div style={{backgroundColor: 'white', display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 10px 5px 10px"}}>
+        <a target="_blank" rel="noopener noreferrer" href="https://www.ntnu.no/studier/emner/TDT4290">
+          <img src="./ntnu_logo.png" alt="NTNU" style={{maxHeight:"20px", marginRight:"35px"}}/>
+        </a>
+        <a href="/">
+          <img src="./gamma_logo3.png" alt="Logo" style={{maxHeight:"60px"}}/>
+        </a>
+        <a target="_blank" rel="noopener noreferrer" href="https://www.ardoq.com/">
+          <img src="./ardoq_logo.png" alt="Ardoq" style={{maxHeight:"20px"}}/>
+        </a>
+      </div>
+      <div style={{width: '70vw', margin: 'auto', backgroundColor: 'white', marginBottom: '50px', marginTop: '20px', padding: '10px'}}>
+          <div style={{height: '40px'}}></div>
+          <GraphQueryVisualizer></GraphQueryVisualizer>
+          <div style={{height: '60px'}}></div>
+          <InspectedDatasetWindow></InspectedDatasetWindow>
+          <PropertyTableWindow></PropertyTableWindow>
+          <FilterMenu></FilterMenu>
+          <AggregateMenu/>
+          <RelationMenu></RelationMenu>
+          <GremlinQueryDisplay/>
+          <OutputAccordion/>
 
-        <hr style={{width: "50vw", marginTop: "40px"}}/>
-        <InfoContainer></InfoContainer>
+          <hr style={{width: "50vw", marginTop: "40px"}}/>
+          <InfoContainer></InfoContainer>
+
+      </div>
     </div>
   );
 }
