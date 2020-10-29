@@ -23,7 +23,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography component={'span'}>{children}</Typography> {/* component span, changes it from a p tag to a span tag. This removes some workings like having div's inside p
+          <Typography component={'span'}>{children}</Typography> {/* component span, changes it from a p tag to a span tag. This removes some warnings like having div's inside p
                                                                   This can be removed if it causes any truble */}
         </Box>
       )}
