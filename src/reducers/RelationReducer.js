@@ -7,8 +7,6 @@ const relationReducer = (state = {}, action) => {
 
         let combinedObject = Object.assign(action.value, action.andOrs); 
         let relation = { ...state, [action.edgeId]: combinedObject};
-        //const relation = JSON.parse(JSON.stringify(state));
-        //relation[action.edgeId] = action.value;
         return relation;
 
       case DELETE_LATER_RELATIONS:

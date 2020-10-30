@@ -58,6 +58,7 @@ export default function OutputAccordion(props) {
   useEffect(() => {
     setCurrentPage(1)
     fetchPagedResultItems(1)
+  //eslint-disable-next-line
   }, [fullGremlinQuery])
 
   const handlePageChange = (event, value) => {
@@ -80,8 +81,8 @@ export default function OutputAccordion(props) {
           </AccordionSummary>
           <AccordionDetails>
               <Container>
-                  {dataImageList.map((values) => // Map images too
-                    <Container className={classes.OutputListElementContainer}>
+                  {dataImageList.map((values, index) => // Map images too
+                    <Container key={index} className={classes.OutputListElementContainer}>
                         <OutputListElement values={values} ></OutputListElement>
                     </Container>)}
                     <Pagination style={{display: 'flex', justifyContent: 'center', userSelect: 'none'}} count={pageCount} page={currentPage} siblingCount={1} onChange={handlePageChange} />
@@ -113,7 +114,7 @@ function OutputJSONParser(inputJSON) {
             toReturn.push({"property":"id", "value":inputJSON["id"]});
         }
         for (const property in inputJSON["properties"]) { // for all the properties possible
-            if (property != "name") { // Name property already added
+            if (property !== "name") { // Name property already added
                 if (Array.isArray(inputJSON["properties"][property])) { // If property value is formated as an array
                     if (0 in inputJSON["properties"][property]) { // List containing a tuple
                         toReturn.push({"property":property, "value":inputJSON["properties"][property][0]["value"]});

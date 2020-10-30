@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { makeStyles } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
@@ -17,11 +15,7 @@ import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.j
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import { resetQueryItems } from '../actions/QueryManagerActions.js';
 import { INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET, DATASET_NODE_COUNT} from '../actions/QueryKeys.js'
-
-
 import cytoscape from 'cytoscape';
-// import cxtmenu from 'cytoscape-cxtmenu';
-// cytoscape.use( cxtmenu ); // register extension
 
 // Cytoscape layouts
 import cola from 'cytoscape-cola';
@@ -82,6 +76,7 @@ export default function InspectedDatasetWindow(props) {
     else if(open === true){
       setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
     }
+  //eslint-disable-next-line
   }, [open])
   
   
@@ -95,7 +90,7 @@ export default function InspectedDatasetWindow(props) {
     else {
       setReviewItemHTML(activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
     }
-
+  //eslint-disable-next-line
   }, [inspectedNodes.length])
 
 
@@ -126,6 +121,7 @@ export default function InspectedDatasetWindow(props) {
     )
 
     setTabValues([...newTabValues])
+  //eslint-disable-next-line
   }, [reviewItemHTML, selectedNodes])
 
   
@@ -250,12 +246,6 @@ export default function InspectedDatasetWindow(props) {
     dispatch(resetQueryItems(INSPECTED_EDGES_IN_DATASET))
   };
 
-  const handleClickOpen = () => {
-    dispatch(setInspectWindowActive(true));
-  };
-  
-
-
   const containerStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -273,7 +263,6 @@ export default function InspectedDatasetWindow(props) {
         keepMounted
         onClose={handleClose}
         aria-labelledby="inspected-dataset-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '80vw'}}>
@@ -283,9 +272,7 @@ export default function InspectedDatasetWindow(props) {
           <div style={containerStyle}>
             <MemoInspectedDatasetGraph setCyRef={setCyRef} handleSelectedNodesAndEdgesChange={handleSelectedNodesAndEdgesChangeRef} inspectedNodes={inspectedNodes} inspectedEdges={inspectedEdges} open={open}></MemoInspectedDatasetGraph>
             <div style={{ width: '34%', maxHeight: '99%' }}>
-
               <FullWidthTabs setActiveTab={handleActiveTabChange} tabNames={["Selected Nodes", "Selected Edges"]} tabValues={[tabValues[0], tabValues[1]]} tabWidth={'100%'}></FullWidthTabs>
-
             </div>
           </div>
         </div>
@@ -294,7 +281,6 @@ export default function InspectedDatasetWindow(props) {
     </div>
   );
 }
-
 
 // Cytoscape-graph-component
 function InspectedDatasetGraph(props){
@@ -327,7 +313,6 @@ function InspectedDatasetGraph(props){
             imageURL = "url(/PlaceholderNodeImage.png)"
           }
           
-      
           elements.push(
               { data: {
                 id: node['id'], 
@@ -368,7 +353,6 @@ function InspectedDatasetGraph(props){
     
       var cy = cytoscape({
         container: graphInspectContainer.current, // container to render in
-        //headless: true,
         elements: elements,
         
         style: [ // the stylesheet for the graph
@@ -381,14 +365,10 @@ function InspectedDatasetGraph(props){
               'background-image':  'data(imageURL)',
               'background-repeat': 'no-repeat',
               "background-fit": "cover cover",
-              //'background-size': 'contain',
               'background-color': '#add8e6',
               'label': 'data(name)',
-              //'background-opacity': '0',
               'background-clip': 'none',
-
             }
-            
           },
 
           {
@@ -475,7 +455,7 @@ function InspectedDatasetGraph(props){
       props.setCyRef(cyRef)
 
     }
-
+  //eslint-disable-next-line
   }, [props, graphLayout])
 
   return (
