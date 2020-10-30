@@ -33,7 +33,7 @@ export function setGremlinQueryStep(gremlinQueryPart, index) {
   };
 }
 
-// Action used to remove all steps after the given steps
+// Action used to remove all steps after the given steps 
 export function removeGremlinQueryStepsAfterIndex(index) {
   return {
     index: index,

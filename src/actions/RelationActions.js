@@ -10,7 +10,8 @@ export function setRelation (relationValue, andOrs, edgeId) {
   };
 }
 
-export function removeLaterRelaions( edgeId) {
+// Action used to remove all relations with an ID larger than the inputted ID
+export function removeLaterRelations(edgeId) {
   return {
     edgeId: edgeId,
     type: DELETE_LATER_RELATIONS,

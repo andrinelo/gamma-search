@@ -18,8 +18,10 @@ const useStyles = makeStyles({
     }
 });
 
+// How many resultitems per page
 const outputsPerPage = 4
 
+// Accordion (drop-down list) used for the current results
 export default function OutputAccordion(props) {
   const dispatch = useDispatch()
   const classes = useStyles()
@@ -34,7 +36,6 @@ export default function OutputAccordion(props) {
   
   // Retrieve the subset of the result items, which will be displayed
   const pagedResultItems = useSelector(state => state.allQueryResults[PAGED_RESULT_ITEMS])
-  
   
   // Full current gremlin query
   const fullGremlinQuery = useSelector(store => store.gremlinQueryParts.join(""))
@@ -61,6 +62,7 @@ export default function OutputAccordion(props) {
   //eslint-disable-next-line
   }, [fullGremlinQuery])
 
+  // Fired whenever the page changes
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
     fetchPagedResultItems(value)
@@ -77,7 +79,7 @@ export default function OutputAccordion(props) {
           <AccordionSummary
               expandIcon={<ExpandMore/>}
           >
-              <Typography>View nodes in dataset {numberOfDatasets}</Typography>
+              <Typography><b>View info about the {resultItemsCount} {resultItemsCount !== undefined && resultItemsCount[0] !== 1 ? "nodes" : "node" } in dataset {numberOfDatasets}</b></Typography>
           </AccordionSummary>
           <AccordionDetails>
               <Container>
@@ -92,7 +94,7 @@ export default function OutputAccordion(props) {
     );
 }
 
-
+// Used to parse the JSON to something more readable
 function OutputJSONParser(inputJSON) {
     const toReturn = [];
     if ("properties" in inputJSON && "label" in inputJSON) { // If this is not the case toReturn is empty
@@ -123,7 +125,7 @@ function OutputJSONParser(inputJSON) {
                         toReturn.push({"property":property, "value":inputJSON["properties"][property]["value"]});
                     }
                 }
-                else { //Else the value is easily accessible
+                else { // Else the value is easily accessible
                 toReturn.push({"property":property, "value":inputJSON["properties"][property]});
                 }
             }
@@ -132,6 +134,8 @@ function OutputJSONParser(inputJSON) {
     return toReturn;
   }
 
+
+// Used to get the image URL of a node
 function GetUrl(inputJSON) {
     
   // If in production we use our proxy set on the nginx server

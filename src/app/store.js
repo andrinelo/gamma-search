@@ -3,6 +3,7 @@ import thunk from "redux-thunk";
 import rootReducer from "../reducers/RootReducer.js";
 import { composeWithDevTools } from "redux-devtools-extension";
 
+// The initial empty state
 const initialState = {};
 
 // Thunk is needed for asynchronous action creators.

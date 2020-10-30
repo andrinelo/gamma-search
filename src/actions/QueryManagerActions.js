@@ -5,14 +5,14 @@ import { setPropertyTableIsFetching } from './PropertyTableWindowActions'
 
 import store from '../app/store.js';
 
-// Empties the query state
+// Empties the entire query state
 export function resetAllQueryItems() {
   return {
     type: RESET_ALL_QUERY_ITEMS,
   };
 }
 
-// Empties the state, based on the queryKey
+// Empties the value corresponding to the key
 export function resetQueryItems(key) {
   return {
     type: RESET_QUERY_ITEMS,
@@ -20,7 +20,7 @@ export function resetQueryItems(key) {
   };
 }
 
-// Deletes the state, based on the queryKey
+// Empties the values corresponding to the keys
 export function deleteQueryItemsByKeys(keys) {
   return {
     type: DELETE_QUERY_ITEMS_BY_KEYS,
@@ -28,9 +28,8 @@ export function deleteQueryItemsByKeys(keys) {
   };
 }
 
-// Add more items to the search result
+// Sets the fetch results with the query key 
 export function setQueryItems(items, key) {
-
   return {
     type: SET_QUERY_ITEMS,
     payload: {
@@ -42,7 +41,6 @@ export function setQueryItems(items, key) {
 
 // Add more items to the search result
 export function appendQueryItems(items, key) {
-
   return {
     type: APPEND_QUERY_ITEMS,
     payload: {
@@ -54,7 +52,7 @@ export function appendQueryItems(items, key) {
 
 // Asynchronous action creator using redux-thunk. Fetches new items to add to
 // the search-result. Normally returns max 1000 elements, but if parameter 'start'
-// is set to something above or equal to 0, we get all the elements.
+// is set to something above or equal to 0, we fetch all the elements in intervals of 1000.
 export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
 
   return async function(dispatch) {
@@ -74,8 +72,10 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
       // Adds the range to the gremlin query if start has been set to above or equal to 0
       let correctData = JSON.stringify({"query": start < 0 ? gremlinQuery : gremlinQuery + ".range(" + start + ", " + (start + 1000) + ")"})
 
+      // The URL to send our API-requests; in production this is a different URL because of the use of proxies to avoid CORS-errors
       const API_URL = process.env.NODE_ENV === 'production' ? "/ardoq/api/graph-search?org=tdt42902019" : "/api/graph-search?org=tdt42902019"
 
+      // The API fetch
       const response = await fetch(API_URL, {
         method: 'POST',                                             // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',                                               // no-cors, *cors, same-origin
@@ -91,9 +91,10 @@ export function fetchQueryItems(gremlinQuery, key, start=-1, fetchID=null) {
         body: correctData                                  // body data type must match "Content-Type" header
       });
 
+      // The fetch returns a promise which we wait for
       const results = await response.json()
       
-      // WE SET RESULTLIST
+      // WE SET ITEMLIST
       if(start <= 0){
         
         // PROPERTY TABLE: If we're fetching values for the property table, we only add them if this is the most up-to-date fetch

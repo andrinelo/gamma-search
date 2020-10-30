@@ -11,33 +11,48 @@ import TextField from "@material-ui/core/TextField";
 import Slide from '@material-ui/core/Slide';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
 
 import { DATASET_PROPERTIES_AFTER_DATASET_FILTERS, RESULT_FROM_AGGREGATION, AGGREGATE_PROPERTY_EXAMPLE_VALUE } from './../actions/QueryKeys.js'
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setAggregateWindowActive } from '../actions/AggregateWindowActions.js';
-import { fetchQueryItems, resetQueryItems} from '../actions/QueryManagerActions.js';
+import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
 
 
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 
+// This is the modal, along with all logic, used for aggregating a dataset
 export default function AggregateMenu() {
   const dispatch = useDispatch();
   
+  // Used to determine if the modal is open
   const open = useSelector(state => state.aggregateDatasetWindowActive);
+  
+  // The result of the aggregation
   const aggregateResult = useSelector(store => store.allQueryResults[RESULT_FROM_AGGREGATION]);
+  
+  // An example of the value of a property; used to determine property value datatype -> sum, min, max and avg only works on numbers
   const propertyValueExample = useSelector(store => store.allQueryResults[AGGREGATE_PROPERTY_EXAMPLE_VALUE])
   const propertyDatatypeIsNumber = propertyValueExample.length > 0 ? typeof propertyValueExample[0] === 'number' : false
+  
+  // Possible properties to aggregate on
   const properties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_AFTER_DATASET_FILTERS])
   
+  // States with chosen aggregation function, property and results-HTML.
   const [localAggregateFunction, setLocalAggregateFunction] = React.useState('');
   const [localProptype, setLocalProptype] = React.useState(null);
   const [resultHTML, setResultHTML] = React.useState(null);
   
+  // Possible aggregation functions
   const aggregateFunctions = ["count", "sum", "average", "max", "min"]
+  
+  // Styling for the X in the modal corner
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
   // Which dataset we're aggregating
@@ -123,7 +138,7 @@ export default function AggregateMenu() {
     }
 
     // Labels and IDs aggregates a bit differently
-    if(property === "Label / Type"){
+    if(property === "Component Type"){
       aggregateGremlinQuery += ".label()." + aggregateFunction + "()"
     }
     else if(property === "Node ID"){
@@ -136,6 +151,7 @@ export default function AggregateMenu() {
 
     setCurrentQuery(aggregateGremlinQuery)
 
+    // Fetches the aggregation results
     if(aggregateGremlinQuery !== ""){
       dispatch(fetchQueryItems(aggregateGremlinQuery, RESULT_FROM_AGGREGATION))
     }
@@ -147,7 +163,7 @@ export default function AggregateMenu() {
     if(selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
       let propertyValueGremlinQuery = "g.V()"
 
-      if(selectedProperty === "Label / Type"){
+      if(selectedProperty === "Component Type"){
         propertyValueGremlinQuery += ".label()"
       }
       else if(selectedProperty === "Node ID"){
@@ -166,6 +182,7 @@ export default function AggregateMenu() {
   }
 
 
+  // Creates the string in english that explains and gives the result of the aggregation
   const createResultString = () => {
     const aggregateFunction = localAggregateFunction.toLowerCase()
 
@@ -205,19 +222,24 @@ export default function AggregateMenu() {
       onClose={closeAggregateMenu}
     >
       
-      <DialogTitle id="aggregate-dialog-slide-title" style={{textAlign: 'center'}}>{"Aggregate this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={closeAggregateMenu} alt="Close window"/></DialogTitle>
+      <DialogTitle id="aggregate-dialog-slide-title" style={{textAlign: 'center'}}>
+        {"Aggregate this dataset"}
+        <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+        <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={closeAggregateMenu} alt="Close window"/></DialogTitle>
       
       <div style={{width: '40vw', margin: 'auto', marginBottom: '2vh', marginTop: '1vh', maxHeight: '95%', overflow: 'auto'}}>
         <DialogContent>
           
           <div style={{display: "flex", flexDirection: "row", justifyContent: "center", width: "100%"}}>
+
+            {/* The property selection field */}
             <Autocomplete
               width="40%"
               name="property"
               options={properties}
               value={localProptype !== "" && localProptype !== undefined ? localProptype : null }
               getOptionLabel={(option) => option}
-              groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+              groupBy={(option) => option !== "Component Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : "Frequently Used"}
               style={{ width: '250px' }}
               onChange={(event, selectedProperty) => {
                 handleProptypeChange(selectedProperty)
@@ -244,6 +266,7 @@ export default function AggregateMenu() {
 
             <div style={{width: "1vw"}}/>
             
+            {/* The aggregation function selection field */}
             <FormControl style={{width: "42%"}} variant="outlined">
               <InputLabel id="aggregate-function-select-label">Select aggregation</InputLabel>
               <Select
