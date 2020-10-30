@@ -1,3 +1,6 @@
+
+// Keys used to define results from different types of fetches from the Ardoq API
+
 export const PAGED_RESULT_ITEMS = "pagedResultItems";
 export const ALL_AVAILABLE_LABELS = "allAvailableLabels";
 export const INSPECTED_EDGES_IN_DATASET = "inspectedEdgesInDataset";

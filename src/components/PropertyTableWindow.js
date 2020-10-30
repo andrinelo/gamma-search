@@ -11,9 +11,11 @@ import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setPropertyTableWindowActive, setPropertyTableIsFetching, setPropertyTableFetchID } from '../actions/PropertyTableWindowActions.js';
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
@@ -62,9 +64,9 @@ function PropertyTableWindow() {
     possibleProperties.unshift("Node ID")
   }
 
-  // If the "Label / Type" property has not already been added to the list, we add it
-  if(!possibleProperties.includes("Label / Type") && possibleProperties.length > 0){
-    possibleProperties.unshift("Label / Type")
+  // If the "Component Type" property has not already been added to the list, we add it
+  if(!possibleProperties.includes("Component Type") && possibleProperties.length > 0){
+    possibleProperties.unshift("Component Type")
   }
   
   // Whenever the raw tablerows-data updates, we process it into something more usable by the table
@@ -168,7 +170,7 @@ function PropertyTableWindow() {
         // all standards to space-seperated uppercase strings. 
         const propertyName = newSelectedProperties[i]
 
-        if(propertyName === "Label / Type"){
+        if(propertyName === "Component Type"){
           gremlinQuery += ".by(label)"
         }
 
@@ -206,7 +208,10 @@ function PropertyTableWindow() {
         maxWidth={false}
       >
         <div style={{ width: '73vw'}}>
-          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>
+            {"Create property table from this dataset"}
+            <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+            <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
 
         <div style={{ maxHeight: '97%', overflow: 'auto' }}>
@@ -222,7 +227,7 @@ function PropertyTableWindow() {
                 limitTags={3}
                 options={possibleProperties}
                 getOptionLabel={(option) => option}
-                groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+                groupBy={(option) => option !== "Component Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : "Frequently Used"}
                             
                 
                 renderInput={(params) => (

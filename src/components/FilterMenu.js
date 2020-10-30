@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,24 +9,26 @@ import FormControl from "@material-ui/core/FormControl";
 import AddIcon from "@material-ui/icons/Add";
 import SaveIcon from "@material-ui/icons/Save";
 import { useSelector, useDispatch } from "react-redux";
-import {setFilter, removeLaterFilters} from "../actions/SetFilter.js";
+import {setFilter, removeLaterFilters} from "../actions/FilterActions.js";
 import { DeleteForever } from "@material-ui/icons";
 import MenuItem from "@material-ui/core/MenuItem";
-import EmptyIcon from "./EmptyIcon.js";
 import Select from "@material-ui/core/Select";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
+
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
+import { setFilterWindowActive } from '../actions/FilterDatasetWindowActions.js';
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQueryStep} from "../actions/GremlinQueryActions.js";
 import EditWarning from './EditWarning.js'
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-import {removeLaterRelaions} from "../actions/SetRelation.js";
+import {removeLaterRelaions} from "../actions/RelationActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -55,7 +58,7 @@ function FilterMenu(props) {
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
     {
-      property: "Label / Type",
+      property: "Component Type",
       operator: "==",
       value: "",
     },
@@ -71,9 +74,9 @@ function FilterMenu(props) {
     allProperties.unshift("Node ID")
   }
 
-  // If the "Label / Type" item has not already been added to the list, we add it
-  if(!allProperties.includes("Label / Type") && allProperties.length > 0){
-    allProperties.unshift("Label / Type")
+  // If the "Component Type" item has not already been added to the list, we add it
+  if(!allProperties.includes("Component Type") && allProperties.length > 0){
+    allProperties.unshift("Component Type")
   }
 
 
@@ -99,7 +102,7 @@ function FilterMenu(props) {
         // Label is the default value of the first filter line
         setLocalFilters([
           {
-            property: "Label / Type",
+            property: "Component Type",
             operator: "==",
             value: "",
           },
@@ -107,8 +110,8 @@ function FilterMenu(props) {
         setAndOrs([]);
 
         // Fetches autocomplete values for the labels
-        fetchValuesForProperty("Label / Type")
-        setLatestSelectedProperty("Label / Type")
+        fetchValuesForProperty("Component Type")
+        setLatestSelectedProperty("Component Type")
       }
 
       setshouldSetFiltersFromStore(false)
@@ -129,7 +132,7 @@ function FilterMenu(props) {
     if(selectedProperty !== "Node ID" && selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
       let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
 
-      if(selectedProperty === "Label / Type"){
+      if(selectedProperty === "Component Type"){
         propertyValuesGremlinQuery += ".dedup().label().dedup()"
       }
       else{
@@ -153,7 +156,7 @@ function FilterMenu(props) {
 
     // If the chosen property is label or node id, and the chosen operator is neither "equals" nor "not equals", 
     // we reset the operator because label and node id only allow "equals" and "not equals"
-    if((selectedProperty === "Label / Type" || selectedProperty === "Node ID") 
+    if((selectedProperty === "Component Type" || selectedProperty === "Node ID") 
       && localFilters[index]['operator'] !== "==" && localFilters[index]['operator'] !== "!="){
       
         localFilters[index]['operator'] = "=="
@@ -199,17 +202,17 @@ function FilterMenu(props) {
       setAndOrs([...andOrs]);
     }
 
-    // If this is the first filter line we set label / type by default
+    // If this is the first filter line we set Component Type by default
     else {
       localFilters.push({
-        property: "Label / Type",
+        property: "Component Type",
         operator: "==",
         value: "",
       });
 
       // Fetches autocomplete values for the labels
-      fetchValuesForProperty("Label / Type")
-      setLatestSelectedProperty("Label / Type")
+      fetchValuesForProperty("Component Type")
+      setLatestSelectedProperty("Component Type")
     }
 
     setLocalFilters([...localFilters]);
@@ -246,7 +249,7 @@ function FilterMenu(props) {
       let filterProperty = localFilters[id].property
 
       // Labels aren't defined as a property and requires a different kind of query
-      if(filterProperty === "Label / Type"){
+      if(filterProperty === "Component Type"){
         if(localFilters[id].operator === "!="){
           tmpQuery = tmpQuery.concat("not(")  
           tmpQuery = tmpQuery.concat("hasLabel('")
@@ -453,6 +456,7 @@ function FilterMenu(props) {
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
           {"Filter this dataset"}
+          <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
           <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
         </DialogTitle>
           
@@ -471,7 +475,7 @@ function FilterMenu(props) {
                             options={allProperties}
                             value={localFilters[index].property !== undefined && localFilters[index].property !== "" ? localFilters[index].property : null }
                             getOptionLabel={(option) => option}
-                            groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+                            groupBy={(option) => option !== "Component Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : "Frequently Used"}
                             style={{ width: '250px' }}
                             onChange={(event, selectedProperty) => {
                               handlePropertyChange(index, selectedProperty)
@@ -482,7 +486,7 @@ function FilterMenu(props) {
                             renderOption={(option, { inputValue }) => {
                               const matches = match(option, inputValue);
                               const parts = parse(option, matches);
-                      
+
                               return (
                                 <div>
                                   {parts.map((part, index) => (
@@ -492,6 +496,7 @@ function FilterMenu(props) {
                                   ))}
                                 </div>
                               );
+                              
                             }}
                           />
 
@@ -504,7 +509,7 @@ function FilterMenu(props) {
                               onChange={(e) => handleOperatorChange(index, e)}
                               variant="outlined"
                               value={localFilters[index].operator}
-                              IconComponent={() => <EmptyIcon />}
+                              IconComponent={() => <div/>}
                               >
                               <MenuItem value="==" name="operator">
                                 {`=`}
@@ -513,28 +518,28 @@ function FilterMenu(props) {
                                 {`≠`}
                               </MenuItem>
                               
-                              {localFilters[index].property !== "Label / Type" &&
+                              {localFilters[index].property !== "Component Type" &&
                                 localFilters[index].property !== "Node ID" &&
                                 <MenuItem value=">=" name="operator">
                                   {`≥`}
                                 </MenuItem>
                               }
 
-                              {localFilters[index].property !== "Label / Type" &&
+                              {localFilters[index].property !== "Component Type" &&
                                 localFilters[index].property !== "Node ID" &&
                                 <MenuItem value=">" name="operator">
                                   {`>`}
                                 </MenuItem>
                               }
 
-                              {localFilters[index].property !== "Label / Type" &&
+                              {localFilters[index].property !== "Component Type" &&
                                 localFilters[index].property !== "Node ID" &&
                                 <MenuItem value="<" name="operator">
                                   {`<`}
                                 </MenuItem>
                               }
 
-                              {localFilters[index].property !== "Label / Type" &&
+                              {localFilters[index].property !== "Component Type" &&
                                 localFilters[index].property !== "Node ID" &&  
                                 <MenuItem value="=<" name="operator">
                                   {`≤`}
@@ -548,7 +553,7 @@ function FilterMenu(props) {
 
                           {/* Autocomplete with list of options, and the option to enter own value */}
                           <Autocomplete
-                            freeSolo={localFilters[index].property !== "Label / Type"}
+                            freeSolo={localFilters[index].property !== "Component Type"}
                             name="value"
                             options={allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']] === undefined ? [] : allResults[DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS + localFilters[index]['property']]}
                             defaultValue={localFilters[index].value !== undefined && localFilters[index].value !== "" ? localFilters[index].value : null}
@@ -622,11 +627,12 @@ function FilterMenu(props) {
                 variant="contained"
                 color="primary"
                 className={classes.addButtonClass}
+                size={"small"}
                 endIcon={<AddIcon />}
                 disabled={filterlineIsNotFilled()}
                 onClick={() => addFilter()}
                 >
-                Add filter
+                More filters
               </Button>
             </div>
             <br></br>
@@ -679,6 +685,7 @@ const useStyles = makeStyles( theme  => ({
 
   addButtonClass: {
     background: "#770079",
+    marginTop: "20px",
   },
   
   saveButtonClass: {

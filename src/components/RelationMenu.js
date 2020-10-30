@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -12,7 +13,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import SaveIcon from "@material-ui/icons/Save";
 import IconButton from "@material-ui/core/IconButton";
 import { withStyles } from "@material-ui/core/styles";
-import {setRelation, removeLaterRelaions} from "../actions/SetRelation.js";
+import {setRelation, removeLaterRelaions} from "../actions/RelationActions.js";
 import { DeleteForever } from "@material-ui/icons";
 import EditWarning from './EditWarning.js'
 import { Autocomplete } from "@material-ui/lab";
@@ -20,15 +21,18 @@ import Slide from '@material-ui/core/Slide';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
+
 import { appendToGremlinQuery, removeGremlinQueryStepsAfterIndex} from "../actions/GremlinQueryActions.js";
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import {setRelationWindowActive} from "../actions/RelationWindowActions";
 import { resetSelectedDataset } from './../actions/SelectedDatasetActions.js';
 import { DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import {removeLaterFilters} from "../actions/SetFilter.js";
+import {removeLaterFilters} from "../actions/FilterActions.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -385,7 +389,8 @@ function RelationMenu(props) {
         maxWidth={false}
       >
         <DialogTitle id="filter-menu-dialog-slide-title" style={{textAlign: 'center'}}>
-          {"Explore dataset relations"}
+          {"Explore dataset's relations"}
+          <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
           <img alt="Close window" src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose}/>
         </DialogTitle>
         <DialogContent style={{ maxWidth: '80vw', maxHeight: '80vh', minWidth: '30vw' }}>
@@ -490,12 +495,13 @@ function RelationMenu(props) {
               <Button
                 variant="contained"
                 color="primary"
+                size={"small"}
                 className={classes.addButtonClass}
                 endIcon={<AddIcon />}
                 disabled={localRelations.map((relation) => relation.text).includes(null)}
                 onClick={() => addRelation()}
                 >
-                Add relation
+                More relations
               </Button>
             </div>
           )}
@@ -514,7 +520,7 @@ function RelationMenu(props) {
               startIcon={<SaveIcon />}
               disabled={localRelations.map((relation) => relation.text).includes(null)}
             >
-              Save Changes
+              Apply relations
             </Button>
           </div>
             {/* Warning message when editing datasets that are not the head */}
@@ -563,6 +569,7 @@ const useStyles = makeStyles( theme  => ({
 
   addButtonClass: {
     background: "#770079",
+    marginTop: "20px",
   },
   
   

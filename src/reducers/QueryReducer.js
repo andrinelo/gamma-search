@@ -7,7 +7,7 @@ const keys = [PAGED_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INSPECTED_EDGES_IN_DATAS
 const initialState = {};
 keys.map(key => initialState[key] = [])
 
-const queryReducer = (state = initialState, action) => {
+const QueryReducer = (state = initialState, action) => {
 
   switch (action.type) {
 
@@ -102,4 +102,4 @@ const sortResults = (resultItems, key) => {
 
 }
 
-export default queryReducer;
+export default QueryReducer;

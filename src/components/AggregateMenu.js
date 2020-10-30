@@ -11,12 +11,14 @@ import TextField from "@material-ui/core/TextField";
 import Slide from '@material-ui/core/Slide';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
 
 import { DATASET_PROPERTIES_AFTER_DATASET_FILTERS, RESULT_FROM_AGGREGATION, AGGREGATE_PROPERTY_EXAMPLE_VALUE } from './../actions/QueryKeys.js'
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setAggregateWindowActive } from '../actions/AggregateWindowActions.js';
-import { fetchQueryItems, resetQueryItems} from '../actions/QueryManagerActions.js';
+import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -123,7 +125,7 @@ export default function AggregateMenu() {
     }
 
     // Labels and IDs aggregates a bit differently
-    if(property === "Label / Type"){
+    if(property === "Component Type"){
       aggregateGremlinQuery += ".label()." + aggregateFunction + "()"
     }
     else if(property === "Node ID"){
@@ -147,7 +149,7 @@ export default function AggregateMenu() {
     if(selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
       let propertyValueGremlinQuery = "g.V()"
 
-      if(selectedProperty === "Label / Type"){
+      if(selectedProperty === "Component Type"){
         propertyValueGremlinQuery += ".label()"
       }
       else if(selectedProperty === "Node ID"){
@@ -205,7 +207,10 @@ export default function AggregateMenu() {
       onClose={closeAggregateMenu}
     >
       
-      <DialogTitle id="aggregate-dialog-slide-title" style={{textAlign: 'center'}}>{"Aggregate this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={closeAggregateMenu} alt="Close window"/></DialogTitle>
+      <DialogTitle id="aggregate-dialog-slide-title" style={{textAlign: 'center'}}>
+        {"Aggregate this dataset"}
+        <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+        <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={closeAggregateMenu} alt="Close window"/></DialogTitle>
       
       <div style={{width: '40vw', margin: 'auto', marginBottom: '2vh', marginTop: '1vh', maxHeight: '95%', overflow: 'auto'}}>
         <DialogContent>
@@ -217,7 +222,7 @@ export default function AggregateMenu() {
               options={properties}
               value={localProptype !== "" && localProptype !== undefined ? localProptype : null }
               getOptionLabel={(option) => option}
-              groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+              groupBy={(option) => option !== "Component Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : "Frequently Used"}
               style={{ width: '250px' }}
               onChange={(event, selectedProperty) => {
                 handleProptypeChange(selectedProperty)

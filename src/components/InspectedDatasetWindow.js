@@ -9,8 +9,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 
 import FullWidthTabs from "./GeneralizedTabView"
+
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.js';
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import { resetQueryItems } from '../actions/QueryManagerActions.js';
@@ -60,9 +63,6 @@ export default function InspectedDatasetWindow(props) {
   const [reviewItemHTML, setReviewItemHTML] = useState("Loading graph..." )
   const [cyRef, setCyRef] = useState(null)
   const [tabValues, setTabValues] = useState([])
-  
-  // Gremlin query corresponding to the current inspected dataset
-  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
   
   // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
   const handleSelectedNodesAndEdgesChangeRef = useRef()
@@ -266,7 +266,10 @@ export default function InspectedDatasetWindow(props) {
         maxWidth={false}
       >
         <div style={{ width: '80vw'}}>
-          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>
+            {"Inspecting dataset " + (selectedDataset + 1)}
+            <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+            <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>
@@ -289,6 +292,11 @@ function InspectedDatasetGraph(props){
   const cyRef = useRef()
   const classes = useStyles();
   const [graphLayout, setGraphLayout] = useState('grid')
+    
+  // Gremlin query corresponding to the current inspected dataset
+  const selectedDataset = useSelector(state => state.selectedDataset)
+  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
+  
 
   useEffect(() => {
 
@@ -459,7 +467,7 @@ function InspectedDatasetGraph(props){
   }, [props, graphLayout])
 
   return (
-    <div style={{ height: "99%", width: '65%', display: 'flex', flexDirection: 'row', flexWrap: 'wrap',}}>
+    <div style={{ height: "99%", width: '65%', display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
       <div style={{ height: "9%", margin: '5px', marginTop: '-4%' }}>
         <FormControl className={classes.formControl}>
           <InputLabel id="demo-simple-select-label">Graph layout</InputLabel>
@@ -476,7 +484,10 @@ function InspectedDatasetGraph(props){
           </Select>
         </FormControl>
       </div>
-      <div style={{ height: "93%", width: '99%' }} ref={graphInspectContainer}></div>
+      <div style={{ height: "82%", width: '99%' }} ref={graphInspectContainer}></div>
+      <div style={{ height: '14%', maxWidth: '90%', margin: 'auto', overflow: 'auto'}}>
+        <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'small'}}><b>Dataset generated from gremlin query</b><br/><i>{inspectedGremlinQuery}</i></p>
+      </div>
     </div>
   )
 }

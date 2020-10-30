@@ -6,7 +6,7 @@ export default function GremlinQueryDisplay(props) {
     
     return (
       <div style={{maxWidth: '40vw', margin: 'auto'}}>
-        <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'small'}}><b>Current results generated from gremlin query</b><br/><i>{fullGremlinQuery}</i></p>
+        <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'medium'}}><b>Current results generated from gremlin query</b><br/><i>{fullGremlinQuery}</i></p>
       </div>
     )
 }

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
+
 import GremlinQueryDisplay from './components/GremlinQueryDisplay';
 import OutputAccordion from './components/OutputAccordion'
 import InfoContainer from "./components/InfoContainer.js"
@@ -8,7 +9,9 @@ import RelationMenu from "./components/RelationMenu"
 import FilterMenu from "./components/FilterMenu"
 import InspectedDatasetWindow from "./components/InspectedDatasetWindow"
 import PropertyTableWindow from "./components/PropertyTableWindow"
+import HelpWindow from "./components/HelpWindow"
 import GraphQueryVisualizer from "./components/GraphQueryVisualizer"
+import SiteHeader from './components/SiteHeader';
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
@@ -120,31 +123,23 @@ function App() {
   return (
 
     <div>
-      <div style={{backgroundColor: 'white', display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 10px 5px 10px"}}>
-        <a target="_blank" rel="noopener noreferrer" href="https://www.ntnu.no/studier/emner/TDT4290">
-          <img src="./ntnu_logo.png" alt="NTNU" style={{maxHeight:"20px", marginRight:"35px"}}/>
-        </a>
-        <a href="/">
-          <img src="./gamma_logo3.png" alt="Logo" style={{maxHeight:"60px"}}/>
-        </a>
-        <a target="_blank" rel="noopener noreferrer" href="https://www.ardoq.com/">
-          <img src="./ardoq_logo.png" alt="Ardoq" style={{maxHeight:"20px"}}/>
-        </a>
-      </div>
+      
+      <SiteHeader/>
       <div style={{width: '70vw', margin: 'auto', backgroundColor: 'white', marginBottom: '50px', marginTop: '20px', padding: '10px'}}>
-          <div style={{height: '40px'}}></div>
-          <GraphQueryVisualizer></GraphQueryVisualizer>
-          <div style={{height: '60px'}}></div>
-          <InspectedDatasetWindow></InspectedDatasetWindow>
-          <PropertyTableWindow></PropertyTableWindow>
-          <FilterMenu></FilterMenu>
+          <div style={{height: '40px'}}/>
+          <GraphQueryVisualizer/>
+          <div style={{height: '60px'}}/>
+          <InspectedDatasetWindow/>
+          <PropertyTableWindow/>
+          <FilterMenu/>
           <AggregateMenu/>
-          <RelationMenu></RelationMenu>
+          <RelationMenu/>
+          <HelpWindow/>
           <GremlinQueryDisplay/>
           <OutputAccordion/>
 
           <hr style={{width: "50vw", marginTop: "40px"}}/>
-          <InfoContainer></InfoContainer>
+          <InfoContainer/>
 
       </div>
     </div>
