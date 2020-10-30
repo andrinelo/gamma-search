@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { setFilterWindowActive } from '../actions/FilterDatasetActions.js';
+import { setFilterWindowActive } from '../actions/FilterDatasetWindowActions.js';
 import { setInspectWindowActive } from './../actions/InspectDatasetWindowActions.js';
 import { setPropertyTableWindowActive } from './../actions/PropertyTableWindowActions.js';
 import { setSelectedDataset } from './../actions/SelectedDatasetActions';
@@ -12,6 +12,7 @@ import {setRelationWindowActive} from "./../actions/RelationWindowActions.js";
 
 cytoscape.use( cxtmenu ); // register extension
 
+// The component that serves and a sort of query visualizer but also as the query builder itself
 export default function GraphQueryVisualizer() {
   const dispatch = useDispatch();
   const graphContainer = useRef(null)
@@ -25,6 +26,16 @@ export default function GraphQueryVisualizer() {
   // Retrieve the size of the newest dataset; to be used to determine when to update the graph
   const newestDatasetSize = useSelector(state => state.allQueryResults[DATASET_NODE_COUNT + (numberOfDatasets-1)])
   
+  // Resets any additional styling (hover styling basically) of the edges
+  const resetEdgeStyling = (cy) => {
+    const edgesToReset = cy.elements().filter(element => element.id().includes('edge'))
+
+    console.log(edgesToReset)
+    for(let i = 0; i < edgesToReset.length; i++){
+      edgesToReset[i].classes("")
+    }
+  }
+
   useEffect(() => {
 
     let elements = []
@@ -69,6 +80,7 @@ export default function GraphQueryVisualizer() {
       }
     }
 
+    // Initializes the cytoscape graph
     var cy = cytoscape({
       container: graphContainer.current, // container to render in
 
@@ -92,7 +104,6 @@ export default function GraphQueryVisualizer() {
             'background-repeat': 'no-repeat',
             "background-fit": "cover cover",
             'background-color': '#666',
-            //'background-opacity': '0',
             'background-clip': 'none',
             'label': 'data(nodeName)',
             'width': '40%',
@@ -100,9 +111,6 @@ export default function GraphQueryVisualizer() {
             'border-width': 'data(borderWidth)',
             'border-style': 'data(borderStyle)',
             'border-color': 'data(borderColor)',
-            /* 'overlay-color': 'red',
-            'overlay-opacity': '0.35',
-            'overlay-padding': '5', */
           }
           
         },
@@ -127,7 +135,6 @@ export default function GraphQueryVisualizer() {
           selector: 'edge',
           style: {
             'width': '3px',
-            // 'label': 'data(label)',
             "color": "#fff",
             "text-outline-color": "#7d7878",
             "text-outline-width": 2,
@@ -135,6 +142,14 @@ export default function GraphQueryVisualizer() {
             'target-arrow-color': '#ccc',
             'curve-style': 'bezier',
             'target-arrow-shape': 'triangle' // there are far more options for this property here: http://js.cytoscape.org/#style/edge-arrow
+          },
+        },
+
+        {
+          selector: 'edge.hover',
+          style: {
+            'line-color': 'blue',
+            'target-arrow-color': 'blue',
           },
         },
 
@@ -153,7 +168,7 @@ export default function GraphQueryVisualizer() {
     });
 
 
-    // the default values of each option are outlined below
+    // The default values of each option are outlined below
     let defaults = {
         menuRadius: function(ele){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. 
         selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
@@ -164,9 +179,9 @@ export default function GraphQueryVisualizer() {
             content: 'Filter this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setFilterWindowActive(true))
+              resetEdgeStyling(cy)
             },
             enabled: true // whether the command is selectable
           },
@@ -176,9 +191,9 @@ export default function GraphQueryVisualizer() {
             content: 'Aggregate this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setAggregateWindowActive(true));
+              resetEdgeStyling(cy)
             },
             enabled: true // whether the command is selectable
           },
@@ -188,9 +203,9 @@ export default function GraphQueryVisualizer() {
             content: 'Inspect this dataset', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setInspectWindowActive(true))
+              resetEdgeStyling(cy)
             },
 
             enabled: true // whether the command is selectable
@@ -201,9 +216,9 @@ export default function GraphQueryVisualizer() {
             content: 'Create property table', // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setPropertyTableWindowActive(true))
+              resetEdgeStyling(cy)
             },
 
             enabled: true // whether the command is selectable
@@ -211,12 +226,12 @@ export default function GraphQueryVisualizer() {
 
           { // Relation command
             fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-            content: "Explore dataset relations", // html/text content to be displayed in the menu
+            content: "Explore dataset's relations", // html/text content to be displayed in the menu
             contentStyle: {}, // css key:value pairs to set the command's css in js if you want
             select: function(ele){ // a function to execute when the command is selected
-              console.log( ele.data()['id'] ) // `ele` holds the reference to the active element
               dispatch(setSelectedDataset(ele.data()['id']))
               dispatch(setRelationWindowActive(true))
+              resetEdgeStyling(cy)
             },
             enabled: true // whether the command is selectable
           },
@@ -238,13 +253,15 @@ export default function GraphQueryVisualizer() {
       atMouse: false // draw menu at mouse position
       };
 
-      let menu = cy.cxtmenu( defaults );
+      // Registers the context menu extension with cytoscape 
+      cy.cxtmenu( defaults )
 
+      // Disables panning and grabbing in the graph view
       cy.panningEnabled(false)
       cy.autoungrabify(true)
 
 
-      // Hovers over node
+      // Change styling when hovering over node
       cy.on('mouseover', 'node', function(e){
         var sel = e.target;
         sel.classes("hover")
@@ -253,15 +270,45 @@ export default function GraphQueryVisualizer() {
         graphContainer.current.style.cursor = 'pointer'
       })
 
-      // Hovers out from node
+      // Change styling when hovering out from node
       cy.on('mouseout', 'node', function(e){
         var sel = e.target;
         sel.classes("")
         
         // Sets the cursor to default
         graphContainer.current.style.cursor = 'default'
-    });
-    
+      })
+
+
+      // Change styling when hovering over edge
+      cy.on('mouseover', 'edge', function(e){
+        var sel = e.target;
+        sel.classes("hover")
+
+        // Sets the cursor to pointer
+        graphContainer.current.style.cursor = 'pointer'
+      })
+
+      
+      // Change styling when hovering out from edge
+      cy.on('mouseout', 'edge', function(e){
+        var sel = e.target;
+        sel.classes("")
+        
+        // Sets the cursor to default
+        graphContainer.current.style.cursor = 'default'
+      })
+
+
+      // Clicks on edge should open relation menu for the dataset that's the source of the edge
+      cy.on('click', 'edge', function(e){
+        var sel = e.target;
+        sel.classes("")
+        dispatch(setSelectedDataset(sel.id().slice(-1)))
+        dispatch(setRelationWindowActive(true))
+      })
+
+  //eslint-disable-next-line  
   }, [numberOfDatasets, newestDatasetSize])
 
   return (

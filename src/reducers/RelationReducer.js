@@ -1,29 +1,27 @@
 import { SET_RELATION, DELETE_LATER_RELATIONS } from "./../actions/types.js";
 
-// If the action is SET_RELATION, we return the state, but with the new or modified relation menu updated. 
+// Reducer for storing what relations the user has explored
 const relationReducer = (state = {}, action) => {
   switch (action.type) {
+    
+    // If the action is SET_RELATION, we return the state, but with the new or modified relation menu updated. 
     case SET_RELATION:
-
         let combinedObject = Object.assign(action.value, action.andOrs); 
         let relation = { ...state, [action.edgeId]: combinedObject};
-        //const relation = JSON.parse(JSON.stringify(state));
-        //relation[action.edgeId] = action.value;
         return relation;
 
-      case DELETE_LATER_RELATIONS:
-        //Makes a new state that only contains the relations up unitl this id
-        let newState = {} 
-        for (let i = 0; i<action.edgeId+1; i++){
-          if (state[i]){
-            newState[i]= state[i]
-          }
+    // Makes a new state that only contains the relations up until this id
+    case DELETE_LATER_RELATIONS:
+      let newState = {} 
+      for (let i = 0; i<action.edgeId+1; i++){
+        if (state[i]){
+          newState[i]= state[i]
         }
-        return newState
-  
+      }
+      return newState
 
     default:
-        return JSON.parse(JSON.stringify(state));
+        return state;
   }
 };
 

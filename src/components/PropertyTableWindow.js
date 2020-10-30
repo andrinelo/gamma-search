@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { DataGrid } from '@material-ui/data-grid';
@@ -12,9 +11,11 @@ import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setPropertyTableWindowActive, setPropertyTableIsFetching, setPropertyTableFetchID } from '../actions/PropertyTableWindowActions.js';
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
@@ -37,24 +38,43 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-
+// Component used to create a property table
 function PropertyTableWindow() {
   const classes = useStyles();
   const dispatch = useDispatch()
+
+  // The properties that the user has selected to get in their table
   const [selectedProperties, setSelectedProperties] = useState([])
+
+  // The gremlin query used for retrieving the data to put in the table
   let [tableGremlinQuery, setTableGremlinQuery] = useState("")
+
+  // The current page of the table
   let [currentTablePage, setCurrentTablePage] = useState(1)
-  let [currentSortModel, setCurrentSortModel] = useState([])
  
+  // Whether or not the table should be loading
   const tableIsLoading = useSelector(store => store.propertyTableIsFetching)
+  
+  // The dataset we're creating a property table of
   const selectedDataset = useSelector(store => store.selectedDataset)
+  
+  // The gremlin query corresponding to the dataset including the dataset's filter
   const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+  
+  // Whether or not this modal is open
   const open = useSelector(state => state.propertyTableWindowActive)
+  
+  // All the possible properties in the dataset which can be included in a property table
   const possibleProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_AFTER_DATASET_FILTERS])
+  
+  // The raw format of the table row data
   const tableRowsRaw = useSelector(state => state.allQueryResults[PROPERTY_TABLE_VALUES])
+  
+  // The table-friendly data of the table columns and table rows
   const [tableColumns, setTableColums] = useState([]);
   const [tableRows, setTableRows] = useState([]);
 
+  // Components and styles used in the property multi-select field
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
@@ -64,9 +84,9 @@ function PropertyTableWindow() {
     possibleProperties.unshift("Node ID")
   }
 
-  // If the "Label / Type" property has not already been added to the list, we add it
-  if(!possibleProperties.includes("Label / Type") && possibleProperties.length > 0){
-    possibleProperties.unshift("Label / Type")
+  // If the "Component Type" property has not already been added to the list, we add it
+  if(!possibleProperties.includes("Component Type") && possibleProperties.length > 0){
+    possibleProperties.unshift("Component Type")
   }
   
   // Whenever the raw tablerows-data updates, we process it into something more usable by the table
@@ -134,13 +154,13 @@ function PropertyTableWindow() {
     dispatch(resetQueryItems(PROPERTY_TABLE_VALUES))
   };
 
-
+  // Fired whenever the selected properties changes; builds the gremlin query
   const handlePropertiesSelectedChanged = (newSelectedProperties) => {
     const latestFetchID = JSON.stringify(newSelectedProperties)
 
     setSelectedProperties(newSelectedProperties)
 
-    // This ID is used to identify the latest fetch (...to abort/discard out-of-date fetches)
+    // This ID is used to identify the latest fetch (...to abort/discard unfinished out-of-date fetches)
     dispatch(setPropertyTableFetchID(latestFetchID))
 
     if(newSelectedProperties.length > 0){
@@ -165,12 +185,9 @@ function PropertyTableWindow() {
 
       for(let i = 0; i < newSelectedProperties.length; i++){
 
-        // Properties in the database follow different type of naming standards;
-        // some use camelcase, some use '-', and some use '_'. This line converts
-        // all standards to space-seperated uppercase strings. 
         const propertyName = newSelectedProperties[i]
 
-        if(propertyName === "Label / Type"){
+        if(propertyName === "Component Type"){
           gremlinQuery += ".by(label)"
         }
 
@@ -205,11 +222,13 @@ function PropertyTableWindow() {
         keepMounted
         onClose={handleClose}
         aria-labelledby="property-table-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '73vw'}}>
-          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>{"Create property table from this dataset"}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="property-table-dialog-slide-title" style={{textAlign: 'center'}}>
+            {"Create property table from this dataset"}
+            <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+            <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
 
         <div style={{ maxHeight: '97%', overflow: 'auto' }}>
@@ -224,9 +243,8 @@ function PropertyTableWindow() {
                 value={selectedProperties}
                 limitTags={3}
                 options={possibleProperties}
-                //disableCloseOnSelect
                 getOptionLabel={(option) => option}
-                groupBy={(option) => option !== "Label / Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : ""}
+                groupBy={(option) => option !== "Component Type" && option !== "Node ID" ? option.charAt(0).toUpperCase() : "Frequently Used"}
                             
                 
                 renderInput={(params) => (

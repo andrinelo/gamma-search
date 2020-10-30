@@ -1,6 +1,6 @@
 import { SET_PROPERTY_TABLE_WINDOW_ACTIVE, SET_PROPERTY_TABLE_IS_FETCHING, SET_PROPERTY_TABLE_LATEST_FETCH_ID } from './types.js';
 
-// sets if property table window is active
+// Opens the property table modal
 export function setPropertyTableWindowActive(active){
   return {
     type: SET_PROPERTY_TABLE_WINDOW_ACTIVE,
@@ -9,7 +9,7 @@ export function setPropertyTableWindowActive(active){
 };
 
 
-// sets if property table is fetching/loading
+// Sets if property table is fetching/loading
 export function setPropertyTableIsFetching(isFetching){
   return {
     type: SET_PROPERTY_TABLE_IS_FETCHING,
@@ -18,7 +18,7 @@ export function setPropertyTableIsFetching(isFetching){
 };
 
 
-// sets the ID of the latest property table fetch; to be used to dismiss/abort older fetches 
+// Sets the ID of the latest property table fetch; to be used to dismiss/abort older fetches 
 export function setPropertyTableFetchID(fetchID){
   return {
     type: SET_PROPERTY_TABLE_LATEST_FETCH_ID,

@@ -1,13 +1,14 @@
 import { SET_QUERY_ITEMS, APPEND_QUERY_ITEMS, RESET_QUERY_ITEMS, RESET_ALL_QUERY_ITEMS, DELETE_QUERY_ITEMS_BY_KEYS } from "../actions/types.js";
-
 import { PAGED_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS, PROPERTY_TABLE_VALUES, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS, RESULT_FROM_AGGREGATION, AGGREGATE_PROPERTY_EXAMPLE_VALUE } from "../actions/QueryKeys.js";
 
 const keys = [PAGED_RESULT_ITEMS, ALL_AVAILABLE_LABELS, INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, PROPERTY_TABLE_VALUES, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS, RESULT_FROM_AGGREGATION, AGGREGATE_PROPERTY_EXAMPLE_VALUE]
 
 const initialState = {};
+
 keys.map(key => initialState[key] = [])
 
-const queryReducer = (state = initialState, action) => {
+// Reducer for all types of queries towards the Ardoq API
+const QueryReducer = (state = initialState, action) => {
 
   switch (action.type) {
 
@@ -57,6 +58,7 @@ const queryReducer = (state = initialState, action) => {
   }
 };
 
+// Used to sort the results in some way
 const sortResults = (resultItems, key) => {
 
   // If we're setting the available labels, we sort the list alphabetically
@@ -102,4 +104,4 @@ const sortResults = (resultItems, key) => {
 
 }
 
-export default queryReducer;
+export default QueryReducer;

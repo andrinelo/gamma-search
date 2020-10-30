@@ -10,7 +10,6 @@ import Box from '@material-ui/core/Box';
 
 // Use component FullWidthTabs with props tabNames and tabValues, which is respectively the name of each tab and its contents
 
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -24,7 +23,8 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component={'span'}>{children}</Typography> {/* component span, changes it from a p tag to a span tag. This removes some warnings like having div's inside p
+                                                                  This can be removed if it causes any truble */}
         </Box>
       )}
     </div>
@@ -51,11 +51,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// A tab component that takes in possible tabs and tabcontents as props 'tabNames' and 'tabValues'
 function FullWidthTabs(props) {
   const classes = useStyles();
   const theme = useTheme();
+
+  // The active tab
   const [value, setValue] = React.useState(0);
 
+  // Fired whever the active tab changes
   const handleChange = (event, newValue) => {
     setValue(newValue);
 
@@ -72,11 +76,11 @@ function FullWidthTabs(props) {
   const tabValues = []
 
   for (var i = 0; i < props.tabNames.length; i++) {
-    tabNames.push(<Tab label={props.tabNames[i]} {...a11yProps(i)} />)
+    tabNames.push(<Tab key={i} label={props.tabNames[i]} {...a11yProps(i)} />)
   }
 
   for (var j = 0; j < props.tabValues.length; j++) {
-    tabValues.push( <TabPanel value={value} index={j} dir={theme.direction}>
+    tabValues.push( <TabPanel key={j} value={value} index={j} dir={theme.direction}>
                       {props.tabValues[j]}
                     </TabPanel>)
   }

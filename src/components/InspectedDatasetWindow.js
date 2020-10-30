@@ -1,33 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { makeStyles } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
 
 import FullWidthTabs from "./GeneralizedTabView"
+
+import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 import { setInspectWindowActive } from '../actions/InspectDatasetWindowActions.js';
 import { resetSelectedDataset } from '../actions/SelectedDatasetActions.js';
 import { resetQueryItems } from '../actions/QueryManagerActions.js';
 import { INSPECTED_NODES_IN_DATASET, INSPECTED_EDGES_IN_DATASET, DATASET_NODE_COUNT} from '../actions/QueryKeys.js'
-
-
 import cytoscape from 'cytoscape';
-// import cxtmenu from 'cytoscape-cxtmenu';
-// cytoscape.use( cxtmenu ); // register extension
 
 // Cytoscape layouts
 import cola from 'cytoscape-cola';
- 
+
+// Binds the 'cola' layout with cytoscape
 cytoscape.use(cola);
 
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -47,30 +46,53 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
+// Component (modal) used for inspecting a dataset
 export default function InspectedDatasetWindow(props) {
+  // Style of the X-button in the corner
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
+  
   const dispatch = useDispatch();
   const classes = useStyles();
+  
+  // Whether or not this modal is open
   const open = useSelector(state => state.inspectDatasetWindowActive)
+  
+  // The nodes in the selected dataset
   const inspectedNodes = useSelector(state => state.allQueryResults[INSPECTED_NODES_IN_DATASET])
+  
+  // The interconnected edges in the selected dataset (edges where both source and target node is in the dataset)
   const inspectedEdges = useSelector(state => state.allQueryResults[INSPECTED_EDGES_IN_DATASET])
+  
+  // Current page of the node-tab
   const [nodePage, setNodePage] = React.useState(1);
+  
+  // Current page of the edge-tab
   const [edgePage, setEdgePage] = React.useState(1);
+  
+  // The dataset we're inspecting
   const selectedDataset = useSelector(state => state.selectedDataset)
+  
+  // The amount of nodes in the inspected dataset
   const numberOfNodesInDataset = useSelector(state => state.allQueryResults[DATASET_NODE_COUNT + selectedDataset])
+  
+  // Nodes and edges that were selected by the user via the visualization
   const [selectedNodes, setSelectedNodes] = useState([])
   const [selectedEdges, setSelectedEdges] = useState([])
+
+  // The active tab (selected nodes or selected edges)
   const [activeTab, setActiveTab] = useState(0)
+
+  // The ID and HTML / JSON of the reviewed node or edge
   const [reviewItemID, setReviewItemID] = useState(null)
   const [reviewItemHTML, setReviewItemHTML] = useState("Loading graph..." )
+  
+  // A reference to the cytoscape instance; used to update node and edge styling
   const [cyRef, setCyRef] = useState(null)
+
+  // Possible tabvalues
   const [tabValues, setTabValues] = useState([])
   
-  // Gremlin query corresponding to the current inspected dataset
-  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
-  
-  // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
+  // Passes a ref of the function instead of the function itself to the graph component, to stop re-rendering
   const handleSelectedNodesAndEdgesChangeRef = useRef()
 
   // Sets a loading message
@@ -82,6 +104,7 @@ export default function InspectedDatasetWindow(props) {
     else if(open === true){
       setReviewItemHTML("The dataset is empty. Try changing your filters or explored relations.")
     }
+  //eslint-disable-next-line
   }, [open])
   
   
@@ -95,7 +118,7 @@ export default function InspectedDatasetWindow(props) {
     else {
       setReviewItemHTML(activeTab === 0 ? "No nodes have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges." : "No edges have been selected. View information about nodes and edges by selecting them in the graph. Hold down the 'Shift'-button on your keyboard to select multiple nodes and edges.")
     }
-
+  //eslint-disable-next-line
   }, [inspectedNodes.length])
 
 
@@ -126,6 +149,7 @@ export default function InspectedDatasetWindow(props) {
     )
 
     setTabValues([...newTabValues])
+  //eslint-disable-next-line
   }, [reviewItemHTML, selectedNodes])
 
   
@@ -188,6 +212,7 @@ export default function InspectedDatasetWindow(props) {
 
   }
   
+  // Fired whenever the active tab changes
   const handleActiveTabChange = (tabNum) => {
     setActiveTab(tabNum)
     
@@ -199,6 +224,7 @@ export default function InspectedDatasetWindow(props) {
     updateReviewedItemID({tabNum: tabNum})
   }
   
+  // Fired whenever the selected nodes or edges changes
   const handleSelectedNodesAndEdgesChange = (nodes, edges) => {
     setNodePage(1)
     setEdgePage(1)
@@ -212,7 +238,7 @@ export default function InspectedDatasetWindow(props) {
   
   handleSelectedNodesAndEdgesChangeRef.current = handleSelectedNodesAndEdgesChange
   
-  
+  // Fired whenever the page in the node-tab changes
   const handleNodePageChange = (event, value) => {
     setNodePage(value);
 
@@ -220,6 +246,7 @@ export default function InspectedDatasetWindow(props) {
   };
 
 
+  // Fired whenever the page in the edge-tab changes
   const handleEdgePageChange = (event, value) => {
     setEdgePage(value);
 
@@ -250,12 +277,6 @@ export default function InspectedDatasetWindow(props) {
     dispatch(resetQueryItems(INSPECTED_EDGES_IN_DATASET))
   };
 
-  const handleClickOpen = () => {
-    dispatch(setInspectWindowActive(true));
-  };
-  
-
-
   const containerStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -273,19 +294,19 @@ export default function InspectedDatasetWindow(props) {
         keepMounted
         onClose={handleClose}
         aria-labelledby="inspected-dataset-dialog-slide-title"
-        //aria-describedby="alert-dialog-slide-description"
         maxWidth={false}
       >
         <div style={{ width: '80vw'}}>
-          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>{"Dataset returned from " + inspectedGremlinQuery}<img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
+          <DialogTitle id="inspected-dataset-dialog-slide-title" style={{textAlign: 'center'}}>
+            {"Inspecting dataset " + (selectedDataset + 1)}
+            <HelpOutlineOutlinedIcon style={{marginBottom: '-5px', marginLeft: '5px', cursor: 'pointer'}} onClick={() => dispatch(setHelpWindowActive(true))}/>
+            <img src='https://d30y9cdsu7xlg0.cloudfront.net/png/53504-200.png' style={closeImg} onClick={handleClose} alt="Close window"/></DialogTitle>
         </div>
         <div style={{ width: '80vw', height: '80vh' }}>
           <div style={containerStyle}>
             <MemoInspectedDatasetGraph setCyRef={setCyRef} handleSelectedNodesAndEdgesChange={handleSelectedNodesAndEdgesChangeRef} inspectedNodes={inspectedNodes} inspectedEdges={inspectedEdges} open={open}></MemoInspectedDatasetGraph>
             <div style={{ width: '34%', maxHeight: '99%' }}>
-
               <FullWidthTabs setActiveTab={handleActiveTabChange} tabNames={["Selected Nodes", "Selected Edges"]} tabValues={[tabValues[0], tabValues[1]]} tabWidth={'100%'}></FullWidthTabs>
-
             </div>
           </div>
         </div>
@@ -295,7 +316,6 @@ export default function InspectedDatasetWindow(props) {
   );
 }
 
-
 // Cytoscape-graph-component
 function InspectedDatasetGraph(props){
   const graphInspectContainer = useRef(null)
@@ -303,6 +323,11 @@ function InspectedDatasetGraph(props){
   const cyRef = useRef()
   const classes = useStyles();
   const [graphLayout, setGraphLayout] = useState('grid')
+    
+  // Gremlin query corresponding to the current inspected dataset
+  const selectedDataset = useSelector(state => state.selectedDataset)
+  const inspectedGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join("")) + ".dedup()"
+  
 
   useEffect(() => {
 
@@ -327,7 +352,6 @@ function InspectedDatasetGraph(props){
             imageURL = "url(/PlaceholderNodeImage.png)"
           }
           
-      
           elements.push(
               { data: {
                 id: node['id'], 
@@ -368,7 +392,6 @@ function InspectedDatasetGraph(props){
     
       var cy = cytoscape({
         container: graphInspectContainer.current, // container to render in
-        //headless: true,
         elements: elements,
         
         style: [ // the stylesheet for the graph
@@ -381,14 +404,10 @@ function InspectedDatasetGraph(props){
               'background-image':  'data(imageURL)',
               'background-repeat': 'no-repeat',
               "background-fit": "cover cover",
-              //'background-size': 'contain',
               'background-color': '#add8e6',
               'label': 'data(name)',
-              //'background-opacity': '0',
               'background-clip': 'none',
-
             }
-            
           },
 
           {
@@ -475,11 +494,11 @@ function InspectedDatasetGraph(props){
       props.setCyRef(cyRef)
 
     }
-
+  //eslint-disable-next-line
   }, [props, graphLayout])
 
   return (
-    <div style={{ height: "99%", width: '65%', display: 'flex', flexDirection: 'row', flexWrap: 'wrap',}}>
+    <div style={{ height: "99%", width: '65%', display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
       <div style={{ height: "9%", margin: '5px', marginTop: '-4%' }}>
         <FormControl className={classes.formControl}>
           <InputLabel id="demo-simple-select-label">Graph layout</InputLabel>
@@ -496,7 +515,10 @@ function InspectedDatasetGraph(props){
           </Select>
         </FormControl>
       </div>
-      <div style={{ height: "93%", width: '99%' }} ref={graphInspectContainer}></div>
+      <div style={{ height: "82%", width: '99%' }} ref={graphInspectContainer}></div>
+      <div style={{ height: '14%', maxWidth: '90%', margin: 'auto', overflow: 'auto'}}>
+        <p style={{wordBreak: 'break-all', textAlign: 'center', fontSize: 'small'}}><b>Dataset generated from gremlin query</b><br/><i>{inspectedGremlinQuery}</i></p>
+      </div>
     </div>
   )
 }
