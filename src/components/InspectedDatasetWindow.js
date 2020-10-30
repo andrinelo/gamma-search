@@ -22,9 +22,11 @@ import cytoscape from 'cytoscape';
 
 // Cytoscape layouts
 import cola from 'cytoscape-cola';
- 
+
+// Binds the 'cola' layout with cytoscape
 cytoscape.use(cola);
 
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
@@ -44,27 +46,53 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
+// Component (modal) used for inspecting a dataset
 export default function InspectedDatasetWindow(props) {
+  // Style of the X-button in the corner
   let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
+  
   const dispatch = useDispatch();
   const classes = useStyles();
+  
+  // Whether or not this modal is open
   const open = useSelector(state => state.inspectDatasetWindowActive)
+  
+  // The nodes in the selected dataset
   const inspectedNodes = useSelector(state => state.allQueryResults[INSPECTED_NODES_IN_DATASET])
+  
+  // The interconnected edges in the selected dataset (edges where both source and target node is in the dataset)
   const inspectedEdges = useSelector(state => state.allQueryResults[INSPECTED_EDGES_IN_DATASET])
+  
+  // Current page of the node-tab
   const [nodePage, setNodePage] = React.useState(1);
+  
+  // Current page of the edge-tab
   const [edgePage, setEdgePage] = React.useState(1);
+  
+  // The dataset we're inspecting
   const selectedDataset = useSelector(state => state.selectedDataset)
+  
+  // The amount of nodes in the inspected dataset
   const numberOfNodesInDataset = useSelector(state => state.allQueryResults[DATASET_NODE_COUNT + selectedDataset])
+  
+  // Nodes and edges that were selected by the user via the visualization
   const [selectedNodes, setSelectedNodes] = useState([])
   const [selectedEdges, setSelectedEdges] = useState([])
+
+  // The active tab (selected nodes or selected edges)
   const [activeTab, setActiveTab] = useState(0)
+
+  // The ID and HTML / JSON of the reviewed node or edge
   const [reviewItemID, setReviewItemID] = useState(null)
   const [reviewItemHTML, setReviewItemHTML] = useState("Loading graph..." )
+  
+  // A reference to the cytoscape instance; used to update node and edge styling
   const [cyRef, setCyRef] = useState(null)
+
+  // Possible tabvalues
   const [tabValues, setTabValues] = useState([])
   
-  // Passes a ref to the function instead of the function itself to the graph component, to stop re-rendering
+  // Passes a ref of the function instead of the function itself to the graph component, to stop re-rendering
   const handleSelectedNodesAndEdgesChangeRef = useRef()
 
   // Sets a loading message
@@ -184,6 +212,7 @@ export default function InspectedDatasetWindow(props) {
 
   }
   
+  // Fired whenever the active tab changes
   const handleActiveTabChange = (tabNum) => {
     setActiveTab(tabNum)
     
@@ -195,6 +224,7 @@ export default function InspectedDatasetWindow(props) {
     updateReviewedItemID({tabNum: tabNum})
   }
   
+  // Fired whenever the selected nodes or edges changes
   const handleSelectedNodesAndEdgesChange = (nodes, edges) => {
     setNodePage(1)
     setEdgePage(1)
@@ -208,7 +238,7 @@ export default function InspectedDatasetWindow(props) {
   
   handleSelectedNodesAndEdgesChangeRef.current = handleSelectedNodesAndEdgesChange
   
-  
+  // Fired whenever the page in the node-tab changes
   const handleNodePageChange = (event, value) => {
     setNodePage(value);
 
@@ -216,6 +246,7 @@ export default function InspectedDatasetWindow(props) {
   };
 
 
+  // Fired whenever the page in the edge-tab changes
   const handleEdgePageChange = (event, value) => {
     setEdgePage(value);
 

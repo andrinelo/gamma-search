@@ -40,7 +40,7 @@ const titleRow7 = "Exploring relations"
 const textContentRow7 = "One of the most powerful aspects of a graph database are the relations between nodes, often called 'edges'. By using the 'explore dataset's relations'-feature, you can traverse both the interconnected relations in your dataset and the relations between the nodes in your dataset and other nodes in the database. This feature will let you define both the directions and the types of relation to traverse. You can traverse multiple relations at once, and you can even logically 'and' and 'or' your traversal parameters. When the traversal is done, a brand new dataset with the resulting nodes is created and ready to be traversed again!"
 const imageURLRow7 = '/RelationMenuExample.png'
 
-
+// Component with all the information that can be seen when scrolling down on the website
 function InfoContainer() {
 
   return (
@@ -62,7 +62,7 @@ function InfoContainer() {
   )
 }
 
-
+// Component used to create a single row of information
 function InfoRow(props){
 
   const [visible, setVisible] = useState(false)

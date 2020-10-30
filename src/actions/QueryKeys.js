@@ -1,4 +1,3 @@
-
 // Keys used to define results from different types of fetches from the Ardoq API
 
 export const PAGED_RESULT_ITEMS = "pagedResultItems";

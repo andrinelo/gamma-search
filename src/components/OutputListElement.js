@@ -12,22 +12,25 @@ const useStyles = makeStyles({
     },
 });
 
+// Component containing a single node-result
 export default function OutputListElement(props) {
     const classes = useStyles();
+
+    // Whether or not the accordion is open
     const [open, setOpen] = React.useState(false)
+
     // Process values from props
     const values = props.values[0];
     const imageHyperlink = props.values[1];
 
+    // Fired whenever the user clicks on this accordion
     const handleClick = () => {
         setOpen(!open);
     };
     
     // Determine shortened display text for closed accordion
     let longText = values.filter(value => value["property"] === 'name')[0]['value'] + " (" + values.filter(value => value["property"] === 'label')[0]['value'] + ")"
-
     const shortText = longText.length > shortTextCutoffIndex ? <b>{longText.substring(0, shortTextCutoffIndex) + "..."}</b> : <b>{longText}</b>
-  
 
     // Determine image url
     let imageURL = "";

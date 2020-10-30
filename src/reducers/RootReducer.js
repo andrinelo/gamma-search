@@ -12,7 +12,7 @@ import HelpWindowReducer from "./HelpWindowReducer.js";
 import { PropertyTableWindowReducer, PropertyTableLoadingReducer, PropertyTableLatestFetchReducer } from "./PropertyTableWindowReducer"
 
 
-// Combines all reducers and export them
+// Combines all reducers and export them as a single root reducer
 export default combineReducers({
   allQueryResults: QueryReducer,
   gremlinQueryParts: GremlinQueryReducer,

@@ -28,20 +28,32 @@ import { appendToGremlinQuery, removeGremlinQueryStepsAfterIndex, setGremlinQuer
 import EditWarning from './EditWarning.js'
 import { DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTY_VALUES_BEFORE_DATASET_FILTERS } from './../actions/QueryKeys.js'
 import { fetchQueryItems, deleteQueryItemsByKeys } from './../actions/QueryManagerActions.js';
-import {removeLaterRelaions} from "../actions/RelationActions.js";
+import {removeLaterRelations} from "../actions/RelationActions.js";
 
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
+// This is the modal, along with all logic, used for filtering a dataset
 function FilterMenu(props) {
-  const allResults = useSelector(state => state.allQueryResults)
-  const open = useSelector(state => state.filterDatasetWindowActive)
-  const selectedDataset = useSelector(state => state.selectedDataset)  
-  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
-  const stateFilters = useSelector((state) => state.filters);
   const dispatch = useDispatch()
   const classes = useStyles();
+  
+  // All results from any API-fetch; this is used to get all the autocomplete values for the selected properties
+  const allResults = useSelector(state => state.allQueryResults)
+
+  // Whether or not the modal should be active
+  const open = useSelector(state => state.filterDatasetWindowActive)
+  
+  // The dataset to apply filtering on
+  const selectedDataset = useSelector(state => state.selectedDataset)
+  
+  // The total amount of datasets
+  const numberOfDatasets = Math.floor(useSelector(store => store.gremlinQueryParts).length / 2)
+  
+  // Previous filters applied by the user
+  const stateFilters = useSelector((state) => state.filters);
   
   // The following two values are only used to force a component re-render when the autocomplete-values for the selected property are retrieved
   const [latestSelectedProperty, setLatestSelectedProperty] = useState("")
@@ -50,10 +62,18 @@ function FilterMenu(props) {
   
   // Gremlin query corresponding to the gremlin query for the selected dataset, ignoring any filters on this particular dataset
   let datasetBeforeFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, 1 + selectedDataset * 2).join(""))
-
+  
   // Fetches all possible labels, to be used as auto-suggestions
   const allProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_BEFORE_DATASET_FILTERS])
   
+  // The list of AND and ORS that's applied between each filterline
+  const [andOrs, setAndOrs] = useState([], [selectedDataset]);
+  
+  // Used to determine if we should check the redux store for any previously applied filters
+  let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
+  
+  // Styling of the X button in the modal corner
+  let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
   
   // Initializing menu
   const [localFilters, setLocalFilters] = useState([
@@ -64,11 +84,7 @@ function FilterMenu(props) {
     },
   ], [selectedDataset]);
   
-  const [andOrs, setAndOrs] = useState([], [selectedDataset]);
-
-
-  let [shouldSetFiltersFromStore, setshouldSetFiltersFromStore] = useState(true)
-
+  
   // If the "Node ID" item has not already been added to the list, we add it
   if(!allProperties.includes("Node ID") && allProperties.length > 0){
     allProperties.unshift("Node ID")
@@ -99,7 +115,7 @@ function FilterMenu(props) {
       }
 
       else{
-        // Label is the default value of the first filter line
+        // Component type is the default value of the first filter line
         setLocalFilters([
           {
             property: "Component Type",
@@ -109,7 +125,7 @@ function FilterMenu(props) {
         ]);
         setAndOrs([]);
 
-        // Fetches autocomplete values for the labels
+        // Fetches autocomplete values for the component type
         fetchValuesForProperty("Component Type")
         setLatestSelectedProperty("Component Type")
       }
@@ -128,6 +144,7 @@ function FilterMenu(props) {
     dispatch(deleteQueryItemsByKeys(keys))    
   }
 
+  // Fetches all possible values in the dataset for the selected property; used for autocomplete
   const fetchValuesForProperty = (selectedProperty) => {
     if(selectedProperty !== "Node ID" && selectedProperty !== "" && selectedProperty !== null && selectedProperty !== undefined){
       let propertyValuesGremlinQuery = datasetBeforeFiltersGremlinQuery
@@ -144,11 +161,13 @@ function FilterMenu(props) {
     }
   }
 
+  // Fired whenever the selected property changes
   const handlePropertyChange = (index, selectedProperty) => {
     if(selectedProperty === null || selectedProperty === undefined){
       selectedProperty = ""
     }
 
+    // Fetches autocomplete values for the new property
     fetchValuesForProperty(selectedProperty)
     
     localFilters[index]['property'] = selectedProperty;
@@ -166,16 +185,19 @@ function FilterMenu(props) {
     setLocalFilters([...localFilters]);
   };
 
+  // Fired whenever the operator changes
   const handleOperatorChange = (index, event) => {
     localFilters[index]['operator'] = event.target.value;
     setLocalFilters([...localFilters]);
   };
 
+  // Fired whenever the logical ANDs or ORs changes 
   const handleAndOrChange = (index, event) => {
     andOrs[index] = event.target.value;
     setAndOrs([...andOrs]);
   }
 
+  // Fired whenever the value field changes 
   const handleValueChange = (index, selectedValue) => {
     if(selectedValue === null){
       selectedValue = ""
@@ -216,17 +238,17 @@ function FilterMenu(props) {
     }
 
     setLocalFilters([...localFilters]);
-
   };
 
-  const updateFilter = (filters, cloudId, andOrs) => {
-    dispatch(setFilter({ filters }, {andOrs}, cloudId));
-    dispatch(removeLaterFilters(cloudId))
-    dispatch(removeLaterRelaions(cloudId-1))
-    //dispatch(SetFilter({ filters }, cloudId));
+
+  // Fired whenever we're updating the filter
+  const updateFilter = (filters, datasetId, andOrs) => {
+    dispatch(setFilter({ filters }, {andOrs}, datasetId));
+    dispatch(removeLaterFilters(datasetId))
+    dispatch(removeLaterRelations(datasetId-1))
   };
 
-  // run when cross is pressed. Closes the menu without saving to redux
+  // Fired when X is pressed. Closes the menu without saving to redux
   const handleClose = () => {
     deleteFetchedPropertyValues()
     dispatch(setFilterWindowActive(false));
@@ -234,9 +256,10 @@ function FilterMenu(props) {
     setshouldSetFiltersFromStore(true)
   };
 
+  // Used for parsing the current local filters into a gremlin query string
   const localFiltersToGremlinParser = () => {
 
-    // If no filters have been set
+    // If no filters have been set we return an empty query
     if(localFilters.length === 0){
       return ""
     }
@@ -332,7 +355,7 @@ function FilterMenu(props) {
     }
 
 
-    //joins ands
+    // Joins ANDs
     let index = 0
     for (let i = 0; i<andOrs.length; i++){
       let tmpAndGremlin = ""
@@ -367,7 +390,7 @@ function FilterMenu(props) {
 
     let andOrGremlinQuery = ""
 
-    //joins ors
+    // Joins ORs
     if (andOrs.includes("OR")){
       andOrGremlinQuery = andOrGremlinQuery.concat(".or(")
       for (let localIndex in gremlinFilterList){
@@ -376,6 +399,8 @@ function FilterMenu(props) {
           andOrGremlinQuery = andOrGremlinQuery.concat(", ")
         }
       }
+      
+      andOrGremlinQuery = andOrGremlinQuery.slice(0, -2)
       andOrGremlinQuery = andOrGremlinQuery.concat(")")
     }
     else {
@@ -389,12 +414,10 @@ function FilterMenu(props) {
     return(andOrGremlinQuery)
   }
 
-  // Runs when filters are saved
+  // Fired when filters are saved
   const closeFilterMenu = () => {
     
-    //updates and removes the 'filters' in Redux that is 'after' the index of this filter
-    //TODO: split this action in "updateFilter" and "removeFilterAfterIndex"
-    //so that RelationMenu can call "removeFilterAfterIndex"
+    // Updates and removes the 'filters' in Redux that is 'after' the index of this filter
     updateFilter(localFilters, selectedDataset, andOrs);
     let localIndex = (selectedDataset * 2) + 1
     
@@ -427,15 +450,11 @@ function FilterMenu(props) {
     setAndOrs([...andOrs])
   };
 
-  let closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
-
-  // checks whether all filter lines has its fields filled
-  // if not if should not be possible to add another filter
+  
+  // Checks whether all filter lines has its fields filled.
+  // If not if should not be possible to add another filter
   // or apply filters at all
   const filterlineIsNotFilled = () => {
-    // const notFilled = (filterLine) => (filterLine.property === "" || filterLine.vlauer === "")
-    // return localFilters.some(notFilled);
-
     for(let i = 0; i < localFilters.length; i++){
       if(localFilters[i]['property'] === "" || localFilters[i]['value'] === ""){
         return true
@@ -470,6 +489,7 @@ function FilterMenu(props) {
                       <div className={classes.flexRow}>
                         <div className={classes.flexColumn}>
                  
+                          {/* Input field for property */}
                           <Autocomplete
                             name="property"
                             options={allProperties}
@@ -503,6 +523,8 @@ function FilterMenu(props) {
  
                         </div>
                         <div className={classes.operatorButtonContainer}>
+
+                          {/* Selection field for operator */}
                           <FormControl style={{ width: "36px" }}>
                             <Select
                               className={classes.fixPadding}
@@ -594,6 +616,7 @@ function FilterMenu(props) {
                           </Button>
                         </div>
                       </div>
+
                       {/* if the index of this row of filters is not the last, make an and/or button after the row
                       This only adds and/or buttons in between rows and not at the end*/}
                       {index+1 !== localFilters.length ? 
@@ -667,6 +690,7 @@ function FilterMenu(props) {
 
 export default FilterMenu;
 
+// Styles
 const useStyles = makeStyles( theme  => ({
   root: {
     width: 500,

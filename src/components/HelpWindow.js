@@ -10,29 +10,36 @@ import Typography from '@material-ui/core/Typography';
 import { } from '../actions/QueryKeys.js'
 import { setHelpWindowActive } from '../actions/HelpWindowActions.js';
 
-
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-
+// Component used as a modal to provide assistance or help to the user. Provides information
+// about a feature whenever the user presses the '?'-button in the feature window.
 export default function HelpWindow() {
   const dispatch = useDispatch();
   
+  // Determines whether this help-modal is open
   const open = useSelector(state => state.helpWindowActive);
 
+  // All other modals that could be open that includes a '?'-button
   const filterMenuOpen = useSelector(state => state.filterDatasetWindowActive)
   const relationMenuOpen = useSelector(state => state.relationWindowActive)
   const aggregateMenuOpen = useSelector(state => state.aggregateDatasetWindowActive)
   const propertyTableMenuOpen = useSelector(state => state.propertyTableWindowActive)
   const inspectMenuOpen = useSelector(state => state.inspectDatasetWindowActive)
   
+  // The content of this help-modal
   const [infoDisplay, setInfoDisplay] = useState("")
 
+  // The style of the X-button in the corner
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
   
   useEffect(() => {
 
+    // Sets the contents of the help-modal to give guidance about filtering if it 
+    // was that modal that was open when the '?'-button was pressed
     if(filterMenuOpen){
       setInfoDisplay(
         <div style={{display: 'flex', flexDirection: 'row', width: '100%', marginTop: "-40px"}}>
@@ -51,6 +58,8 @@ export default function HelpWindow() {
       )
     }
 
+    // Sets the contents of the help-modal to give guidance about aggregation if it 
+    // was that modal that was open when the '?'-button was pressed
     else if(aggregateMenuOpen){
       setInfoDisplay(
         <div style={{display: 'flex', flexDirection: 'row', width: '100%', marginTop: "-40px"}}>
@@ -69,6 +78,8 @@ export default function HelpWindow() {
       )
     }
 
+    // Sets the contents of the help-modal to give guidance about dataset inspection if it 
+    // was that modal that was open when the '?'-button was pressed
     else if(inspectMenuOpen){
       setInfoDisplay(
         <div style={{display: 'flex', flexDirection: 'row', width: '100%', marginTop: "-40px"}}>
@@ -87,6 +98,8 @@ export default function HelpWindow() {
       )
     }
 
+    // Sets the contents of the help-modal to give guidance about property tables if it 
+    // was that modal that was open when the '?'-button was pressed
     else if(propertyTableMenuOpen){
       setInfoDisplay(
         <div style={{display: 'flex', flexDirection: 'row', width: '100%', marginTop: "-20px"}}>
@@ -105,6 +118,8 @@ export default function HelpWindow() {
       )
     }
 
+    // Sets the contents of the help-modal to give guidance about relations if it 
+    // was that modal that was open when the '?'-button was pressed
     else if(relationMenuOpen){
       setInfoDisplay(
         <div style={{display: 'flex', flexDirection: 'row', width: '100%', marginTop: "-40px"}}>

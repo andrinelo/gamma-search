@@ -21,25 +21,38 @@ import { setAggregateWindowActive } from '../actions/AggregateWindowActions.js';
 import { fetchQueryItems, resetQueryItems } from '../actions/QueryManagerActions.js';
 
 
+// Modal slide transition animation
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 
+// This is the modal, along with all logic, used for aggregating a dataset
 export default function AggregateMenu() {
   const dispatch = useDispatch();
   
+  // Used to determine if the modal is open
   const open = useSelector(state => state.aggregateDatasetWindowActive);
+  
+  // The result of the aggregation
   const aggregateResult = useSelector(store => store.allQueryResults[RESULT_FROM_AGGREGATION]);
+  
+  // An example of the value of a property; used to determine property value datatype -> sum, min, max and avg only works on numbers
   const propertyValueExample = useSelector(store => store.allQueryResults[AGGREGATE_PROPERTY_EXAMPLE_VALUE])
   const propertyDatatypeIsNumber = propertyValueExample.length > 0 ? typeof propertyValueExample[0] === 'number' : false
+  
+  // Possible properties to aggregate on
   const properties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_AFTER_DATASET_FILTERS])
   
+  // States with chosen aggregation function, property and results-HTML.
   const [localAggregateFunction, setLocalAggregateFunction] = React.useState('');
   const [localProptype, setLocalProptype] = React.useState(null);
   const [resultHTML, setResultHTML] = React.useState(null);
   
+  // Possible aggregation functions
   const aggregateFunctions = ["count", "sum", "average", "max", "min"]
+  
+  // Styling for the X in the modal corner
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
 
   // Which dataset we're aggregating
@@ -138,6 +151,7 @@ export default function AggregateMenu() {
 
     setCurrentQuery(aggregateGremlinQuery)
 
+    // Fetches the aggregation results
     if(aggregateGremlinQuery !== ""){
       dispatch(fetchQueryItems(aggregateGremlinQuery, RESULT_FROM_AGGREGATION))
     }
@@ -168,6 +182,7 @@ export default function AggregateMenu() {
   }
 
 
+  // Creates the string in english that explains and gives the result of the aggregation
   const createResultString = () => {
     const aggregateFunction = localAggregateFunction.toLowerCase()
 
@@ -216,6 +231,8 @@ export default function AggregateMenu() {
         <DialogContent>
           
           <div style={{display: "flex", flexDirection: "row", justifyContent: "center", width: "100%"}}>
+
+            {/* The property selection field */}
             <Autocomplete
               width="40%"
               name="property"
@@ -249,6 +266,7 @@ export default function AggregateMenu() {
 
             <div style={{width: "1vw"}}/>
             
+            {/* The aggregation function selection field */}
             <FormControl style={{width: "42%"}} variant="outlined">
               <InputLabel id="aggregate-function-select-label">Select aggregation</InputLabel>
               <Select

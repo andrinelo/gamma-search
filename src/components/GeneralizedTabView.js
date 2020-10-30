@@ -51,11 +51,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// A tab component that takes in possible tabs and tabcontents as props 'tabNames' and 'tabValues'
 function FullWidthTabs(props) {
   const classes = useStyles();
   const theme = useTheme();
+
+  // The active tab
   const [value, setValue] = React.useState(0);
 
+  // Fired whever the active tab changes
   const handleChange = (event, newValue) => {
     setValue(newValue);
 

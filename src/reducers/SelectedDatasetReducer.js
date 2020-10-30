@@ -1,5 +1,6 @@
 import { SET_SELECTED_DATASET, RESET_SELECTED_DATASET } from '../actions/types.js';
 
+// Reducer for storing what dataset was selected
 const SelectedDatasetReducer = (state = -1, action) => {
     switch(action.type){
         case SET_SELECTED_DATASET:

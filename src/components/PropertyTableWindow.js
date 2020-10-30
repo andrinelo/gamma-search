@@ -38,23 +38,43 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-
+// Component used to create a property table
 function PropertyTableWindow() {
   const classes = useStyles();
   const dispatch = useDispatch()
+
+  // The properties that the user has selected to get in their table
   const [selectedProperties, setSelectedProperties] = useState([])
+
+  // The gremlin query used for retrieving the data to put in the table
   let [tableGremlinQuery, setTableGremlinQuery] = useState("")
+
+  // The current page of the table
   let [currentTablePage, setCurrentTablePage] = useState(1)
  
+  // Whether or not the table should be loading
   const tableIsLoading = useSelector(store => store.propertyTableIsFetching)
+  
+  // The dataset we're creating a property table of
   const selectedDataset = useSelector(store => store.selectedDataset)
+  
+  // The gremlin query corresponding to the dataset including the dataset's filter
   const datasetAfterFiltersGremlinQuery = useSelector(store => store.gremlinQueryParts.slice(0, (selectedDataset + 1) * 2).join(""))
+  
+  // Whether or not this modal is open
   const open = useSelector(state => state.propertyTableWindowActive)
+  
+  // All the possible properties in the dataset which can be included in a property table
   const possibleProperties = useSelector(state => state.allQueryResults[DATASET_PROPERTIES_AFTER_DATASET_FILTERS])
+  
+  // The raw format of the table row data
   const tableRowsRaw = useSelector(state => state.allQueryResults[PROPERTY_TABLE_VALUES])
+  
+  // The table-friendly data of the table columns and table rows
   const [tableColumns, setTableColums] = useState([]);
   const [tableRows, setTableRows] = useState([]);
 
+  // Components and styles used in the property multi-select field
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
   const closeImg = {cursor:'pointer', float:'right', marginTop: '5px', width: '20px'};
@@ -134,13 +154,13 @@ function PropertyTableWindow() {
     dispatch(resetQueryItems(PROPERTY_TABLE_VALUES))
   };
 
-
+  // Fired whenever the selected properties changes; builds the gremlin query
   const handlePropertiesSelectedChanged = (newSelectedProperties) => {
     const latestFetchID = JSON.stringify(newSelectedProperties)
 
     setSelectedProperties(newSelectedProperties)
 
-    // This ID is used to identify the latest fetch (...to abort/discard out-of-date fetches)
+    // This ID is used to identify the latest fetch (...to abort/discard unfinished out-of-date fetches)
     dispatch(setPropertyTableFetchID(latestFetchID))
 
     if(newSelectedProperties.length > 0){
@@ -165,9 +185,6 @@ function PropertyTableWindow() {
 
       for(let i = 0; i < newSelectedProperties.length; i++){
 
-        // Properties in the database follow different type of naming standards;
-        // some use camelcase, some use '-', and some use '_'. This line converts
-        // all standards to space-seperated uppercase strings. 
         const propertyName = newSelectedProperties[i]
 
         if(propertyName === "Component Type"){

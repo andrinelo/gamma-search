@@ -17,7 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchQueryItems } from './actions/QueryManagerActions.js';
 import {  INSPECTED_EDGES_IN_DATASET, INSPECTED_NODES_IN_DATASET, DATASET_PROPERTIES_BEFORE_DATASET_FILTERS, DATASET_PROPERTIES_AFTER_DATASET_FILTERS, DATASET_NODE_COUNT, DATASET_INGOING_RELATIONS_AFTER_DATASET_FILTERS, DATASET_OUTGOING_RELATIONS_AFTER_DATASET_FILTERS } from './actions/QueryKeys.js'
 
-
+// The main component
 function App() {
   
   // Boolean value mapping to whether modals windows are active/open

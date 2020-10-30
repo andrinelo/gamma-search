@@ -12,6 +12,7 @@ import {setRelationWindowActive} from "./../actions/RelationWindowActions.js";
 
 cytoscape.use( cxtmenu ); // register extension
 
+// The component that serves and a sort of query visualizer but also as the query builder itself
 export default function GraphQueryVisualizer() {
   const dispatch = useDispatch();
   const graphContainer = useRef(null)
@@ -79,6 +80,7 @@ export default function GraphQueryVisualizer() {
       }
     }
 
+    // Initializes the cytoscape graph
     var cy = cytoscape({
       container: graphContainer.current, // container to render in
 
@@ -166,7 +168,7 @@ export default function GraphQueryVisualizer() {
     });
 
 
-    // the default values of each option are outlined below
+    // The default values of each option are outlined below
     let defaults = {
         menuRadius: function(ele){ return 100; }, // the outer radius (node center to the end of the menu) in pixels. It is added to the rendered size of the node. 
         selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
@@ -254,6 +256,7 @@ export default function GraphQueryVisualizer() {
       // Registers the context menu extension with cytoscape 
       cy.cxtmenu( defaults )
 
+      // Disables panning and grabbing in the graph view
       cy.panningEnabled(false)
       cy.autoungrabify(true)
 

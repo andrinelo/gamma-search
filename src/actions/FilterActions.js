@@ -1,18 +1,19 @@
 import { SET_FILTER, DELETE_LATER_FILTERS } from "./types.js";
 
 // Action used to update the filters
-export function setFilter(filterValue, andOrs, cloudId) {
+export function setFilter(filterValue, andOrs, datasetId) {
   return {
     value: filterValue,
     andOrs: andOrs,
-    cloudId: cloudId,
+    datasetId: datasetId,
     type: SET_FILTER,
   };
 }
 
-export function removeLaterFilters( cloudId) {
+// Action used to remove all filters with an ID larger than the inputted ID
+export function removeLaterFilters(datasetId) {
   return {
-    cloudId: cloudId,
+    datasetId: datasetId,
     type: DELETE_LATER_FILTERS,
   };
 }
