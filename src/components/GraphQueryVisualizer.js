@@ -30,7 +30,6 @@ export default function GraphQueryVisualizer() {
   const resetEdgeStyling = (cy) => {
     const edgesToReset = cy.elements().filter(element => element.id().includes('edge'))
 
-    console.log(edgesToReset)
     for(let i = 0; i < edgesToReset.length; i++){
       edgesToReset[i].classes("")
     }
