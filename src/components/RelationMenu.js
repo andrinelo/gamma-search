@@ -138,7 +138,8 @@ function RelationMenu(props) {
   ]);
 
 
-  const handleCheckboxChange = (index, event) => {
+  // Fires when user changes the wanted direction of the relation
+  const handleDirectionChange = (index, event) => {
     let name = event.target.name;
     // If checkedOut is only checked checkbox and it is unchecked automatically check in checkbox
     if (name === "checkedOut" && localRelations[index]["checkedIn"] === false && localRelations[index][name] === true) {
@@ -154,13 +155,14 @@ function RelationMenu(props) {
     setLocalRelations([...localRelations]);
   };
 
-  const handleTextChange = (index, value) => {
+  // Fired whenever the user changes the label/type of relation
+  const handleRelationChange = (index, value) => {
     localRelations[index]["text"] = value;
     setLocalRelations([...localRelations]);
   };
 
   // Adds relation to component local storage
-  const addRelation = () => {
+  const addNewRelation = () => {
     localRelations.push({
       checkedIn: false,
       checkedOut: true, // Out is default value
@@ -175,15 +177,14 @@ function RelationMenu(props) {
   };
 
 
-  //when the sasve button is pressed, this function saves the local state to redux. It also sends inn the id of the edge
-  //it's connected to, so that the diffrent menues can be saved in redux at the same time.
-  const updateRelation = (relations, edgeId) => {
-    dispatch(setRelation({ relations }, {andOrs}, edgeId));
-    dispatch(removeLaterFilters(edgeId))
-    dispatch(removeLaterRelations(edgeId))
+  // When the save button is pressed, this function saves the local state to redux. It also sends inn the id of the edge
+  // it's connected to, so that the diffrent menues can be saved in redux at the same time.
+  const updateRelation = (relations, datasetID) => {
+    dispatch(setRelation({ relations }, {andOrs}, datasetID));
+    dispatch(removeLaterFilters(datasetID))
+    dispatch(removeLaterRelations(datasetID))
   };
 
-  // MAYBE: maybe one should not be able to apply changes made when there's no relations set by the user
   const localFiltersToGremlinParser = () => {
 
     //returns empty string if the user has removed all relations
@@ -419,7 +420,7 @@ function RelationMenu(props) {
                               className={classes.checkboxClass}
                               checked={element.checkedIn}
                               name="checkedIn"
-                              onChange={(e) => handleCheckboxChange(index, e)}
+                              onChange={(e) => handleDirectionChange(index, e)}
                             ></ArdoqThemedCheckbox>
                           }
                           label="In"
@@ -429,7 +430,7 @@ function RelationMenu(props) {
                             <ArdoqThemedCheckbox
                               checked={element.checkedOut}
                               name="checkedOut"
-                              onChange={(e) => handleCheckboxChange(index, e)}
+                              onChange={(e) => handleDirectionChange(index, e)}
                             ></ArdoqThemedCheckbox>
                           }
                           label="Out"
@@ -441,7 +442,7 @@ function RelationMenu(props) {
                         <Autocomplete
                           className={classes.textFieldClass}
                           name="text"
-                          onChange={(e, v, r) => handleTextChange(index, v)}
+                          onChange={(e, v, r) => handleRelationChange(index, v)}
                           options={element.checkedIn ? element.checkedOut ? allAvailableRelations : availableIngoingRelations : element.checkedOut ? availableOutgoingRelations : []}
                           value={element.text !== undefined && element.text !== "" ? element.text : null }
                           getOptionLabel={(option) => option}
@@ -504,7 +505,7 @@ function RelationMenu(props) {
               className={classes.addButtonClass}
               endIcon={<AddIcon />}
               disabled={localRelations.map((relation) => relation.text).includes(null)}
-              onClick={() => addRelation()}
+              onClick={() => addNewRelation()}
               >
               More relations
             </Button>
